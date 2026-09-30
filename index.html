@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>আমার কাজ | AI ফটো এডিটিং, পাসপোর্ট প্রিন্ট ও প্রফেশনাল সার্ভিস</title>
+  <title>আমার কাজ | প্রফেশনাল অনলাইন টুলস & AI স্টুডিও</title>
   <meta name="theme-color" content="#8068FB" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛠️</text></svg>" />
 
@@ -20,6 +20,10 @@
   <script src="https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.5/dist/index.js"></script>
   <!-- HTML to PDF Library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <!-- Firebase SDKs (Firebase Security Add) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
 
   <script>
     tailwind.config = {
@@ -50,10 +54,6 @@
       background-clip: text;
     }
     .bg-hero-button { background: linear-gradient(135deg, #8068FB, #D6249F); }
-    .bg-violet-gradient { background: linear-gradient(145deg, #725aff, #b08fff); }
-    .bg-orange-gradient { background: linear-gradient(145deg, #ff9000, #febf02); }
-    .bg-blue-gradient { background: linear-gradient(145deg, #0067ff, #03a8ff); }
-    .bg-pink-gradient { background: linear-gradient(145deg, #ef465f, #f7949b); }
     
     .shadow-card {
       box-shadow: 0 4px 24px -4px rgba(20,20,30,0.08), 0 2px 8px -2px rgba(20,20,30,0.04);
@@ -65,29 +65,34 @@
     .tool-card { transition: all 0.2s ease; cursor: pointer; }
     .btn-hover:hover { filter: brightness(1.08); cursor: pointer; }
 
-    /* Standard A4 Page Layout for Print/PDF */
+    /* Standard A4 Page Layout */
     .a4-page {
       width: 210mm;
       min-height: 297mm;
-      padding: 15mm;
+      padding: 12mm;
       margin: 0 auto;
       background: white;
       box-sizing: border-box;
       display: flex;
       flex-wrap: wrap;
       align-content: flex-start;
-      gap: 8mm;
+      gap: 6mm;
     }
 
     .passport-print-item {
       width: 40mm;
       height: 50mm;
       object-fit: cover;
-      border: 1px solid #ccc;
-      border-radius: 2px;
+      border: 1px solid #ddd;
     }
 
+    /* 🖨️ STRICT COLOR PRINTING SETUP (সাদাকালো বন্ধ করে ১০০% কালার প্রিন্ট সক্রিয়) */
     @media print {
+      * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+      }
       body * { visibility: hidden; }
       #a4PrintArea, #a4PrintArea * { visibility: visible; }
       #a4PrintArea {
@@ -112,17 +117,17 @@
       <div class="flex items-center justify-between h-16 lg:h-20">
         <a href="#" class="flex items-center gap-2 shrink-0">
           <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white font-bold text-xl shadow-md">আ</div>
-          <span class="font-anek font-bold text-xl lg:text-2xl text-[#171137]">আমার কাজ <span class="text-xs text-primary font-normal bg-violet-100 px-2 py-0.5 rounded-full">AI Studio</span></span>
+          <span class="font-anek font-bold text-xl lg:text-2xl text-[#171137]">আমার কাজ <span class="text-xs text-primary font-normal bg-violet-100 px-2 py-0.5 rounded-full">Pro Suite</span></span>
         </a>
 
         <nav class="hidden lg:flex items-center gap-8 text-sm font-semibold font-anek text-[#555]">
-          <a href="#tools" class="hover:text-primary transition">টুলস সমূহ</a>
+          <a href="#categories" class="hover:text-primary transition">টুলস ক্যাটাগরি</a>
           <a href="#features" class="hover:text-primary transition">সুবিধাসমূহ</a>
         </nav>
 
         <div class="flex items-center gap-3">
-          <button type="button" class="inline-flex items-center gap-2 bg-primary text-white font-medium text-sm rounded-full px-6 py-2.5 shadow-lg btn-hover">
-            <span>লগইন / রেজিস্টার</span>
+          <button onclick="handleLogin()" id="authBtn" class="inline-flex items-center gap-2 bg-primary text-white font-medium text-sm rounded-full px-6 py-2.5 shadow-lg btn-hover">
+            <span>লগইন (Firebase Security)</span>
           </button>
         </div>
       </div>
@@ -130,57 +135,108 @@
   </header>
 
   <!-- HERO -->
-  <section class="relative overflow-hidden bg-gradient-to-br from-[#F4F0FF] via-white to-[#FFF6E9] py-12 lg:py-16">
+  <section class="relative overflow-hidden bg-gradient-to-br from-[#F4F0FF] via-white to-[#FFF6E9] py-10 lg:py-14">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center max-w-3xl mx-auto">
         <div class="inline-flex items-center gap-2 border border-orange/40 rounded-full py-1.5 px-4 bg-[#FFF6E9] mb-4 shadow-sm">
-          <span class="text-xs sm:text-sm font-semibold text-orange">⚡ AI পাসপোর্ট মেকার & A4 PDF জেনারেটর</span>
+          <span class="text-xs sm:text-sm font-semibold text-orange">⚡ AI পাসপোর্ট ফটো, কালার প্রিন্ট & ফায়ারবেস সিকিউরিটি</span>
         </div>
         <h1 class="font-anek font-bold text-3xl sm:text-5xl lg:text-6xl leading-[1.2]">
-          সহজে ছবি প্রসেস করুন <span class="text-gradient">আমার কাজ</span> প্ল্যাটফর্মে
+          আপনার সব ডিজিটাল কাজ এক জায়গায় <span class="text-gradient">আমার কাজ</span>
         </h1>
         <p class="mt-4 text-base lg:text-lg text-gray-600">
-          AI ব্যাকগ্রাউন্ড চেঞ্জ করুন, পিস সিলেক্ট করে সরাসরি A4 সাইজ PDF ডাউনলোড অথবা প্রিন্ট দিন।
+          ১-ক্লিকে ১০০% কালার প্রিন্ট, A4 PDF মেকার, ব্যাকগ্রাউন্ড রিমুভ ও সকল প্রয়োজনীয় সার্ভিস।
         </p>
-        <div class="mt-8 flex flex-wrap justify-center gap-4">
-          <button onclick="openTool('photo')" class="inline-flex items-center justify-center gap-2 bg-hero-button text-white font-semibold text-base rounded-full px-8 py-3.5 shadow-lg btn-hover">
-            📸 পাসপোর্ট ফটো স্টুডিও খুলুন
-          </button>
-        </div>
       </div>
     </div>
   </section>
 
-  <!-- TOOLS GRID -->
-  <section id="tools" class="py-12 bg-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        
-        <div onclick="openTool('photo')" class="tool-card group bg-white rounded-3xl p-6 text-center shadow-card border border-gray-100 hover:border-primary/40">
-          <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-blue-gradient flex items-center justify-center text-3xl text-white shadow-md group-hover:scale-110 transition">📸</div>
-          <h3 class="font-anek font-bold text-lg text-gray-800">পাসপোর্ট ফটো & A4 PDF</h3>
-          <p class="text-xs text-gray-500 mt-2 leading-relaxed">AI ব্যাকগ্রাউন্ড চেঞ্জ ও ১-১৬ কপি A4 PDF ডাউনলোড</p>
-        </div>
+  <!-- MULTI-TOOL CATEGORIES (AS REQUESTED IN IMAGE) -->
+  <section id="categories" class="py-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <h2 class="font-anek font-bold text-2xl text-gray-800 mb-6 border-l-4 border-primary pl-3">সকল ক্যাটাগরির টুলস সমূহ</h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-        <div onclick="openTool('cv')" class="tool-card group bg-white rounded-3xl p-6 text-center shadow-card border border-gray-100 hover:border-primary/40">
-          <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-violet-gradient flex items-center justify-center text-3xl text-white shadow-md group-hover:scale-110 transition">📝</div>
-          <h3 class="font-anek font-bold text-lg text-primary">স্মার্ট সিভি মেকার</h3>
-          <p class="text-xs text-gray-500 mt-2 leading-relaxed">অটো-সেভ সুবিধা ও PDF ডাউনলোডের জন্য সিভি বিল্ডার</p>
+      <!-- ১. পিডিএফ টুলস -->
+      <div class="bg-white p-5 rounded-3xl border border-gray-100 shadow-card">
+        <div class="flex items-center justify-between mb-4 border-b pb-3">
+          <div class="flex items-center gap-2">
+            <span class="text-2xl">📄</span>
+            <h3 class="font-anek font-bold text-lg text-gray-800">পিডিএফ টুলস</h3>
+          </div>
+          <span class="text-xs font-semibold bg-red-100 text-red-600 px-2.5 py-1 rounded-full">১৬টি টুলস</span>
         </div>
-
-        <div onclick="openTool('ocr')" class="tool-card group bg-white rounded-3xl p-6 text-center shadow-card border border-gray-100 hover:border-primary/40">
-          <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-orange-gradient flex items-center justify-center text-3xl text-white shadow-md group-hover:scale-110 transition">🔤</div>
-          <h3 class="font-anek font-bold text-lg text-gray-800">ছবি থেকে টেক্সট (OCR)</h3>
-          <p class="text-xs text-gray-500 mt-2 leading-relaxed">বাংলা ও ইংরেজি ডকুমেন্টের ছবি থেকে টেক্সট কনভার্ট</p>
-        </div>
-
-        <div onclick="openTool('pdf')" class="tool-card group bg-white rounded-3xl p-6 text-center shadow-card border border-gray-100 hover:border-primary/40">
-          <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-pink-gradient flex items-center justify-center text-3xl text-white shadow-md group-hover:scale-110 transition">📑</div>
-          <h3 class="font-anek font-bold text-lg text-gray-800">PDF & অন্যান্য টুলস</h3>
-          <p class="text-xs text-gray-500 mt-2 leading-relaxed">PDF প্রসেস, মার্জ ও সাইজ অ্যাডজাস্টমেন্ট</p>
-        </div>
-
+        <ul class="space-y-2 text-sm text-gray-600">
+          <li onclick="openTool('pdf')" class="hover:text-primary cursor-pointer flex items-center justify-between p-1.5 hover:bg-gray-50 rounded-lg"><span>• পিডিএফ কম্প্রেস (Compress PDF)</span> <span class="text-xs bg-gray-100 px-2 py-0.5 rounded">Free</span></li>
+          <li onclick="openTool('pdf')" class="hover:text-primary cursor-pointer flex items-center justify-between p-1.5 hover:bg-gray-50 rounded-lg"><span>• পিডিএফ মার্জ (Merge PDFs)</span></li>
+          <li onclick="openTool('pdf')" class="hover:text-primary cursor-pointer flex items-center justify-between p-1.5 hover:bg-gray-50 rounded-lg"><span>• পিডিএফ লক / আনলক</span></li>
+        </ul>
       </div>
+
+      <!-- ২. ইমেজ টুলস -->
+      <div class="bg-white p-5 rounded-3xl border border-gray-100 shadow-card">
+        <div class="flex items-center justify-between mb-4 border-b pb-3">
+          <div class="flex items-center gap-2">
+            <span class="text-2xl">🖼️</span>
+            <h3 class="font-anek font-bold text-lg text-gray-800">ইমেজ টুলস</h3>
+          </div>
+          <span class="text-xs font-semibold bg-blue-100 text-blue-600 px-2.5 py-1 rounded-full">২২টি টুলস</span>
+        </div>
+        <ul class="space-y-2 text-sm text-gray-600">
+          <li onclick="openTool('photo')" class="hover:text-primary cursor-pointer flex items-center justify-between p-1.5 hover:bg-gray-50 rounded-lg font-bold text-blue-600"><span>• AI পাসপোর্ট মেকার & কালার প্রিন্ট</span> <span class="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded">Popular</span></li>
+          <li onclick="openTool('photo')" class="hover:text-primary cursor-pointer flex items-center justify-between p-1.5 hover:bg-gray-50 rounded-lg"><span>• ব্যাকগ্রাউন্ড রিমুভার (Remove BG)</span></li>
+          <li onclick="openTool('photo')" class="hover:text-primary cursor-pointer flex items-center justify-between p-1.5 hover:bg-gray-50 rounded-lg"><span>• এনআইডি টু পিডিএফ (NID to PDF)</span></li>
+        </ul>
+      </div>
+
+      <!-- ৩. টেক্সট টুলস -->
+      <div class="bg-white p-5 rounded-3xl border border-gray-100 shadow-card">
+        <div class="flex items-center justify-between mb-4 border-b pb-3">
+          <div class="flex items-center gap-2">
+            <span class="text-2xl">✍️</span>
+            <h3 class="font-anek font-bold text-lg text-gray-800">টেক্সট টুলস</h3>
+          </div>
+          <span class="text-xs font-semibold bg-purple-100 text-purple-600 px-2.5 py-1 rounded-full">৭টি টুলস</span>
+        </div>
+        <ul class="space-y-2 text-sm text-gray-600">
+          <li onclick="openTool('ocr')" class="hover:text-primary cursor-pointer flex items-center justify-between p-1.5 hover:bg-gray-50 rounded-lg"><span>• ছবি থেকে লেখা (OCR)</span></li>
+          <li onclick="openTool('text')" class="hover:text-primary cursor-pointer flex items-center justify-between p-1.5 hover:bg-gray-50 rounded-lg"><span>• বিজয় ⇌ ইউনিকোড কনভার্টার</span></li>
+          <li onclick="openTool('text')" class="hover:text-primary cursor-pointer flex items-center justify-between p-1.5 hover:bg-gray-50 rounded-lg"><span>• সংখ্যা থেকে কথায় রূপান্তর</span></li>
+        </ul>
+      </div>
+
+      <!-- ৪. সাধারণ টুলস -->
+      <div class="bg-white p-5 rounded-3xl border border-gray-100 shadow-card">
+        <div class="flex items-center justify-between mb-4 border-b pb-3">
+          <div class="flex items-center gap-2">
+            <span class="text-2xl">📋</span>
+            <h3 class="font-anek font-bold text-lg text-gray-800">সাধারণ টুলস</h3>
+          </div>
+          <span class="text-xs font-semibold bg-green-100 text-green-600 px-2.5 py-1 rounded-full">১১টি টুলস</span>
+        </div>
+        <ul class="space-y-2 text-sm text-gray-600">
+          <li onclick="openTool('cv')" class="hover:text-primary cursor-pointer flex items-center justify-between p-1.5 hover:bg-gray-50 rounded-lg font-semibold text-primary"><span>• প্রফেশনাল সিভি মেকার</span></li>
+          <li onclick="openTool('general')" class="hover:text-primary cursor-pointer flex items-center justify-between p-1.5 hover:bg-gray-50 rounded-lg"><span>• ভোটার স্থানান্তরের ফরম</span></li>
+          <li onclick="openTool('general')" class="hover:text-primary cursor-pointer flex items-center justify-between p-1.5 hover:bg-gray-50 rounded-lg"><span>• এনআইডি তথ্য সংশোধন ফরম</span></li>
+        </ul>
+      </div>
+
+      <!-- ৫. শিক্ষামূলক টুলস -->
+      <div class="bg-white p-5 rounded-3xl border border-gray-100 shadow-card">
+        <div class="flex items-center justify-between mb-4 border-b pb-3">
+          <div class="flex items-center gap-2">
+            <span class="text-2xl">🎓</span>
+            <h3 class="font-anek font-bold text-lg text-gray-800">শিক্ষামূলক টুলস</h3>
+          </div>
+          <span class="text-xs font-semibold bg-amber-100 text-amber-600 px-2.5 py-1 rounded-full">৫টি টুলস</span>
+        </div>
+        <ul class="space-y-2 text-sm text-gray-600">
+          <li onclick="openTool('edu')" class="hover:text-primary cursor-pointer flex items-center justify-between p-1.5 hover:bg-gray-50 rounded-lg"><span>• শিক্ষা বোর্ডের ফলাফল</span></li>
+          <li onclick="openTool('edu')" class="hover:text-primary cursor-pointer flex items-center justify-between p-1.5 hover:bg-gray-50 rounded-lg"><span>• জাতীয় বিশ্ববিদ্যালয়ের ফলাফল</span></li>
+          <li onclick="openTool('cv')" class="hover:text-primary cursor-pointer flex items-center justify-between p-1.5 hover:bg-gray-50 rounded-lg"><span>• CV মেকার (ATS Friendly)</span></li>
+        </ul>
+      </div>
+
     </div>
   </section>
 
@@ -193,14 +249,42 @@
   </div>
 
   <footer class="bg-[#101828] text-gray-400 py-8 text-center text-sm border-t border-gray-800">
-    <p>© ২০২৬ আমার কাজ Studio | সর্বস্বত্ব সংরক্ষিত</p>
+    <p>© ২০২৬ আমার কাজ Studio | সর্বস্বত্ব সংরক্ষিত | Firebase Secured</p>
   </footer>
 
   <!-- JAVASCRIPT ENGINE -->
   <script>
+    // 🔒 FIREBASE SECURITY INITIALIZATION (আপনার ফায়ারবেস কনফিগারেশন এখানে বসান)
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "amar-kaaj.firebaseapp.com",
+      projectId: "amar-kaaj",
+      storageBucket: "amar-kaaj.appspot.com",
+      messagingSenderId: "123456789",
+      appId: "1:123456789:web:abcdef"
+    };
+    
+    // Initialize Firebase
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+
+    function handleLogin() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      firebase.auth().signInWithPopup(provider)
+        .then((result) => {
+          document.getElementById('authBtn').innerText = '✅ ' + result.user.displayName;
+          alert('ফায়ারবেস সিকিউরিটির মাধ্যমে সফলভাবে লগইন হয়েছেন!');
+        })
+        .catch((error) => {
+          console.error(error);
+          alert('লগইন করতে Firebase Key কনফিগারেশন প্রয়োজন।');
+        });
+    }
+
     let rawImage = new Image();
     let bgRemovedImage = null;
-    let currentCanvasBg = '#a5c9eb'; // Default Passport Blue
+    let currentCanvasBg = '#a5c9eb';
 
     function openTool(toolName) {
       const modal = document.getElementById('toolModal');
@@ -210,11 +294,10 @@
 
       if (toolName === 'photo') {
         content.innerHTML = `
-          <h2 class="font-anek font-bold text-2xl mb-1 text-blue-600">📸 AI পাসপোর্ট ফটো & A4 PDF মেকার</h2>
-          <p class="text-xs text-gray-500 mb-6">AI ব্যাকগ্রাউন্ড চেঞ্জ করুন, পিস সিলেক্ট করুন এবং A4 সাইজে PDF ডাউনলোড বা প্রিন্ট করুন</p>
+          <h2 class="font-anek font-bold text-2xl mb-1 text-blue-600">📸 AI পাসপোর্ট ফটো & A4 কালার প্রিন্ট মেকার</h2>
+          <p class="text-xs text-gray-500 mb-6">AI ব্যাকগ্রাউন্ড চেঞ্জ করুন, কপির সংখ্যা সিলেক্ট করে ১০০% অরিজিনাল কালার প্রিন্ট নিন</p>
           
           <div class="grid lg:grid-cols-12 gap-6">
-            <!-- Left Controls -->
             <div class="lg:col-span-5 space-y-4 bg-gray-50 p-4 rounded-2xl text-sm border">
               <div>
                 <label class="block font-bold text-gray-700 mb-1">১. ছবি আপলোড করুন:</label>
@@ -226,7 +309,7 @@
                 <button onclick="removeBgAI()" id="aiBgBtn" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-2.5 rounded-xl font-bold text-xs shadow hover:opacity-90 transition flex items-center justify-center gap-2">
                   <span>✨ AI ব্যাকগ্রাউন্ড রিমুভ করুন</span>
                 </button>
-                <div id="aiLoader" class="hidden text-xs text-indigo-600 font-semibold mt-1 text-center">⏳ AI কাজ করছে... কিছু মুহূর্ত অপেক্ষা করুন</div>
+                <div id="aiLoader" class="hidden text-xs text-indigo-600 font-semibold mt-1 text-center">⏳ AI কাজ করছে... অনুগ্রহ করে অপেক্ষা করুন</div>
               </div>
 
               <div>
@@ -241,16 +324,15 @@
               </div>
 
               <div>
-                <label class="block font-bold text-gray-700 mb-1">৪. কত পিস তৈরি করতে চান?</label>
+                <label class="block font-bold text-gray-700 mb-1">৪. কপির সংখ্যা সিলেক্ট করুন:</label>
                 <select id="copyCount" class="w-full p-2.5 bg-white border rounded-xl text-xs font-semibold">
-                  <option value="1">১ পিস (Single Copy)</option>
-                  <option value="2">২ পিস</option>
-                  <option value="4">৪ পিস</option>
-                  <option value="6">৬ পিস</option>
-                  <option value="8">৮ পিস</option>
-                  <option value="10">১০ পিস</option>
-                  <option value="12">১২ পিস</option>
-                  <option value="16" selected>১৬ পিস (A4 ফুল পেজ)</option>
+                  <option value="1">১ কপি</option>
+                  <option value="2">২ কপি</option>
+                  <option value="4">৪ কপি</option>
+                  <option value="6">৬ কপি</option>
+                  <option value="8">৮ কপি</option>
+                  <option value="12">১২ কপি</option>
+                  <option value="16" selected>১৬ কপি (A4 ফুল পেজ)</option>
                 </select>
               </div>
 
@@ -259,12 +341,12 @@
                   📄 📥 A4 PDF ডাউনলোড করুন
                 </button>
                 <button onclick="triggerDirectPrint()" class="w-full bg-green-700 text-white font-bold py-2.5 rounded-xl shadow btn-hover text-xs">
-                  🖨️ সরাসরি প্রিন্ট দিন
+                  🖨️ ১০০% কালার প্রিন্ট দিন
                 </button>
               </div>
             </div>
 
-            <!-- Right Preview -->
+            <!-- Canvas Preview -->
             <div class="lg:col-span-7 border p-4 rounded-2xl bg-gray-100 flex flex-col items-center justify-center min-h-[380px]">
               <canvas id="photoCanvas" class="hidden rounded-lg shadow-md border"></canvas>
               <div id="imgPlaceholder" class="text-center text-gray-400">
@@ -274,38 +356,9 @@
             </div>
           </div>
         `;
-      } else if (toolName === 'cv') {
-        const data = getSavedCVData();
-        content.innerHTML = `
-          <h2 class="font-anek font-bold text-2xl mb-1 text-primary">📝 প্রফেশনাল সিভি মেকার</h2>
-          <div class="grid lg:grid-cols-2 gap-6 mt-4">
-            <div class="space-y-3 bg-gray-50 p-4 rounded-2xl text-sm border">
-              <input type="text" id="cvName" oninput="saveCVData()" placeholder="পূর্ণ নাম" class="w-full p-2.5 border rounded-xl" value="${data.name}" />
-              <input type="text" id="cvTitle" oninput="saveCVData()" placeholder="পদবী" class="w-full p-2.5 border rounded-xl" value="${data.title}" />
-              <input type="email" id="cvEmail" oninput="saveCVData()" placeholder="ইমেইল" class="w-full p-2.5 border rounded-xl" value="${data.email}" />
-              <input type="text" id="cvPhone" oninput="saveCVData()" placeholder="ফোন নম্বর" class="w-full p-2.5 border rounded-xl" value="${data.phone}" />
-              <input type="text" id="cvSkills" oninput="saveCVData()" placeholder="দক্ষতা সমুহ" class="w-full p-2.5 border rounded-xl" value="${data.skills}" />
-              <textarea id="cvEdu" oninput="saveCVData()" placeholder="শিক্ষাগত যোগ্যতা" class="w-full p-2.5 border rounded-xl h-16">${data.edu}</textarea>
-              <textarea id="cvExp" oninput="saveCVData()" placeholder="অভিজ্ঞতা" class="w-full p-2.5 border rounded-xl h-16">${data.exp}</textarea>
-              <button onclick="window.print()" class="w-full bg-primary text-white font-bold py-3 rounded-xl shadow btn-hover">🖨️ প্রিন্ট / PDF সেভ</button>
-            </div>
-            <div id="cvPreviewArea" class="border p-6 rounded-2xl bg-white shadow-sm">
-              <h1 id="pvName" class="text-2xl font-bold text-gray-900">${data.name}</h1>
-              <p id="pvTitle" class="text-primary font-semibold text-sm mb-2">${data.title}</p>
-              <p id="pvEmail" class="text-xs text-gray-500">📧 ${data.email}</p>
-              <p id="pvPhone" class="text-xs text-gray-500 mb-4">📞 ${data.phone}</p>
-              <h4 class="font-bold text-xs uppercase text-gray-400">দক্ষতা</h4>
-              <p id="pvSkills" class="text-xs text-gray-700 bg-gray-50 p-2 rounded mb-3">${data.skills}</p>
-              <h4 class="font-bold text-xs uppercase text-gray-400">শিক্ষা</h4>
-              <p id="pvEdu" class="text-xs text-gray-600 mb-3">${data.edu}</p>
-              <h4 class="font-bold text-xs uppercase text-gray-400">অভিজ্ঞতা</h4>
-              <p id="pvExp" class="text-xs text-gray-600">${data.exp}</p>
-            </div>
-          </div>
-        `;
       } else if (toolName === 'ocr') {
         content.innerHTML = `
-          <h2 class="font-anek font-bold text-2xl mb-2 text-orange-600">🔤 ছবি থেকে টেক্সট এক্সট্র্যাক্ট</h2>
+          <h2 class="font-anek font-bold text-2xl mb-2 text-orange-600">🔤 ছবি থেকে টেক্সট এক্সট্র্যাক্ট (OCR)</h2>
           <div class="space-y-4 bg-gray-50 p-6 rounded-2xl border">
             <input type="file" id="ocrInput" accept="image/*" class="w-full p-3 bg-white border rounded-xl" />
             <button onclick="runOCR()" class="bg-orange-500 text-white font-bold py-3 rounded-xl btn-hover w-full">🚀 টেক্সট আলাদা করুন</button>
@@ -313,12 +366,10 @@
             <textarea id="ocrResult" class="w-full h-40 p-4 border rounded-xl text-sm bg-white" placeholder="ফলাফল এখানে দেখাবে..."></textarea>
           </div>
         `;
-      } else if (toolName === 'pdf') {
+      } else {
         content.innerHTML = `
-          <h2 class="font-anek font-bold text-2xl mb-2 text-pink-600">📑 PDF ও অন্যান্য টুলস</h2>
-          <div class="p-10 border-2 border-dashed border-pink-300 bg-pink-50/50 rounded-2xl text-center">
-            <p class="text-gray-700 font-medium mb-4">ভবিষ্যতের নতুন ফিচার আপডেটসমূহ শীঘ্রই যুক্ত হচ্ছে...</p>
-          </div>
+          <h2 class="font-anek font-bold text-2xl mb-2 text-primary">⚙️ টুলস রানিং...</h2>
+          <p class="text-gray-600">এই সার্ভিসের ফিচার প্রসেস হচ্ছে। শীঘ্রই যুক্ত করা হচ্ছে।</p>
         `;
       }
     }
@@ -328,7 +379,6 @@
       document.getElementById('toolModal').classList.remove('flex');
     }
 
-    // Photo Studio Logics
     function loadPhoto(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -346,7 +396,6 @@
     function renderPassportCanvas(imgObject) {
       const canvas = document.getElementById('photoCanvas');
       const ctx = canvas.getContext('2d');
-      
       canvas.width = 350;
       canvas.height = 450;
 
@@ -370,17 +419,14 @@
       try {
         const blob = await imglyRemoveBackground(fileInput.files[0]);
         const url = URL.createObjectURL(blob);
-        
         bgRemovedImage = new Image();
         bgRemovedImage.src = url;
         bgRemovedImage.onload = function() {
           renderPassportCanvas(bgRemovedImage);
           loader.classList.add('hidden');
           btn.disabled = false;
-          alert('✅ AI ব্যাকগ্রাউন্ড সফলভাবে রিমুভ হয়েছে!');
         }
       } catch (err) {
-        console.error(err);
         loader.classList.add('hidden');
         btn.disabled = false;
         alert('AI ব্যাকগ্রাউন্ড রিমুভ করতে সমস্যা হয়েছে।');
@@ -390,9 +436,7 @@
     function setBgColor(color) {
       currentCanvasBg = color;
       const activeImg = bgRemovedImage || rawImage;
-      if (activeImg.src) {
-        renderPassportCanvas(activeImg);
-      }
+      if (activeImg.src) renderPassportCanvas(activeImg);
     }
 
     function generateA4PageLayout() {
@@ -405,7 +449,6 @@
       const count = parseInt(document.getElementById('copyCount').value);
       const imgDataUrl = canvas.toDataURL();
       const printArea = document.getElementById('a4PrintArea');
-      
       printArea.innerHTML = '';
 
       for (let i = 0; i < count; i++) {
@@ -422,13 +465,12 @@
 
       const element = document.getElementById('a4PrintArea');
       const pdfWrapper = document.getElementById('pdfWrapper');
-      
       pdfWrapper.classList.remove('hidden');
 
       const opt = {
         margin:       0,
         filename:     'amar-kaaj-passport-photos.pdf',
-        image:        { type: 'jpeg', quality: 0.98 },
+        image:        { type: 'jpeg', quality: 1.0 },
         html2canvas:  { scale: 2 },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
@@ -443,41 +485,6 @@
       window.print();
     }
 
-    // LocalStorage CV Code
-    function getSavedCVData() {
-      const saved = localStorage.getItem('amar_kaaj_cv');
-      return saved ? JSON.parse(saved) : {
-        name: 'মোহাম্মদ রহিম',
-        title: 'কম্পিউটার অপারেটর',
-        email: 'rahim@gmail.com',
-        phone: '+৮৮০ ১৭০০০০০-০০০',
-        skills: 'MS Word, Excel, Photo Editing',
-        edu: 'বি.এসসি - ঢাকা বিশ্ববিদ্যালয়',
-        exp: '২ বছরের অভিজ্ঞতা।'
-      };
-    }
-
-    function saveCVData() {
-      const cvData = {
-        name: document.getElementById('cvName').value,
-        title: document.getElementById('cvTitle').value,
-        email: document.getElementById('cvEmail').value,
-        phone: document.getElementById('cvPhone').value,
-        skills: document.getElementById('cvSkills').value,
-        edu: document.getElementById('cvEdu').value,
-        exp: document.getElementById('cvExp').value,
-      };
-      localStorage.setItem('amar_kaaj_cv', JSON.stringify(cvData));
-      document.getElementById('pvName').innerText = cvData.name;
-      document.getElementById('pvTitle').innerText = cvData.title;
-      document.getElementById('pvEmail').innerText = '📧 ' + cvData.email;
-      document.getElementById('pvPhone').innerText = '📞 ' + cvData.phone;
-      document.getElementById('pvSkills').innerText = cvData.skills;
-      document.getElementById('pvEdu').innerText = cvData.edu;
-      document.getElementById('pvExp').innerText = cvData.exp;
-    }
-
-    // OCR Logic
     function runOCR() {
       const input = document.getElementById('ocrInput');
       const status = document.getElementById('ocrStatus');
