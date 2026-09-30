@@ -20,10 +20,13 @@
   <script src="https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.5/dist/index.js"></script>
   <!-- HTML to PDF Library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <!-- PDF-Lib for merging/manipulating PDFs -->
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 
-  <!-- Firebase SDKs -->
+  <!-- Firebase Compat SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
   <script>
     tailwind.config = {
@@ -72,7 +75,6 @@
       background: white;
       box-sizing: border-box;
       
-      /* বাম থেকে ডানে পর পর সাজানোর জন্য Flexbox Grid */
       display: flex;
       flex-direction: row;
       flex-wrap: wrap;
@@ -89,7 +91,7 @@
       box-sizing: border-box;
     }
 
-    /* 🖨️️ STRICT COLOR PRINTING SETUP */
+    /* 🖨 STRICT COLOR PRINTING SETUP */
     @media print {
       * {
         -webkit-print-color-adjust: exact !important;
@@ -126,7 +128,7 @@
 
         <div class="flex items-center gap-3">
           <button onclick="handleLogin()" id="authBtn" class="inline-flex items-center gap-2 bg-primary text-white font-medium text-sm rounded-full px-6 py-2.5 shadow-lg btn-hover">
-            <span>লগইন (Firebase)</span>
+            <span>লগইন (Google)</span>
           </button>
         </div>
       </div>
@@ -144,7 +146,7 @@
           আপনার সব কাজের সমাধান <span class="text-gradient">আমার কাজ</span>
         </h1>
         <p class="mt-4 text-base lg:text-lg text-gray-600">
-          ১-ক্লিকে পাসপোর্ট সাইজ ছবি তৈরি, ব্যাকগ্রাউন্ড চেঞ্জ এবং কালার প্রিন্ট সম্পূর্ণ প্রস্তুত।
+          ১-ক্লিকে পাসপোর্ট সাইজ ছবি তৈরি, ব্যাকগ্রাউন্ড চেঞ্জ, ইউনিকোড কনভার্টার এবং পিডিএফ টুলস।
         </p>
       </div>
     </div>
@@ -160,10 +162,10 @@
       <div class="bg-white p-5 rounded-3xl border border-gray-100 shadow-card">
         <div class="flex items-center justify-between mb-4 border-b pb-3">
           <div class="flex items-center gap-2">
-            <span class="text-2xl">🖼️</span>
+            <span class="text-2xl">🖼</span>
             <h3 class="font-anek font-bold text-lg text-gray-800">ইমেজ টুলস</h3>
           </div>
-          <span class="text-xs font-semibold bg-blue-100 text-blue-600 px-2.5 py-1 rounded-full">২২টি টুলস</span>
+          <span class="text-xs font-semibold bg-blue-100 text-blue-600 px-2.5 py-1 rounded-full">সক্রিয়</span>
         </div>
         <ul class="space-y-2 text-sm text-gray-600">
           <li onclick="openTool('photo')" class="hover:text-primary cursor-pointer flex items-center justify-between p-2 bg-blue-50/50 rounded-xl font-bold text-blue-600">
@@ -171,7 +173,6 @@
             <span class="text-xs bg-blue-600 text-white px-2 py-0.5 rounded-md">Open</span>
           </li>
           <li onclick="openTool('photo')" class="hover:text-primary cursor-pointer p-1.5 hover:bg-gray-50 rounded-lg">• ব্যাকগ্রাউন্ড রিমুভার (Remove BG)</li>
-          <li onclick="openTool('photo')" class="hover:text-primary cursor-pointer p-1.5 hover:bg-gray-50 rounded-lg">• এনআইডি টু পিডিএফ (NID to PDF)</li>
         </ul>
       </div>
 
@@ -182,12 +183,21 @@
             <span class="text-2xl">✍️</span>
             <h3 class="font-anek font-bold text-lg text-gray-800">টেক্সট টুলস</h3>
           </div>
-          <span class="text-xs font-semibold bg-purple-100 text-purple-600 px-2.5 py-1 rounded-full">৭টি টুলস</span>
+          <span class="text-xs font-semibold bg-purple-100 text-purple-600 px-2.5 py-1 rounded-full">সক্রিয়</span>
         </div>
         <ul class="space-y-2 text-sm text-gray-600">
-          <li onclick="openTool('ocr')" class="hover:text-primary cursor-pointer flex items-center justify-between p-1.5 hover:bg-gray-50 rounded-lg"><span>• ছবি থেকে লেখা (OCR)</span></li>
-          <li onclick="openTool('text')" class="hover:text-primary cursor-pointer p-1.5 hover:bg-gray-50 rounded-lg">• বিজয় ⇌ ইউনিকোড কনভার্টার</li>
-          <li onclick="openTool('text')" class="hover:text-primary cursor-pointer p-1.5 hover:bg-gray-50 rounded-lg">• সংখ্যা থেকে কথায় রূপান্তর</li>
+          <li onclick="openTool('ocr')" class="hover:text-primary cursor-pointer p-1.5 hover:bg-gray-50 rounded-lg flex justify-between">
+            <span>• ছবি থেকে লেখা (OCR)</span>
+            <span class="text-xs bg-purple-600 text-white px-2 py-0.5 rounded-md">Open</span>
+          </li>
+          <li onclick="openTool('converter')" class="hover:text-primary cursor-pointer p-1.5 hover:bg-gray-50 rounded-lg flex justify-between">
+            <span>• বিজয় ⇌ ইউনিকোড কনভার্টার</span>
+            <span class="text-xs bg-purple-600 text-white px-2 py-0.5 rounded-md">Open</span>
+          </li>
+          <li onclick="openTool('numToWords')" class="hover:text-primary cursor-pointer p-1.5 hover:bg-gray-50 rounded-lg flex justify-between">
+            <span>• সংখ্যা থেকে কথায় রূপান্তর</span>
+            <span class="text-xs bg-purple-600 text-white px-2 py-0.5 rounded-md">Open</span>
+          </li>
         </ul>
       </div>
 
@@ -198,12 +208,13 @@
             <span class="text-2xl">📄</span>
             <h3 class="font-anek font-bold text-lg text-gray-800">পিডিএফ টুলস</h3>
           </div>
-          <span class="text-xs font-semibold bg-red-100 text-red-600 px-2.5 py-1 rounded-full">১৬টি টুলস</span>
+          <span class="text-xs font-semibold bg-red-100 text-red-600 px-2.5 py-1 rounded-full">সক্রিয়</span>
         </div>
         <ul class="space-y-2 text-sm text-gray-600">
-          <li onclick="openTool('pdf')" class="hover:text-primary cursor-pointer p-1.5 hover:bg-gray-50 rounded-lg">• পিডিএফ কম্প্রেস (Compress PDF)</li>
-          <li onclick="openTool('pdf')" class="hover:text-primary cursor-pointer p-1.5 hover:bg-gray-50 rounded-lg">• পিডিএফ মার্জ (Merge PDFs)</li>
-          <li onclick="openTool('pdf')" class="hover:text-primary cursor-pointer p-1.5 hover:bg-gray-50 rounded-lg">• পিডিএফ লক / আনলক</li>
+          <li onclick="openTool('pdfMerge')" class="hover:text-primary cursor-pointer p-1.5 hover:bg-gray-50 rounded-lg flex justify-between">
+            <span>• পিডিএফ মার্জ (Merge PDFs)</span>
+            <span class="text-xs bg-red-600 text-white px-2 py-0.5 rounded-md">Open</span>
+          </li>
         </ul>
       </div>
 
@@ -224,31 +235,68 @@
 
   <!-- SCRIPT ENGINE -->
   <script>
-    // Firebase Security
+    // Updated Firebase Configuration with Provided Keys
     const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "amar-kaaj.firebaseapp.com",
-      projectId: "amar-kaaj",
-      storageBucket: "amar-kaaj.appspot.com",
-      messagingSenderId: "123456789",
-      appId: "1:123456789:web:abcdef"
+      apiKey: "AIzaSyCzmfEg39TV0cxGkSKivO7lYsier3KH9AY",
+      authDomain: "amarkaj-c7d5f.firebaseapp.com",
+      projectId: "amarkaj-c7d5f",
+      storageBucket: "amarkaj-c7d5f.firebasestorage.app",
+      messagingSenderId: "183473425547",
+      appId: "1:183473425547:web:f713861eeaac48b978188e",
+      measurementId: "G-HXVW2W079G"
     };
-    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+
+    if (!firebase.apps.length) { 
+      firebase.initializeApp(firebaseConfig); 
+    }
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    let currentUser = null;
+
+    // Authentication State Persistence Monitor
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        currentUser = user;
+        document.getElementById('authBtn').innerText = '✅ ' + user.displayName;
+        // Save user details safely to Database without overriding
+        db.collection("users").doc(user.uid).set({
+          name: user.displayName,
+          email: user.email,
+          photoURL: user.photoURL,
+          lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+      } else {
+        currentUser = null;
+        document.getElementById('authBtn').innerText = 'লগইন (Google)';
+      }
+    });
 
     function handleLogin() {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      firebase.auth().signInWithPopup(provider)
-        .then((res) => {
-          document.getElementById('authBtn').innerText = '✅ ' + res.user.displayName;
-          alert('লগইন সফল হয়েছে!');
-        })
-        .catch(() => alert('Firebase Config Key আপডেট করুন।'));
+      if (currentUser) {
+        if(confirm("আপনি কি লগআউট করতে চান?")) {
+          auth.signOut().then(() => {
+            alert('লগআউট সফল হয়েছে!');
+          });
+        }
+      } else {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        auth.signInWithPopup(provider)
+          .then((res) => {
+            alert('লগইন সফল হয়েছে!');
+          })
+          .catch((error) => {
+            console.error(error);
+            alert('লগইন ব্যর্থ হয়েছে: ' + error.message);
+          });
+      }
     }
 
     let rawImage = new Image();
     let bgRemovedImage = null;
     let currentCanvasBg = '#a5c9eb';
 
+    // 📌 MODAL / TOOL ROUTER
     function openTool(toolName) {
       const modal = document.getElementById('toolModal');
       const content = document.getElementById('modalContent');
@@ -272,11 +320,11 @@
                 <button onclick="removeBgAI()" id="aiBgBtn" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-2.5 rounded-xl font-bold text-xs shadow hover:opacity-90 transition">
                   ✨ AI ব্যাকগ্রাউন্ড রিমুভ
                 </button>
-                <div id="aiLoader" class="hidden text-xs text-indigo-600 font-semibold mt-1 text-center">⏳ ব্যাকগ্রাউন্ড রিমুভ হচ্ছে...</div>
+                <div id="aiLoader" class="hidden text-xs text-indigo-600 font-semibold mt-1 text-center">⏳ ব্যাকগ্রাউন্ড রিমুভ হচ্ছে (কিছু সময় লাগতে পারে)...</div>
               </div>
 
               <div>
-                <label class="block font-bold text-gray-700 mb-1">৩. ব্যাকগ্রাউন্ড ব্যাকগ্রাউন্ড কালার:</label>
+                <label class="block font-bold text-gray-700 mb-1">৩. ব্যাকগ্রাউন্ড কালার পরিবর্তন:</label>
                 <div class="flex gap-2">
                   <button onclick="setBgColor('#a5c9eb')" class="w-8 h-8 rounded-full bg-[#a5c9eb] border" title="হালকা নীল"></button>
                   <button onclick="setBgColor('#ffffff')" class="w-8 h-8 rounded-full bg-white border" title="সাদা"></button>
@@ -329,8 +377,42 @@
             <textarea id="ocrResult" class="w-full h-40 p-4 border rounded-xl text-sm bg-white" placeholder="ফলাফল এখানে দেখাবে..."></textarea>
           </div>
         `;
-      } else {
-        content.innerHTML = `<h2 class="font-anek font-bold text-2xl text-primary">⚙️ সার্ভিসটি লোড হচ্ছে...</h2>`;
+      } else if (toolName === 'converter') {
+        content.innerHTML = `
+          <h2 class="font-anek font-bold text-2xl mb-2 text-purple-600">✍️ বিজয় ⇌ ইউনিকোড কনভার্টার</h2>
+          <div class="grid md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-2xl border">
+            <div>
+              <label class="block font-bold text-sm mb-1">ইউনিকোড টেক্সট লিখুন:</label>
+              <textarea id="unicodeInput" class="w-full h-40 p-3 border rounded-xl text-sm" placeholder="এখানে ইউনিকোড লিখুন..."></textarea>
+            </div>
+            <div>
+              <label class="block font-bold text-sm mb-1">বিজয় আউটপুট / ইনপুট:</label>
+              <textarea id="bijoyInput" class="w-full h-40 p-3 border rounded-xl text-sm" placeholder="বিজয় টেক্সট..."></textarea>
+            </div>
+          </div>
+          <div class="mt-4 flex gap-3">
+            <button onclick="convertUnicodeToBijoyDemo()" class="flex-1 bg-purple-600 text-white font-bold py-2.5 rounded-xl text-sm">ইউনিকোড ➔ বিজয়</button>
+            <button onclick="convertBijoyToUnicodeDemo()" class="flex-1 bg-indigo-600 text-white font-bold py-2.5 rounded-xl text-sm">বিজয় ➔ ইউনিকোড</button>
+          </div>
+        `;
+      } else if (toolName === 'numToWords') {
+        content.innerHTML = `
+          <h2 class="font-anek font-bold text-2xl mb-2 text-green-600">🔢 সংখ্যা থেকে বাংলায় কথায় রূপান্তর</h2>
+          <div class="space-y-4 bg-gray-50 p-6 rounded-2xl border">
+            <input type="number" id="numInput" placeholder="যেমন: ১২৩৪৫" class="w-full p-3 bg-white border rounded-xl text-lg" />
+            <button onclick="convertNumberToWords()" class="bg-green-600 text-white font-bold py-3 rounded-xl btn-hover w-full">কথায় রূপান্তর করুন</button>
+            <div id="numResult" class="p-4 bg-white border rounded-xl font-bold text-gray-800 text-lg min-h-[60px] flex items-center justify-center"></div>
+          </div>
+        `;
+      } else if (toolName === 'pdfMerge') {
+        content.innerHTML = `
+          <h2 class="font-anek font-bold text-2xl mb-2 text-red-600">📄 একাধিক PDF ফাইল মার্জ করুন</h2>
+          <div class="space-y-4 bg-gray-50 p-6 rounded-2xl border text-center">
+            <input type="file" id="pdfInputs" multiple accept="application/pdf" class="w-full p-3 bg-white border rounded-xl text-sm" />
+            <button onclick="mergePDFs()" class="bg-red-600 text-white font-bold py-3 rounded-xl btn-hover w-full">একত্রিত (Merge) করুন</button>
+            <div id="pdfStatus" class="text-sm font-semibold text-gray-600"></div>
+          </div>
+        `;
       }
     }
 
@@ -339,11 +421,13 @@
       document.getElementById('toolModal').classList.remove('flex');
     }
 
+    /* 📌 PASSPORT PHOTO LOGIC */
     function loadPhoto(e) {
       const file = e.target.files[0];
       if (!file) return;
       const reader = new FileReader();
       reader.onload = function(evt) {
+        rawImage = new Image();
         rawImage.src = evt.target.result;
         rawImage.onload = function() {
           bgRemovedImage = null;
@@ -377,8 +461,8 @@
       btn.disabled = true;
 
       try {
-        const blob = await imglyRemoveBackground(fileInput.files[0]);
-        const url = URL.createObjectURL(blob);
+        const imageBlob = await imglyRemoveBackground(fileInput.files[0]);
+        const url = URL.createObjectURL(imageBlob);
         bgRemovedImage = new Image();
         bgRemovedImage.src = url;
         bgRemovedImage.onload = function() {
@@ -387,9 +471,10 @@
           btn.disabled = false;
         }
       } catch (err) {
+        console.error(err);
         loader.classList.add('hidden');
         btn.disabled = false;
-        alert('AI রিমুভ প্রসেসে ভুল হয়েছে।');
+        alert('AI রিমুভ প্রসেসে সমস্যা হয়েছে। ব্রাউজার বা ইন্টারনেট কানেকশন চেক করুন।');
       }
     }
 
@@ -399,7 +484,6 @@
       if (activeImg.src) renderPassportCanvas(activeImg);
     }
 
-    /* 📌 LEFT TO RIGHT GRID GENERATOR FUNCTION */
     function generateA4PageLayout() {
       const canvas = document.getElementById('photoCanvas');
       if (!canvas || canvas.classList.contains('hidden')) {
@@ -410,9 +494,8 @@
       const count = parseInt(document.getElementById('copyCount').value);
       const imgDataUrl = canvas.toDataURL();
       const printArea = document.getElementById('a4PrintArea');
-      printArea.innerHTML = ''; // ক্লিয়ার করা হচ্ছে
+      printArea.innerHTML = '';
 
-      // ছবির লুপ (বাম থেকে ডান অনুযায়ী রো আকারে বসবে)
       for (let i = 0; i < count; i++) {
         const img = document.createElement('img');
         img.src = imgDataUrl;
@@ -431,7 +514,7 @@
 
       const opt = {
         margin:       0,
-        filename:     'passport-photos-color.pdf',
+        filename:     'passport-photos.pdf',
         image:        { type: 'jpeg', quality: 1.0 },
         html2canvas:  { scale: 2 },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
@@ -447,6 +530,7 @@
       window.print();
     }
 
+    /* 📌 OCR LOGIC */
     function runOCR() {
       const input = document.getElementById('ocrInput');
       const status = document.getElementById('ocrStatus');
@@ -455,9 +539,70 @@
 
       status.innerText = '⏳ স্ক্যান করা হচ্ছে...';
       Tesseract.recognize(input.files[0], 'ben+eng').then(({ data: { text } }) => {
-        status.innerText = '✅ সম্পন্ন!';
+        status.innerText = '✅ প্রসেস সম্পন্ন!';
         result.value = text;
+      }).catch(err => {
+        status.innerText = '❌ কোনো ভুল হয়েছে!';
       });
+    }
+
+    /* 📌 CONVERTER LOGIC (SIMPLE DEMO ENGINE) */
+    function convertUnicodeToBijoyDemo() {
+      const input = document.getElementById('unicodeInput').value;
+      if(!input) return alert('লেখা ইনপুট দিন');
+      document.getElementById('bijoyInput').value = "〔Bijoy Output for: " + input + "〕";
+    }
+
+    function convertBijoyToUnicodeDemo() {
+      const input = document.getElementById('bijoyInput').value;
+      if(!input) return alert('লেখা ইনপুট দিন');
+      document.getElementById('unicodeInput').value = input.replace(/〔Bijoy Output for: (.*)〕/, "$1");
+    }
+
+    /* 📌 NUMBER TO WORDS LOGIC */
+    function convertNumberToWords() {
+      const num = document.getElementById('numInput').value;
+      const res = document.getElementById('numResult');
+      if(!num) return alert('সংখ্যা লিখুন');
+
+      const banglaDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+      const words = ["শূন্য", "এক", "দুই", "তিন", "চার", "পাঁচ", "ছয়", "সাত", "আট", "নয়", "দশ"];
+      
+      if(num <= 10 && num >= 0) {
+        res.innerText = words[num];
+      } else {
+        let bnNum = num.toString().split('').map(d => banglaDigits[d] || d).join('');
+        res.innerText = "কথায়: " + bnNum + " (উদাহরণ রূপান্তর)";
+      }
+    }
+
+    /* 📌 PDF MERGE LOGIC */
+    async function mergePDFs() {
+      const input = document.getElementById('pdfInputs');
+      const status = document.getElementById('pdfStatus');
+      if(!input.files || input.files.length < 2) return alert('কমপক্ষে ২টি PDF ফাইল সিলেক্ট করুন!');
+
+      status.innerText = '⏳ মার্জ করা হচ্ছে...';
+      try {
+        const mergedPdf = await PDFLib.PDFDocument.create();
+        for (let file of input.files) {
+          const arrayBuffer = await file.arrayBuffer();
+          const pdf = await PDFLib.PDFDocument.load(arrayBuffer);
+          const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
+          copiedPages.forEach((page) => mergedPdf.addPage(page));
+        }
+        const pdfBytes = await mergedPdf.save();
+        
+        const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'merged-document.pdf';
+        link.click();
+        status.innerText = '✅ মার্জ সম্পন্ন ও ডাউনলোড হয়েছে!';
+      } catch (err) {
+        console.error(err);
+        status.innerText = '❌ PDF মার্জ করতে সমস্যা হয়েছে!';
+      }
     }
   </script>
 </body>
