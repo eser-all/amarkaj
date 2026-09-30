@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>সহজ কাজ | AI ফটো এডিটিং, পাসপোর্ট প্রিন্ট ও প্রফেশনাল সার্ভিস</title>
+  <title>আমার কাজ | AI ফটো এডিটিং, পাসপোর্ট প্রিন্ট ও প্রফেশনাল সার্ভিস</title>
   <meta name="theme-color" content="#8068FB" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛠️</text></svg>" />
 
@@ -14,10 +14,12 @@
 
   <!-- Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- OCR Library for Image to Text -->
+  <!-- OCR Library -->
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-  <!-- Client-side AI Background Removal Library -->
+  <!-- AI Background Removal Library -->
   <script src="https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.5/dist/index.js"></script>
+  <!-- HTML to PDF Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <script>
     tailwind.config = {
@@ -63,41 +65,54 @@
     .tool-card { transition: all 0.2s ease; cursor: pointer; }
     .btn-hover:hover { filter: brightness(1.08); cursor: pointer; }
 
-    /* Print Paper setup for Passport Copies */
+    /* Standard A4 Page Layout for Print/PDF */
+    .a4-page {
+      width: 210mm;
+      min-height: 297mm;
+      padding: 15mm;
+      margin: 0 auto;
+      background: white;
+      box-sizing: border-box;
+      display: flex;
+      flex-wrap: wrap;
+      align-content: flex-start;
+      gap: 8mm;
+    }
+
+    .passport-print-item {
+      width: 40mm;
+      height: 50mm;
+      object-fit: cover;
+      border: 1px solid #ccc;
+      border-radius: 2px;
+    }
+
     @media print {
       body * { visibility: hidden; }
-      #printContainer, #printContainer * { visibility: visible; }
-      #printContainer {
+      #a4PrintArea, #a4PrintArea * { visibility: visible; }
+      #a4PrintArea {
         position: absolute;
         left: 0;
         top: 0;
-        width: 100%;
-        display: flex !important;
-        flex-wrap: wrap !important;
-        gap: 12px !important;
-        padding: 20px !important;
-      }
-      .passport-print-item {
-        width: 35mm !important;
-        height: 45mm !important;
-        object-fit: cover !important;
-        border: 1px solid #ddd !important;
+        width: 210mm;
       }
     }
   </style>
 </head>
 <body class="bg-[#F8F9FC] text-[#101828] antialiased">
 
-  <!-- PRINT CONTAINER (HIDDEN UNTIL PRINT) -->
-  <div id="printContainer" class="hidden"></div>
+  <!-- HIDDEN A4 CONTAINER FOR PRINT & PDF -->
+  <div class="hidden overflow-x-auto bg-gray-200 p-4" id="pdfWrapper">
+    <div id="a4PrintArea" class="a4-page shadow-lg"></div>
+  </div>
 
   <!-- HEADER -->
   <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-gray-100">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16 lg:h-20">
         <a href="#" class="flex items-center gap-2 shrink-0">
-          <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white font-bold text-xl shadow-md">স</div>
-          <span class="font-anek font-bold text-xl lg:text-2xl text-[#171137]">সহজ কাজ <span class="text-xs text-primary font-normal bg-violet-100 px-2 py-0.5 rounded-full">AI Pro Studio</span></span>
+          <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white font-bold text-xl shadow-md">আ</div>
+          <span class="font-anek font-bold text-xl lg:text-2xl text-[#171137]">আমার কাজ <span class="text-xs text-primary font-normal bg-violet-100 px-2 py-0.5 rounded-full">AI Studio</span></span>
         </a>
 
         <nav class="hidden lg:flex items-center gap-8 text-sm font-semibold font-anek text-[#555]">
@@ -119,17 +134,17 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center max-w-3xl mx-auto">
         <div class="inline-flex items-center gap-2 border border-orange/40 rounded-full py-1.5 px-4 bg-[#FFF6E9] mb-4 shadow-sm">
-          <span class="text-xs sm:text-sm font-semibold text-orange">⚡ AI ব্যাকগ্রাউন্ড রিমুভাল ও প্রফেশনাল পাসপোর্ট প্রিন্ট</span>
+          <span class="text-xs sm:text-sm font-semibold text-orange">⚡ AI পাসপোর্ট মেকার & A4 PDF জেনারেটর</span>
         </div>
         <h1 class="font-anek font-bold text-3xl sm:text-5xl lg:text-6xl leading-[1.2]">
-          ১-ক্লিকে AI দিয়ে <span class="text-gradient">পাসপোর্ট ছবি তৈরি</span> ও প্রিন্ট করুন
+          সহজে ছবি প্রসেস করুন <span class="text-gradient">আমার কাজ</span> প্ল্যাটফর্মে
         </h1>
         <p class="mt-4 text-base lg:text-lg text-gray-600">
-          ছবি ব্যাকগ্রাউন্ড চেঞ্জ, ১ থেকে ১৬ কপি প্রিন্ট সেটআপ, প্রফেশনাল সিভি মেকার এবং ছবি থেকে টেক্সট কনভার্টার।
+          AI ব্যাকগ্রাউন্ড চেঞ্জ করুন, পিস সিলেক্ট করে সরাসরি A4 সাইজ PDF ডাউনলোড অথবা প্রিন্ট দিন।
         </p>
         <div class="mt-8 flex flex-wrap justify-center gap-4">
           <button onclick="openTool('photo')" class="inline-flex items-center justify-center gap-2 bg-hero-button text-white font-semibold text-base rounded-full px-8 py-3.5 shadow-lg btn-hover">
-            📸 AI ফটো স্টুডিও খুলুন
+            📸 পাসপোর্ট ফটো স্টুডিও খুলুন
           </button>
         </div>
       </div>
@@ -143,8 +158,8 @@
         
         <div onclick="openTool('photo')" class="tool-card group bg-white rounded-3xl p-6 text-center shadow-card border border-gray-100 hover:border-primary/40">
           <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-blue-gradient flex items-center justify-center text-3xl text-white shadow-md group-hover:scale-110 transition">📸</div>
-          <h3 class="font-anek font-bold text-lg text-gray-800">AI ফটো ও পাসপোর্ট মেকার</h3>
-          <p class="text-xs text-gray-500 mt-2 leading-relaxed">AI ব্যাকগ্রাউন্ড রিমুভাল, কালার চেঞ্জ ও ১-১৬ কপি প্রিন্ট</p>
+          <h3 class="font-anek font-bold text-lg text-gray-800">পাসপোর্ট ফটো & A4 PDF</h3>
+          <p class="text-xs text-gray-500 mt-2 leading-relaxed">AI ব্যাকগ্রাউন্ড চেঞ্জ ও ১-১৬ কপি A4 PDF ডাউনলোড</p>
         </div>
 
         <div onclick="openTool('cv')" class="tool-card group bg-white rounded-3xl p-6 text-center shadow-card border border-gray-100 hover:border-primary/40">
@@ -156,12 +171,12 @@
         <div onclick="openTool('ocr')" class="tool-card group bg-white rounded-3xl p-6 text-center shadow-card border border-gray-100 hover:border-primary/40">
           <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-orange-gradient flex items-center justify-center text-3xl text-white shadow-md group-hover:scale-110 transition">🔤</div>
           <h3 class="font-anek font-bold text-lg text-gray-800">ছবি থেকে টেক্সট (OCR)</h3>
-          <p class="text-xs text-gray-500 mt-2 leading-relaxed">বাংলা ও ইংরেজি ডকুমেন্টের ছবি থেকে টেক্সট কপি করুন</p>
+          <p class="text-xs text-gray-500 mt-2 leading-relaxed">বাংলা ও ইংরেজি ডকুমেন্টের ছবি থেকে টেক্সট কনভার্ট</p>
         </div>
 
         <div onclick="openTool('pdf')" class="tool-card group bg-white rounded-3xl p-6 text-center shadow-card border border-gray-100 hover:border-primary/40">
           <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-pink-gradient flex items-center justify-center text-3xl text-white shadow-md group-hover:scale-110 transition">📑</div>
-          <h3 class="font-anek font-bold text-lg text-gray-800">PDF & টুলস</h3>
+          <h3 class="font-anek font-bold text-lg text-gray-800">PDF & অন্যান্য টুলস</h3>
           <p class="text-xs text-gray-500 mt-2 leading-relaxed">PDF প্রসেস, মার্জ ও সাইজ অ্যাডজাস্টমেন্ট</p>
         </div>
 
@@ -178,7 +193,7 @@
   </div>
 
   <footer class="bg-[#101828] text-gray-400 py-8 text-center text-sm border-t border-gray-800">
-    <p>© ২০২৬ সহজ কাজ AI Studio | সর্বস্বত্ব সংরক্ষিত</p>
+    <p>© ২০২৬ আমার কাজ Studio | সর্বস্বত্ব সংরক্ষিত</p>
   </footer>
 
   <!-- JAVASCRIPT ENGINE -->
@@ -195,23 +210,23 @@
 
       if (toolName === 'photo') {
         content.innerHTML = `
-          <h2 class="font-anek font-bold text-2xl mb-1 text-blue-600">📸 AI পাসপোর্ট ফটো & প্রিন্ট স্টুডিও</h2>
-          <p class="text-xs text-gray-500 mb-6">AI ব্যাকগ্রাউন্ড রিমুভ করুন এবং ১ থেকে ১৬ কপির A4 প্রিন্ট প্রস্তুত করুন</p>
+          <h2 class="font-anek font-bold text-2xl mb-1 text-blue-600">📸 AI পাসপোর্ট ফটো & A4 PDF মেকার</h2>
+          <p class="text-xs text-gray-500 mb-6">AI ব্যাকগ্রাউন্ড চেঞ্জ করুন, পিস সিলেক্ট করুন এবং A4 সাইজে PDF ডাউনলোড বা প্রিন্ট করুন</p>
           
           <div class="grid lg:grid-cols-12 gap-6">
             <!-- Left Controls -->
             <div class="lg:col-span-5 space-y-4 bg-gray-50 p-4 rounded-2xl text-sm border">
               <div>
-                <label class="block font-bold text-gray-700 mb-1">১. আপনার ছবি আপলোড করুন:</label>
+                <label class="block font-bold text-gray-700 mb-1">১. ছবি আপলোড করুন:</label>
                 <input type="file" id="imgInput" accept="image/*" class="w-full p-2 bg-white border rounded-xl text-xs" onchange="loadPhoto(event)" />
               </div>
 
               <div>
-                <label class="block font-bold text-gray-700 mb-1">২. AI অটো ব্যাকগ্রাউন্ড চেঞ্জ:</label>
+                <label class="block font-bold text-gray-700 mb-1">২. AI ব্যাকগ্রাউন্ড চেঞ্জ:</label>
                 <button onclick="removeBgAI()" id="aiBgBtn" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-2.5 rounded-xl font-bold text-xs shadow hover:opacity-90 transition flex items-center justify-center gap-2">
                   <span>✨ AI ব্যাকগ্রাউন্ড রিমুভ করুন</span>
                 </button>
-                <div id="aiLoader" class="hidden text-xs text-indigo-600 font-semibold mt-1 text-center">⏳ AI কাজ করছে... অনুগ্রহ করে কয়েক সেকেন্ড অপেক্ষা করুন</div>
+                <div id="aiLoader" class="hidden text-xs text-indigo-600 font-semibold mt-1 text-center">⏳ AI কাজ করছে... কিছু মুহূর্ত অপেক্ষা করুন</div>
               </div>
 
               <div>
@@ -226,26 +241,26 @@
               </div>
 
               <div>
-                <label class="block font-bold text-gray-700 mb-1">৪. কত কপি প্রিন্ট দিতে চান?</label>
+                <label class="block font-bold text-gray-700 mb-1">৪. কত পিস তৈরি করতে চান?</label>
                 <select id="copyCount" class="w-full p-2.5 bg-white border rounded-xl text-xs font-semibold">
-                  <option value="1">১ কপি (Single Copy)</option>
-                  <option value="2">২ কপি</option>
-                  <option value="3">৩ কপি</option>
-                  <option value="4">৪ কপি</option>
-                  <option value="5">৫ কপি</option>
-                  <option value="6">৬ কপি</option>
-                  <option value="7">৭ কপি</option>
-                  <option value="8">৮ কপি</option>
-                  <option value="9">৯ কপি</option>
-                  <option value="10">১০ কপি</option>
-                  <option value="12">১২ কপি</option>
-                  <option value="16" selected>১৬ কপি (A4 ফুল পেপার)</option>
+                  <option value="1">১ পিস (Single Copy)</option>
+                  <option value="2">২ পিস</option>
+                  <option value="4">৪ পিস</option>
+                  <option value="6">৬ পিস</option>
+                  <option value="8">৮ পিস</option>
+                  <option value="10">১০ পিস</option>
+                  <option value="12">১২ পিস</option>
+                  <option value="16" selected>১৬ পিস (A4 ফুল পেজ)</option>
                 </select>
               </div>
 
               <div class="pt-2 space-y-2">
-                <button onclick="downloadSinglePhoto()" class="w-full bg-blue-600 text-white font-bold py-2.5 rounded-xl shadow btn-hover text-xs">📥 একক ছবি ডাউনলোড</button>
-                <button onclick="generatePrintLayout()" class="w-full bg-green-700 text-white font-bold py-3 rounded-xl shadow btn-hover text-xs">🖨️ প্রিন্ট লেআউট তৈরি ও প্রিন্ট দিন</button>
+                <button onclick="downloadA4PDF()" class="w-full bg-red-600 text-white font-bold py-3 rounded-xl shadow btn-hover text-xs flex items-center justify-center gap-1">
+                  📄 📥 A4 PDF ডাউনলোড করুন
+                </button>
+                <button onclick="triggerDirectPrint()" class="w-full bg-green-700 text-white font-bold py-2.5 rounded-xl shadow btn-hover text-xs">
+                  🖨️ সরাসরি প্রিন্ট দিন
+                </button>
               </div>
             </div>
 
@@ -254,7 +269,7 @@
               <canvas id="photoCanvas" class="hidden rounded-lg shadow-md border"></canvas>
               <div id="imgPlaceholder" class="text-center text-gray-400">
                 <div class="text-5xl mb-2">📸</div>
-                <p class="text-sm font-semibold">পাসপোর্ট সাইজ বানাতে ছবি আপলোড করুন</p>
+                <p class="text-sm font-semibold">ছবি আপলোড করলে এখানে প্রিভিউ দেখাবে</p>
               </div>
             </div>
           </div>
@@ -300,10 +315,9 @@
         `;
       } else if (toolName === 'pdf') {
         content.innerHTML = `
-          <h2 class="font-anek font-bold text-2xl mb-2 text-pink-600">📑 PDF প্রসেসিং টুলস</h2>
+          <h2 class="font-anek font-bold text-2xl mb-2 text-pink-600">📑 PDF ও অন্যান্য টুলস</h2>
           <div class="p-10 border-2 border-dashed border-pink-300 bg-pink-50/50 rounded-2xl text-center">
-            <p class="text-gray-700 font-medium mb-4">PDF ফাইল কনভার্ট বা প্রসেস করার জন্য ফাইল নির্বাচন করুন</p>
-            <input type="file" class="block mx-auto text-sm text-gray-500" />
+            <p class="text-gray-700 font-medium mb-4">ভবিষ্যতের নতুন ফিচার আপডেটসমূহ শীঘ্রই যুক্ত হচ্ছে...</p>
           </div>
         `;
       }
@@ -322,7 +336,7 @@
       reader.onload = function(evt) {
         rawImage.src = evt.target.result;
         rawImage.onload = function() {
-          bgRemovedImage = null; // reset AI img
+          bgRemovedImage = null;
           renderPassportCanvas(rawImage);
         }
       }
@@ -333,15 +347,11 @@
       const canvas = document.getElementById('photoCanvas');
       const ctx = canvas.getContext('2d');
       
-      // Passport Dimension (350x450 ratio)
       canvas.width = 350;
       canvas.height = 450;
 
-      // Draw Color BG
       ctx.fillStyle = currentCanvasBg;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // Draw Image Centered
       ctx.drawImage(imgObject, 0, 0, canvas.width, canvas.height);
       
       canvas.classList.remove('hidden');
@@ -350,7 +360,7 @@
 
     async function removeBgAI() {
       const fileInput = document.getElementById('imgInput');
-      if(!fileInput.files[0]) return alert('দয়া করে প্রথমে একটি ছবি সিলেক্ট করুন!');
+      if(!fileInput || !fileInput.files[0]) return alert('দয়া করে প্রথমে একটি ছবি সিলেক্ট করুন!');
 
       const loader = document.getElementById('aiLoader');
       const btn = document.getElementById('aiBgBtn');
@@ -358,7 +368,6 @@
       btn.disabled = true;
 
       try {
-        // AI background removal
         const blob = await imglyRemoveBackground(fileInput.files[0]);
         const url = URL.createObjectURL(blob);
         
@@ -374,7 +383,7 @@
         console.error(err);
         loader.classList.add('hidden');
         btn.disabled = false;
-        alert('AI রিমুভ করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।');
+        alert('AI ব্যাকগ্রাউন্ড রিমুভ করতে সমস্যা হয়েছে।');
       }
     }
 
@@ -386,38 +395,57 @@
       }
     }
 
-    function downloadSinglePhoto() {
+    function generateA4PageLayout() {
       const canvas = document.getElementById('photoCanvas');
-      if (canvas.classList.contains('hidden')) return alert('কোনো ছবি এডিট করা হয়নি!');
-      const link = document.createElement('a');
-      link.download = 'passport-photo.png';
-      link.href = canvas.toDataURL();
-      link.click();
-    }
-
-    function generatePrintLayout() {
-      const canvas = document.getElementById('photoCanvas');
-      if (canvas.classList.contains('hidden')) return alert('প্রথমে ছবি তৈরি করুন!');
+      if (!canvas || canvas.classList.contains('hidden')) {
+        alert('প্রথমে ছবি আপলোড করুন!');
+        return false;
+      }
 
       const count = parseInt(document.getElementById('copyCount').value);
       const imgDataUrl = canvas.toDataURL();
-      const printContainer = document.getElementById('printContainer');
+      const printArea = document.getElementById('a4PrintArea');
       
-      printContainer.innerHTML = ''; // clear previous
+      printArea.innerHTML = '';
 
       for (let i = 0; i < count; i++) {
         const img = document.createElement('img');
         img.src = imgDataUrl;
         img.className = 'passport-print-item';
-        printContainer.appendChild(img);
+        printArea.appendChild(img);
       }
+      return true;
+    }
 
+    function downloadA4PDF() {
+      if (!generateA4PageLayout()) return;
+
+      const element = document.getElementById('a4PrintArea');
+      const pdfWrapper = document.getElementById('pdfWrapper');
+      
+      pdfWrapper.classList.remove('hidden');
+
+      const opt = {
+        margin:       0,
+        filename:     'amar-kaaj-passport-photos.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2 },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      html2pdf().set(opt).from(element).save().then(() => {
+        pdfWrapper.classList.add('hidden');
+      });
+    }
+
+    function triggerDirectPrint() {
+      if (!generateA4PageLayout()) return;
       window.print();
     }
 
     // LocalStorage CV Code
     function getSavedCVData() {
-      const saved = localStorage.getItem('sohoz_cv_data');
+      const saved = localStorage.getItem('amar_kaaj_cv');
       return saved ? JSON.parse(saved) : {
         name: 'মোহাম্মদ রহিম',
         title: 'কম্পিউটার অপারেটর',
@@ -439,7 +467,7 @@
         edu: document.getElementById('cvEdu').value,
         exp: document.getElementById('cvExp').value,
       };
-      localStorage.setItem('sohoz_cv_data', JSON.stringify(cvData));
+      localStorage.setItem('amar_kaaj_cv', JSON.stringify(cvData));
       document.getElementById('pvName').innerText = cvData.name;
       document.getElementById('pvTitle').innerText = cvData.title;
       document.getElementById('pvEmail').innerText = '📧 ' + cvData.email;
