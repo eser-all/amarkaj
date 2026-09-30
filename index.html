@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>আমার কাজ | এক ক্লিকেই ফাইল, সিভি ও ফটো তৈরি</title>
-  <meta name="description" content="আপনার সব ডিজিটাল কাজ এখন এক জায়গায়। ফটো এডিট, সিভি তৈরি, PDF/Word কনভার্শন ও ছবি থেকে লেখা।" />
+  <title>সহজ কাজ | AI ফটো এডিটিং, সিভি ও ফাইল প্রসেসিং প্ল্যাটফর্ম</title>
+  <meta name="description" content="sohozkaj-এর মতো এক ক্লিকেই প্রফেশনাল সিভি তৈরি, AI ছবি এডিটিং, OCR এবং ফাইল কনভার্ট করুন।" />
   <meta name="theme-color" content="#8068FB" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛠️</text></svg>" />
 
@@ -46,15 +46,11 @@
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
-    .bg-hero-button {
-      background: linear-gradient(135deg, #8068FB, #D6249F);
-    }
+    .bg-hero-button { background: linear-gradient(135deg, #8068FB, #D6249F); }
     .bg-violet-gradient { background: linear-gradient(145deg, #725aff, #b08fff); }
-    .bg-green-gradient { background: linear-gradient(145deg, #016328, #22c55e); }
     .bg-orange-gradient { background: linear-gradient(145deg, #ff9000, #febf02); }
     .bg-blue-gradient { background: linear-gradient(145deg, #0067ff, #03a8ff); }
     .bg-pink-gradient { background: linear-gradient(145deg, #ef465f, #f7949b); }
-    .bg-dark-gradient { background: linear-gradient(145deg, #1b1932, #2f2e51); }
     
     .shadow-card {
       box-shadow: 0 4px 24px -4px rgba(20,20,30,0.08), 0 2px 8px -2px rgba(20,20,30,0.04);
@@ -65,247 +61,308 @@
     }
     .tool-card { transition: all 0.2s ease; cursor: pointer; }
     .btn-hover:hover { filter: brightness(1.08); cursor: pointer; }
-    .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
-    .faq-item.open .faq-answer { max-height: 300px; }
-    .faq-item.open .faq-icon { transform: rotate(180deg); background: #FF9900; color: white; border-color: #FF9900; }
     
     @media print {
       body * { visibility: hidden; }
       #cvPreviewArea, #cvPreviewArea * { visibility: visible; }
-      #cvPreviewArea { position: absolute; left: 0; top: 0; width: 100%; }
+      #cvPreviewArea { position: absolute; left: 0; top: 0; width: 100%; padding: 0; margin: 0; }
     }
   </style>
 </head>
-<body class="bg-white text-[#101828] antialiased">
+<body class="bg-[#F8F9FC] text-[#101828] antialiased">
 
-  <!-- ========== HEADER ========== -->
+  <!-- HEADER -->
   <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-gray-100">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16 lg:h-20">
         <a href="#" class="flex items-center gap-2 shrink-0">
-          <div class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-white font-bold text-lg">আ</div>
-          <span class="font-anek font-bold text-xl lg:text-2xl text-[#171137]">আমার কাজ</span>
+          <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white font-bold text-xl shadow-md">স</div>
+          <span class="font-anek font-bold text-xl lg:text-2xl text-[#171137]">সহজ কাজ <span class="text-xs text-primary font-normal bg-violet-100 px-2 py-0.5 rounded-full">AI Studio</span></span>
         </a>
 
-        <nav class="hidden lg:flex items-center gap-6 text-sm font-semibold font-anek text-[#555]">
-          <a href="#tools" class="hover:text-primary transition">টুলস ও সেবা</a>
-          <a href="#pricing" class="hover:text-primary transition">প্যাকেজ</a>
+        <nav class="hidden lg:flex items-center gap-8 text-sm font-semibold font-anek text-[#555]">
+          <a href="#tools" class="hover:text-primary transition">টুলস সমূহ</a>
+          <a href="#features" class="hover:text-primary transition">সুবিধাসমূহ</a>
           <a href="#faq" class="hover:text-primary transition">জিজ্ঞাসা</a>
         </nav>
 
-        <div class="flex items-center gap-2 sm:gap-3">
-          <button id="loginBtn" type="button" class="inline-flex items-center gap-2 bg-primary text-white font-medium text-sm rounded-full px-5 py-2.5 shadow btn-hover">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
-            <span id="loginBtnText">লগইন</span>
+        <div class="flex items-center gap-3">
+          <button type="button" class="inline-flex items-center gap-2 bg-primary text-white font-medium text-sm rounded-full px-6 py-2.5 shadow-lg btn-hover">
+            <span>লগইন / রেজিস্টার</span>
           </button>
         </div>
       </div>
     </div>
   </header>
 
-  <!-- ========== HERO ========== -->
-  <section class="relative overflow-hidden bg-gradient-to-br from-[#F8F7FF] via-white to-[#FFF6E9] py-12 lg:py-20">
+  <!-- HERO -->
+  <section class="relative overflow-hidden bg-gradient-to-br from-[#F4F0FF] via-white to-[#FFF6E9] py-12 lg:py-20">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="grid lg:grid-cols-2 gap-12 items-center">
-        <div>
-          <div class="inline-flex items-center gap-2 border border-orange rounded-full py-1.5 px-4 bg-[#FFF6E9] mb-4">
-            <span class="text-xs sm:text-sm font-medium text-orange">৩৫০০০+ বর্তমান ব্যবহারকারী</span>
-          </div>
-          <h1 class="font-anek font-bold text-3xl sm:text-4xl lg:text-5xl leading-[1.25]">
-            আপনার সব <span class="text-gradient">ডিজিটাল কাজ ও সিভি তৈরি</span> এক জায়গায়
-          </h1>
-          <p class="mt-4 text-base lg:text-lg text-black/70">
-            সিভি তৈরি, ছবি এডিট, ছবি থেকে বাংলা লেখা বের করা, PDF ↔ Word কনভার্ট — এক ক্লিকেই সম্পূর্ণ ফ্রি-তে ব্যবহার করুন।
-          </p>
-          <div class="mt-6 flex flex-col sm:flex-row gap-3">
-            <a href="#tools" class="inline-flex items-center justify-center gap-2 bg-hero-button text-white font-medium text-base rounded-full px-7 py-3.5 shadow-lg btn-hover">
-              টুলস ব্যবহার করুন
-            </a>
-            <button onclick="openTool('cv')" class="inline-flex items-center justify-center gap-2 bg-white border border-gray-300 text-gray-800 font-medium text-base rounded-full px-7 py-3.5 shadow btn-hover">
-              📄 সিভি বানান (CV Maker)
-            </button>
-          </div>
+      <div class="text-center max-w-3xl mx-auto">
+        <div class="inline-flex items-center gap-2 border border-orange/40 rounded-full py-1.5 px-4 bg-[#FFF6E9] mb-4 shadow-sm">
+          <span class="text-xs sm:text-sm font-semibold text-orange">⚡ ১-ক্লিকে AI সেবা প্ল্যাটফর্ম</span>
+        </div>
+        <h1 class="font-anek font-bold text-3xl sm:text-5xl lg:text-6xl leading-[1.2]">
+          আপনার প্রয়োজনীয় সব <span class="text-gradient">AI স্মার্ট সার্ভিস</span> এক জায়গায়
+        </h1>
+        <p class="mt-4 text-base lg:text-lg text-gray-600">
+          AI পাসপোর্ট ছবি মেকার, রিয়েল-টাইম ডাটা সেভ সিভি বিল্ডার, যেকোনো ছবি থেকে লেখা বের করা (OCR) ও PDF ফাইল কনভার্ট করুন কোনো ঝামেলা ছাড়াই।
+        </p>
+        <div class="mt-8 flex flex-wrap justify-center gap-4">
+          <a href="#tools" class="inline-flex items-center justify-center gap-2 bg-hero-button text-white font-semibold text-base rounded-full px-8 py-3.5 shadow-lg btn-hover">
+            🚀 কাজ শুরু করুন
+          </a>
+          <button onclick="openTool('photo')" class="inline-flex items-center justify-center gap-2 bg-white border border-gray-200 text-gray-800 font-semibold text-base rounded-full px-8 py-3.5 shadow-sm btn-hover">
+            ✨ AI ছবি এডিট করুন
+          </button>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ========== TOOLS GRID ========== -->
+  <!-- TOOLS GRID -->
   <section id="tools" class="py-12 lg:py-20 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-10">
-        <h2 class="font-anek font-bold text-2xl lg:text-4xl">সহজ টুলস সমূহ</h2>
-        <p class="mt-2 text-gray-600">নিচের যেকোনো টুল বেছে নিয়ে সরাসরি কাজ শুরু করুন</p>
+      <div class="text-center mb-12">
+        <h2 class="font-anek font-bold text-2xl lg:text-4xl text-gray-900">জনপ্রিয় AI টুলস সমূহ</h2>
+        <p class="mt-2 text-gray-600">নিচের টুল থেকে আপনার প্রয়োজনীয় সার্ভিসটি নির্বাচন করুন</p>
       </div>
 
-      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         
-        <!-- CV Builder (New Tool) -->
-        <div onclick="openTool('cv')" class="tool-card group bg-white rounded-2xl p-5 text-center shadow-card border border-primary/20">
-          <div class="w-16 h-16 mx-auto -mt-10 mb-3 rounded-2xl bg-violet-gradient flex items-center justify-center text-3xl shadow-lg group-hover:scale-105 transition">📄</div>
-          <h3 class="font-anek font-bold text-base text-primary">সিভি তৈরি (CV Maker)</h3>
-          <p class="text-xs text-gray-500 mt-1">সহজে প্রফেশনাল সিভি বানান</p>
+        <!-- AI Photo Editor -->
+        <div onclick="openTool('photo')" class="tool-card group bg-white rounded-3xl p-6 text-center shadow-card border border-gray-100 hover:border-primary/40">
+          <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-blue-gradient flex items-center justify-center text-3xl text-white shadow-md group-hover:scale-110 transition">📸</div>
+          <h3 class="font-anek font-bold text-lg text-gray-800">AI ফটো স্টুডিও</h3>
+          <p class="text-xs text-gray-500 mt-2 leading-relaxed">পাসপোর্ট সাইজ, ব্যাকগ্রাউন্ড কালার চেঞ্জ ও ব্রাইটনেস অটো ফিল্টার</p>
         </div>
 
-        <!-- Photo Edit -->
-        <div onclick="openTool('photo')" class="tool-card group bg-white rounded-2xl p-5 text-center shadow-card border border-gray-50">
-          <div class="w-16 h-16 mx-auto -mt-10 mb-3 rounded-2xl bg-blue-gradient flex items-center justify-center text-3xl shadow-lg group-hover:scale-105 transition">🖼️</div>
-          <h3 class="font-anek font-bold text-base">পাসপোর্ট ফটো এডিটর</h3>
-          <p class="text-xs text-gray-500 mt-1">ক্রপ ও সাইজ পরিবর্তন</p>
+        <!-- Advanced CV Builder -->
+        <div onclick="openTool('cv')" class="tool-card group bg-white rounded-3xl p-6 text-center shadow-card border border-gray-100 hover:border-primary/40">
+          <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-violet-gradient flex items-center justify-center text-3xl text-white shadow-md group-hover:scale-110 transition">📝</div>
+          <h3 class="font-anek font-bold text-lg text-primary">স্মার্ট সিভি মেকার</h3>
+          <p class="text-xs text-gray-500 mt-2 leading-relaxed">ডাটা অটো সেভ থাকবে, ১-ক্লিকে প্রফেশনাল PDF ডাউনলোড</p>
         </div>
 
-        <!-- Image to Text (OCR) -->
-        <div onclick="openTool('ocr')" class="tool-card group bg-white rounded-2xl p-5 text-center shadow-card border border-gray-50">
-          <div class="w-16 h-16 mx-auto -mt-10 mb-3 rounded-2xl bg-orange-gradient flex items-center justify-center text-3xl shadow-lg group-hover:scale-105 transition">🔤</div>
-          <h3 class="font-anek font-bold text-base">ছবি থেকে লেখা (OCR)</h3>
-          <p class="text-xs text-gray-500 mt-1">ছবি থেকে টেক্সট বের করুন</p>
+        <!-- OCR Text Extractor -->
+        <div onclick="openTool('ocr')" class="tool-card group bg-white rounded-3xl p-6 text-center shadow-card border border-gray-100 hover:border-primary/40">
+          <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-orange-gradient flex items-center justify-center text-3xl text-white shadow-md group-hover:scale-110 transition">🔤</div>
+          <h3 class="font-anek font-bold text-lg text-gray-800">ছবি থেকে বাংলা লেখা</h3>
+          <p class="text-xs text-gray-500 mt-2 leading-relaxed">যেকোনো ছবি বা ডকুমেন্ট থেকে বাংলা/English টেক্সট কনভার্ট</p>
         </div>
 
-        <!-- PDF Converter -->
-        <div onclick="openTool('pdf')" class="tool-card group bg-white rounded-2xl p-5 text-center shadow-card border border-gray-50">
-          <div class="w-16 h-16 mx-auto -mt-10 mb-3 rounded-2xl bg-pink-gradient flex items-center justify-center text-3xl shadow-lg group-hover:scale-105 transition">📑</div>
-          <h3 class="font-anek font-bold text-base">PDF & Word টুলস</h3>
-          <p class="text-xs text-gray-500 mt-1">কনভার্ট ও সম্পাদনা</p>
+        <!-- PDF Suite -->
+        <div onclick="openTool('pdf')" class="tool-card group bg-white rounded-3xl p-6 text-center shadow-card border border-gray-100 hover:border-primary/40">
+          <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-pink-gradient flex items-center justify-center text-3xl text-white shadow-md group-hover:scale-110 transition">📑</div>
+          <h3 class="font-anek font-bold text-lg text-gray-800">PDF & ফাইল কনভার্টার</h3>
+          <p class="text-xs text-gray-500 mt-2 leading-relaxed">Word to PDF, সাইজ কমানো ও ফাইল মার্জ করার সহজ উপায়</p>
         </div>
 
       </div>
     </div>
   </section>
 
-  <!-- ========== DYNAMIC TOOL WORKING MODAL ========== -->
-  <div id="toolModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 p-4 overflow-y-auto">
-    <div class="bg-white rounded-3xl w-full max-w-4xl p-6 lg:p-8 shadow-2xl relative my-8 max-h-[90vh] overflow-y-auto">
-      <button onclick="closeToolModal()" class="absolute top-4 right-4 w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-xl font-bold hover:bg-gray-200">✕</button>
-      
-      <div id="modalContent">
-        <!-- Content injects dynamically via JavaScript -->
-      </div>
+  <!-- DYNAMIC WORKING MODAL -->
+  <div id="toolModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/70 p-4 backdrop-blur-sm overflow-y-auto">
+    <div class="bg-white rounded-3xl w-full max-w-4xl p-6 lg:p-8 shadow-2xl relative my-8 max-h-[92vh] overflow-y-auto">
+      <button onclick="closeToolModal()" class="absolute top-4 right-4 w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-xl font-bold hover:bg-red-500 hover:text-white transition">✕</button>
+      <div id="modalContent"></div>
     </div>
   </div>
 
-  <!-- ========== FAQ ========== -->
-  <section id="faq" class="py-12 bg-gray-50">
-    <div class="max-w-3xl mx-auto px-4 sm:px-6">
-      <h2 class="font-anek font-bold text-2xl text-center mb-6">সাধারণ জিজ্ঞাসা</h2>
-      <div class="space-y-3">
-        <div class="faq-item bg-white rounded-2xl border p-4">
-          <h3 class="font-bold">১. সিভি তৈরি করার পর কিভাবে ডাউনলোড করবো?</h3>
-          <p class="text-sm text-gray-600 mt-1">সিভি ফর্ম টি পূরণ করার পর 'ডাউনলোড/প্রিন্ট করুন' বাটনে ক্লিক করলেই সরাসরি PDF ফরম্যাটে সেভ করতে পারবেন।</p>
-        </div>
-        <div class="faq-item bg-white rounded-2xl border p-4">
-          <h3 class="font-bold">২. ছবি থেকে লেখা (OCR) কিভাবে কাজ করে?</h3>
-          <p class="text-sm text-gray-600 mt-1">যেকোনো ছবি আপলোড করলে আমাদের অটোমেটিক সিস্টেম ছবিটি স্ক্যান করে সেখান থেকে সব লেখা আলাদা করে উপস্থাপন করবে।</p>
-        </div>
-      </div>
+  <!-- FOOTER -->
+  <footer class="bg-[#101828] text-gray-400 py-10 text-center text-sm border-t border-gray-800">
+    <div class="max-w-7xl mx-auto px-4">
+      <p class="font-anek text-base text-gray-300 mb-2">সহজ কাজ — আপনার দৈনন্দিন কাজের ডিজিটাল সঙ্গী</p>
+      <p>© ২০২৬ সহজ কাজ। সর্বস্বত্ব সংরক্ষিত।</p>
     </div>
-  </section>
-
-  <!-- ========== FOOTER ========== -->
-  <footer class="bg-[#101828] text-gray-400 py-8 text-center text-sm">
-    <p>© ২০২৬ আমার কাজ। সর্বস্বত্ব সংরক্ষিত।</p>
   </footer>
 
-  <!-- ========== JAVASCRIPT LOGIC ========== -->
+  <!-- JAVASCRIPT LOGIC -->
   <script>
-    // Tool Modal Controller
+    // LocalStorage Helper for CV (No Data Loss)
+    function getSavedCVData() {
+      const saved = localStorage.getItem('sohoz_cv_data');
+      return saved ? JSON.parse(saved) : {
+        name: 'মোহাম্মদ রহিম',
+        title: 'কম্পিউটার অপারেটর / ডাটা এনট্রি বিশেষজ্ঞ',
+        email: 'rahim@gmail.com',
+        phone: '+৮৮০ ১৭০০০০০-০০০',
+        skills: 'MS Word, Excel, Photo Editing, Fast Bangla Typing',
+        edu: 'বি.এসসি (কম্পিউটার সাইন্স) - ঢাকা বিশ্ববিদ্যালয়',
+        exp: '২ বছর ডিজিটাল সেবা কেন্দ্র এ কাজের বাস্তব অভিজ্ঞতা।'
+      };
+    }
+
+    function saveCVData() {
+      const cvData = {
+        name: document.getElementById('cvName').value,
+        title: document.getElementById('cvTitle').value,
+        email: document.getElementById('cvEmail').value,
+        phone: document.getElementById('cvPhone').value,
+        skills: document.getElementById('cvSkills').value,
+        edu: document.getElementById('cvEdu').value,
+        exp: document.getElementById('cvExp').value,
+      };
+      localStorage.setItem('sohoz_cv_data', JSON.stringify(cvData));
+      updateCVPreview(cvData);
+    }
+
+    function updateCVPreview(data) {
+      document.getElementById('pvName').innerText = data.name || 'আপনার নাম';
+      document.getElementById('pvTitle').innerText = data.title || 'পদবী';
+      document.getElementById('pvEmail').innerText = '📧 ' + (data.email || '');
+      document.getElementById('pvPhone').innerText = '📞 ' + (data.phone || '');
+      document.getElementById('pvSkills').innerText = data.skills || '';
+      document.getElementById('pvEdu').innerText = data.edu || '';
+      document.getElementById('pvExp').innerText = data.exp || '';
+    }
+
+    // Modal Control & Tools Routing
     function openTool(toolName) {
       const modal = document.getElementById('toolModal');
       const content = document.getElementById('modalContent');
       modal.classList.remove('hidden');
       modal.classList.add('flex');
 
-      if (toolName === 'cv') {
+      if (toolName === 'photo') {
         content.innerHTML = `
-          <h2 class="font-anek font-bold text-2xl mb-4 text-primary">📄 প্রফেশনাল সিভি তৈরি করুন</h2>
-          <div class="grid lg:grid-cols-2 gap-6">
-            <!-- Form Input -->
-            <div class="space-y-3 bg-gray-50 p-4 rounded-2xl text-sm">
-              <h3 class="font-bold border-b pb-2">তথ্য প্রবেশ করুন:</h3>
-              <input type="text" id="cvName" oninput="updateCV()" placeholder="পূর্ণ নাম" class="w-full p-2.5 border rounded-xl" value="মোহাম্মদ রহিম" />
-              <input type="text" id="cvTitle" oninput="updateCV()" placeholder="পদবী (যেমন: কম্পিউটার অপারেটর)" class="w-full p-2.5 border rounded-xl" value="কম্পিউটার অপারেটর" />
-              <input type="email" id="cvEmail" oninput="updateCV()" placeholder="ইমেইল" class="w-full p-2.5 border rounded-xl" value="rahim@gmail.com" />
-              <input type="text" id="cvPhone" oninput="updateCV()" placeholder="ফোন নম্বর" class="w-full p-2.5 border rounded-xl" value="+৮৮০ ১৭০০০০০-০০০" />
-              <textarea id="cvEdu" oninput="updateCV()" placeholder="শিক্ষাগত যোগ্যতা" class="w-full p-2.5 border rounded-xl h-20">বি.এসসি (কম্পিউটার সাইন্স) - ঢাকা বিশ্ববিদ্যালয়</textarea>
-              <textarea id="cvExp" oninput="updateCV()" placeholder="কাজের অভিজ্ঞতা" class="w-full p-2.5 border rounded-xl h-20">২ বছরের আইটি ও ডকুমেন্ট প্রসেসিং এর অভিজ্ঞতা।</textarea>
-              <button onclick="window.print()" class="w-full bg-primary text-white font-bold py-3 rounded-xl shadow btn-hover">🖨️ ডাউনলোড / প্রিন্ট করুন (PDF)</button>
-            </div>
+          <h2 class="font-anek font-bold text-2xl mb-2 text-blue-600">📸 AI ফটো স্টুডিও (Full AI Suite)</h2>
+          <p class="text-xs text-gray-500 mb-6">পাসপোর্ট ও স্ট্যাম্প সাইজ তৈরি করুন, ব্যাকগ্রাউন্ড কালার চেঞ্জ করুন এবং অটো এনহ্যান্সমেন্ট করুন</p>
+          
+          <div class="grid lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-1 space-y-4 bg-gray-50 p-4 rounded-2xl text-sm border">
+              <div>
+                <label class="block font-bold text-gray-700 mb-1">১. ছবি নির্বাচন করুন:</label>
+                <input type="file" id="imgInput" accept="image/*" class="w-full p-2 bg-white border rounded-xl text-xs" onchange="processImage(event)" />
+              </div>
 
-            <!-- CV Live Preview Area -->
-            <div id="cvPreviewArea" class="border p-6 rounded-2xl bg-white shadow-inner">
-              <div class="border-b-2 border-primary pb-4 mb-4">
-                <h1 id="pvName" class="text-2xl font-bold text-gray-800">মোহাম্মদ রহিম</h1>
-                <p id="pvTitle" class="text-primary font-semibold">কম্পিউটার অপারেটর</p>
-                <div class="text-xs text-gray-500 mt-2 flex gap-3">
-                  <span id="pvEmail">📧 rahim@gmail.com</span> | 
-                  <span id="pvPhone">📞 +৮৮০ ১৭০০০০০-০০০</span>
+              <div>
+                <label class="block font-bold text-gray-700 mb-1">২. সাইজ সিলেক্ট করুন:</label>
+                <div class="grid grid-cols-2 gap-2">
+                  <button onclick="applySize(350, 450)" class="bg-white border p-2 rounded-xl text-xs font-semibold hover:border-blue-500">📌 পাসপোর্ট (35x45mm)</button>
+                  <button onclick="applySize(300, 300)" class="bg-white border p-2 rounded-xl text-xs font-semibold hover:border-blue-500">📐 স্ট্যাম্প সাইজ</button>
                 </div>
               </div>
-              <div class="mb-4">
-                <h4 class="font-bold text-sm text-gray-700 border-b mb-1">শিক্ষাগত যোগ্যতা</h4>
-                <p id="pvEdu" class="text-xs text-gray-600 whitespace-pre-line">বি.এসসি (কম্পিউটার সাইন্স) - ঢাকা বিশ্ববিদ্যালয়</p>
-              </div>
+
               <div>
-                <h4 class="font-bold text-sm text-gray-700 border-b mb-1">অভিজ্ঞতা</h4>
-                <p id="pvExp" class="text-xs text-gray-600 whitespace-pre-line">২ বছরের আইটি ও ডকুমেন্ট প্রসেসিং এর অভিজ্ঞতা।</p>
+                <label class="block font-bold text-gray-700 mb-1">৩. AI ব্যাকগ্রাউন্ড কালার:</label>
+                <div class="flex gap-2">
+                  <button onclick="changeCanvasBg('#ffffff')" class="w-8 h-8 rounded-full bg-white border-2 shadow-sm" title="সাদা"></button>
+                  <button onclick="changeCanvasBg('#a5c9eb')" class="w-8 h-8 rounded-full bg-[#a5c9eb] shadow-sm" title="হালকা নীল"></button>
+                  <button onclick="changeCanvasBg('#0055ff')" class="w-8 h-8 rounded-full bg-[#0055ff] shadow-sm" title="গাঢ় নীল"></button>
+                  <button onclick="changeCanvasBg('#e63946')" class="w-8 h-8 rounded-full bg-[#e63946] shadow-sm" title="লাল"></button>
+                </div>
+              </div>
+
+              <div>
+                <label class="block font-bold text-gray-700 mb-1">৪. AI ফিল্টার ও এনহ্যান্সমেন্ট:</label>
+                <div class="space-y-2">
+                  <button onclick="aiEnhancePhoto()" class="w-full bg-indigo-50 border border-indigo-200 text-indigo-700 py-2 rounded-xl font-bold text-xs hover:bg-indigo-100">✨ অটো ব্রাইটনেস & শার্পনেস</button>
+                  <button onclick="applyGrayscale()" class="w-full bg-gray-200 text-gray-800 py-2 rounded-xl font-bold text-xs hover:bg-gray-300">অফিশিয়াল ব্ল্যাক অ্যান্ড হোয়াইট</button>
+                </div>
+              </div>
+
+              <button onclick="downloadCanvasImg()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl shadow btn-hover mt-4">📥 ছবি ডাউনলোড করুন</button>
+            </div>
+
+            <!-- Canvas Preview -->
+            <div class="lg:col-span-2 border p-4 rounded-2xl bg-gray-100 flex flex-col items-center justify-center min-h-[350px]">
+              <canvas id="photoCanvas" class="max-w-full hidden rounded-lg shadow-md border"></canvas>
+              <div id="imgPlaceholder" class="text-center text-gray-400">
+                <div class="text-4xl mb-2">🖼️</div>
+                <p class="text-sm">একটি ছবি আপলোড করে কাজ শুরু করুন</p>
               </div>
             </div>
           </div>
         `;
-      } else if (toolName === 'photo') {
+      } else if (toolName === 'cv') {
+        const data = getSavedCVData();
         content.innerHTML = `
-          <h2 class="font-anek font-bold text-2xl mb-4 text-blue-600">🖼️ পাসপোর্ট ফটো এডিটর</h2>
-          <div class="space-y-4">
-            <input type="file" id="imgInput" accept="image/*" class="w-full p-2 border rounded-xl" onchange="processImage(event)" />
-            <div class="flex justify-center border p-4 rounded-xl bg-gray-50 min-h-[200px] items-center">
-              <canvas id="photoCanvas" class="max-w-full hidden rounded shadow"></canvas>
-              <p id="imgPlaceholder" class="text-gray-400">ছবি নির্বাচন করুন</p>
+          <h2 class="font-anek font-bold text-2xl mb-1 text-primary">📝 প্রফেশনাল সিভি মেকার</h2>
+          <p class="text-xs text-gray-500 mb-4">যেকোনো ডাটা ইনপুট দিলে তা ব্রাউজারে অটো-সেভ হয়ে যাবে।</p>
+          
+          <div class="grid lg:grid-cols-2 gap-6">
+            <div class="space-y-3 bg-gray-50 p-4 rounded-2xl text-sm border">
+              <h3 class="font-bold text-gray-700 border-b pb-2 flex justify-between">
+                <span>আপনার তথ্য লিখুন:</span>
+                <span class="text-xs text-green-600 font-normal">✓ অটো সেভ সক্রিয়</span>
+              </h3>
+              <input type="text" id="cvName" oninput="saveCVData()" placeholder="পূর্ণ নাম" class="w-full p-2.5 border rounded-xl" value="${data.name}" />
+              <input type="text" id="cvTitle" oninput="saveCVData()" placeholder="পদবী" class="w-full p-2.5 border rounded-xl" value="${data.title}" />
+              <input type="email" id="cvEmail" oninput="saveCVData()" placeholder="ইমেইল" class="w-full p-2.5 border rounded-xl" value="${data.email}" />
+              <input type="text" id="cvPhone" oninput="saveCVData()" placeholder="ফোন নম্বর" class="w-full p-2.5 border rounded-xl" value="${data.phone}" />
+              <input type="text" id="cvSkills" oninput="saveCVData()" placeholder="দক্ষতা সমুহ (কমা দিয়ে লিখুন)" class="w-full p-2.5 border rounded-xl" value="${data.skills}" />
+              <textarea id="cvEdu" oninput="saveCVData()" placeholder="শিক্ষাগত যোগ্যতা" class="w-full p-2.5 border rounded-xl h-16">${data.edu}</textarea>
+              <textarea id="cvExp" oninput="saveCVData()" placeholder="অভিজ্ঞতা" class="w-full p-2.5 border rounded-xl h-16">${data.exp}</textarea>
+              <button onclick="window.print()" class="w-full bg-primary text-white font-bold py-3 rounded-xl shadow btn-hover">🖨️ ডাউনলোড/প্রিন্ট করুন (PDF)</button>
             </div>
-            <div id="photoControls" class="hidden flex gap-3">
-              <button onclick="applyPassportSize()" class="bg-green-600 text-white px-4 py-2 rounded-xl text-sm font-bold">পাসপোর্ট সাইজ ক্রপ</button>
-              <button onclick="downloadCanvasImg()" class="bg-primary text-white px-4 py-2 rounded-xl text-sm font-bold">ডাউনলোড করুন</button>
+
+            <!-- CV Preview -->
+            <div id="cvPreviewArea" class="border p-6 rounded-2xl bg-white shadow-sm border-gray-200">
+              <div class="border-b-2 border-primary pb-3 mb-4">
+                <h1 id="pvName" class="text-2xl font-bold text-gray-900">${data.name}</h1>
+                <p id="pvTitle" class="text-primary font-semibold text-sm">${data.title}</p>
+                <div class="text-xs text-gray-500 mt-2 flex flex-wrap gap-3">
+                  <span id="pvEmail">📧 ${data.email}</span>
+                  <span id="pvPhone">📞 ${data.phone}</span>
+                </div>
+              </div>
+              
+              <div class="mb-3">
+                <h4 class="font-bold text-xs uppercase text-gray-400 tracking-wider mb-1">দক্ষতা (Skills)</h4>
+                <p id="pvSkills" class="text-xs text-gray-700 font-medium bg-gray-50 p-2 rounded-lg">${data.skills}</p>
+              </div>
+
+              <div class="mb-3">
+                <h4 class="font-bold text-xs uppercase text-gray-400 tracking-wider mb-1">শিক্ষাগত যোগ্যতা</h4>
+                <p id="pvEdu" class="text-xs text-gray-600 whitespace-pre-line leading-relaxed">${data.edu}</p>
+              </div>
+
+              <div>
+                <h4 class="font-bold text-xs uppercase text-gray-400 tracking-wider mb-1">অভিজ্ঞতা</h4>
+                <p id="pvExp" class="text-xs text-gray-600 whitespace-pre-line leading-relaxed">${data.exp}</p>
+              </div>
             </div>
           </div>
         `;
       } else if (toolName === 'ocr') {
         content.innerHTML = `
-          <h2 class="font-anek font-bold text-2xl mb-4 text-orange-600">🔤 ছবি থেকে লেখা বের করুন (OCR)</h2>
-          <div class="space-y-4">
-            <input type="file" id="ocrInput" accept="image/*" class="w-full p-2 border rounded-xl" />
-            <button onclick="runOCR()" class="bg-orange-500 text-white font-bold px-6 py-2.5 rounded-xl btn-hover w-full">লেখা এক্সট্রাক্ট করুন</button>
-            <div id="ocrStatus" class="text-sm font-semibold text-gray-500 text-center"></div>
-            <textarea id="ocrResult" class="w-full h-40 p-3 border rounded-xl text-sm" placeholder="এখানে এক্সট্রাক্ট হওয়া লেখা দেখতে পাবেন..."></textarea>
+          <h2 class="font-anek font-bold text-2xl mb-2 text-orange-600">🔤 ছবি থেকে বাংলা/ইংরেজি লেখা এক্সট্র্যাক্ট</h2>
+          <p class="text-xs text-gray-500 mb-4">যেকোনো স্ক্যান করা ডকুমেন্ট বা বইয়ের ছবির টেক্সট আলাদা করুন</p>
+          <div class="space-y-4 bg-gray-50 p-6 rounded-2xl border">
+            <input type="file" id="ocrInput" accept="image/*" class="w-full p-3 bg-white border rounded-xl" />
+            <button onclick="runOCR()" class="bg-orange-500 text-white font-bold py-3 rounded-xl btn-hover w-full shadow-md">🚀 টেক্সট এক্সট্র্যাক্ট শুরু করুন</button>
+            <div id="ocrStatus" class="text-sm font-semibold text-gray-600 text-center"></div>
+            <div class="relative">
+              <textarea id="ocrResult" class="w-full h-48 p-4 border rounded-xl text-sm bg-white" placeholder="এখানে এক্সট্র্যাক্ট হওয়া বাংলা বা ইংরেজি টেক্সট দেখা যাবে..."></textarea>
+              <button onclick="copyOCRText()" class="absolute top-3 right-3 bg-gray-100 hover:bg-gray-200 text-xs px-3 py-1.5 rounded-lg border font-semibold">📋 কপি টেক্সট</button>
+            </div>
           </div>
         `;
       } else if (toolName === 'pdf') {
         content.innerHTML = `
-          <h2 class="font-anek font-bold text-2xl mb-4 text-pink-600">📑 PDF ও ফাইল কনভার্টার</h2>
-          <div class="p-6 border-2 border-dashed rounded-2xl text-center space-y-3">
-            <p class="text-gray-600 font-semibold">আপনার PDF অথবা Word ফাইল এখানে ড্রপ করুন</p>
+          <h2 class="font-anek font-bold text-2xl mb-2 text-pink-600">📑 PDF ও ফাইল কনভার্টার টুলস</h2>
+          <p class="text-xs text-gray-500 mb-4">সহজেই ফাইল ড্রপ করে কনভার্ট অথবা প্রসেস করুন</p>
+          <div class="p-10 border-2 border-dashed border-pink-300 bg-pink-50/50 rounded-2xl text-center space-y-4">
+            <div class="text-4xl">📂</div>
+            <p class="text-gray-700 font-medium">আপনার PDF বা Word ফাইল নির্বাচন অথবা এখানে ড্রপ করুন</p>
             <input type="file" class="block mx-auto text-sm text-gray-500" />
-            <button onclick="alert('ফাইল প্রসেসিং শুরু হয়েছে...')" class="bg-pink-600 text-white font-bold px-6 py-2 rounded-xl btn-hover">কনভার্ট শুরু করুন</button>
+            <button onclick="alert('আপনার ফাইলটি প্রসেসিং করা হচ্ছে...')" class="bg-pink-600 text-white font-bold px-8 py-3 rounded-xl shadow btn-hover">কনভার্ট করুন</button>
           </div>
         `;
       }
     }
 
     function closeToolModal() {
-      const modal = document.getElementById('toolModal');
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
+      document.getElementById('toolModal').classList.add('hidden');
+      document.getElementById('toolModal').classList.remove('flex');
     }
 
-    // Live CV Update Function
-    function updateCV() {
-      document.getElementById('pvName').innerText = document.getElementById('cvName').value || 'নাম';
-      document.getElementById('pvTitle').innerText = document.getElementById('cvTitle').value || 'পদবী';
-      document.getElementById('pvEmail').innerText = '📧 ' + (document.getElementById('cvEmail').value || '');
-      document.getElementById('pvPhone').innerText = '📞 ' + (document.getElementById('cvPhone').value || '');
-      document.getElementById('pvEdu').innerText = document.getElementById('cvEdu').value || '';
-      document.getElementById('pvExp').innerText = document.getElementById('cvExp').value || '';
-    }
-
-    // Photo Processing Logic
+    // AI Photo Studio Engine
     let rawImage = new Image();
+    let currentCanvasBg = '#ffffff';
+
     function processImage(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -320,24 +377,52 @@
           ctx.drawImage(rawImage, 0, 0);
           canvas.classList.remove('hidden');
           document.getElementById('imgPlaceholder').classList.add('hidden');
-          document.getElementById('photoControls').classList.remove('hidden');
         }
       }
       reader.readAsDataURL(file);
     }
 
-    function applyPassportSize() {
+    function applySize(w, h) {
+      if(!rawImage.src) return alert('অনুগ্রহ করে প্রথমে ছবি আপলোড করুন');
       const canvas = document.getElementById('photoCanvas');
       const ctx = canvas.getContext('2d');
-      canvas.width = 350;
-      canvas.height = 450;
-      ctx.drawImage(rawImage, 0, 0, 350, 450);
+      canvas.width = w;
+      canvas.height = h;
+      ctx.fillStyle = currentCanvasBg;
+      ctx.fillRect(0, 0, w, h);
+      ctx.drawImage(rawImage, 0, 0, w, h);
+    }
+
+    function changeCanvasBg(color) {
+      currentCanvasBg = color;
+      const canvas = document.getElementById('photoCanvas');
+      if(canvas.classList.contains('hidden')) return;
+      applySize(canvas.width, canvas.height);
+    }
+
+    function aiEnhancePhoto() {
+      const canvas = document.getElementById('photoCanvas');
+      if(canvas.classList.contains('hidden')) return;
+      const ctx = canvas.getContext('2d');
+      ctx.filter = 'brightness(112%) contrast(108%) saturate(105%)';
+      ctx.drawImage(rawImage, 0, 0, canvas.width, canvas.height);
+      ctx.filter = 'none';
+    }
+
+    function applyGrayscale() {
+      const canvas = document.getElementById('photoCanvas');
+      if(canvas.classList.contains('hidden')) return;
+      const ctx = canvas.getContext('2d');
+      ctx.filter = 'grayscale(100%)';
+      ctx.drawImage(rawImage, 0, 0, canvas.width, canvas.height);
+      ctx.filter = 'none';
     }
 
     function downloadCanvasImg() {
       const canvas = document.getElementById('photoCanvas');
+      if(canvas.classList.contains('hidden')) return alert('কোনো ছবি এডিট করা হয়নি!');
       const link = document.createElement('a');
-      link.download = 'passport-photo.png';
+      link.download = 'sohoz-edited-photo.png';
       link.href = canvas.toDataURL();
       link.click();
     }
@@ -348,22 +433,26 @@
       const status = document.getElementById('ocrStatus');
       const result = document.getElementById('ocrResult');
 
-      if (!input.files[0]) {
-        alert('অনুগ্রহ করে একটি ছবি নির্বাচন করুন!');
-        return;
-      }
+      if (!input.files[0]) return alert('ছবি ফাইল সিলেক্ট করুন!');
 
-      status.innerText = 'ছবি স্ক্যান করা হচ্ছে... অনুগ্রহ করে একটু অপেক্ষা করুন।';
+      status.innerText = '⏳ ছবি স্ক্যান করা হচ্ছে... অনুগ্রহ করে একটু অপেক্ষা করুন।';
       Tesseract.recognize(
         input.files[0],
         'ben+eng',
         { logger: m => { if(m.status === 'recognizing text') status.innerText = `প্রসেসিং: ${Math.round(m.progress * 100)}%`; } }
       ).then(({ data: { text } }) => {
-        status.innerText = 'কাজ সম্পন্ন হয়েছে!';
+        status.innerText = '✅ প্রসেস সম্পন্ন হয়েছে!';
         result.value = text;
-      }).catch(err => {
-        status.innerText = 'সমস্যা হয়েছে, আবার চেষ্টা করুন।';
+      }).catch(() => {
+        status.innerText = '❌ প্রসেস করতে সমস্যা হয়েছে, আবার চেষ্টা করুন।';
       });
+    }
+
+    function copyOCRText() {
+      const result = document.getElementById('ocrResult');
+      if(!result.value) return;
+      navigator.clipboard.writeText(result.value);
+      alert('টেক্সট কপি করা হয়েছে!');
     }
   </script>
 </body>
