@@ -3,10 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>আমার কাজ | এক ক্লিকেই ফাইল ও ফটো তৈরি | সময় বাঁচবে, ঝামেলা কমবে</title>
-  <meta name="description" content="আপনার সব ডিজিটাল কাজ এখন এক জায়গায়। ফটো এডিট, ডকুমেন্ট তৈরি, PDF/Word কনভার্শন, ছবি থেকে লেখা ও AI সার্ভিস — আমার কাজ প্ল্যাটফর্মে।" />
+  <title>আমার কাজ | এক ক্লিকেই ফাইল, সিভি ও ফটো তৈরি</title>
+  <meta name="description" content="আপনার সব ডিজিটাল কাজ এখন এক জায়গায়। ফটো এডিট, সিভি তৈরি, PDF/Word কনভার্শন ও ছবি থেকে লেখা।" />
   <meta name="theme-color" content="#8068FB" />
-  <meta name="language" content="bn-BD" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛠️</text></svg>" />
 
   <!-- Google Fonts -->
@@ -16,6 +15,9 @@
 
   <!-- Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- OCR Library for Image to Text -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
   <script>
     tailwind.config = {
       theme: {
@@ -47,27 +49,13 @@
     .bg-hero-button {
       background: linear-gradient(135deg, #8068FB, #D6249F);
     }
-    .bg-violet-gradient {
-      background: linear-gradient(145deg, #725aff, #b08fff);
-    }
-    .bg-green-gradient {
-      background: linear-gradient(145deg, #016328, #22c55e);
-    }
-    .bg-[#016328] {
-      background-color: #016328;
-    }
-    .bg-orange-gradient {
-      background: linear-gradient(145deg, #ff9000, #febf02);
-    }
-    .bg-blue-gradient {
-      background: linear-gradient(145deg, #0067ff, #03a8ff);
-    }
-    .bg-pink-gradient {
-      background: linear-gradient(145deg, #ef465f, #f7949b);
-    }
-    .bg-dark-gradient {
-      background: linear-gradient(145deg, #1b1932, #2f2e51);
-    }
+    .bg-violet-gradient { background: linear-gradient(145deg, #725aff, #b08fff); }
+    .bg-green-gradient { background: linear-gradient(145deg, #016328, #22c55e); }
+    .bg-orange-gradient { background: linear-gradient(145deg, #ff9000, #febf02); }
+    .bg-blue-gradient { background: linear-gradient(145deg, #0067ff, #03a8ff); }
+    .bg-pink-gradient { background: linear-gradient(145deg, #ef465f, #f7949b); }
+    .bg-dark-gradient { background: linear-gradient(145deg, #1b1932, #2f2e51); }
+    
     .shadow-card {
       box-shadow: 0 4px 24px -4px rgba(20,20,30,0.08), 0 2px 8px -2px rgba(20,20,30,0.04);
     }
@@ -75,142 +63,67 @@
       box-shadow: 0 12px 32px -8px rgba(128,104,251,0.18), 0 4px 12px -2px rgba(20,20,30,0.06);
       transform: translateY(-2px);
     }
-    .tool-card { transition: all 0.2s ease; }
+    .tool-card { transition: all 0.2s ease; cursor: pointer; }
     .btn-hover:hover { filter: brightness(1.08); cursor: pointer; }
     .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
     .faq-item.open .faq-answer { max-height: 300px; }
     .faq-item.open .faq-icon { transform: rotate(180deg); background: #FF9900; color: white; border-color: #FF9900; }
+    
+    @media print {
+      body * { visibility: hidden; }
+      #cvPreviewArea, #cvPreviewArea * { visibility: visible; }
+      #cvPreviewArea { position: absolute; left: 0; top: 0; width: 100%; }
+    }
   </style>
 </head>
 <body class="bg-white text-[#101828] antialiased">
 
   <!-- ========== HEADER ========== -->
-  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-gray-100">
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-gray-100">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16 lg:h-20">
-        <!-- Logo -->
-        <a href="/" class="flex items-center gap-2 shrink-0">
+        <a href="#" class="flex items-center gap-2 shrink-0">
           <div class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-white font-bold text-lg">আ</div>
           <span class="font-anek font-bold text-xl lg:text-2xl text-[#171137]">আমার কাজ</span>
         </a>
 
-        <!-- Desktop Nav -->
         <nav class="hidden lg:flex items-center gap-6 text-sm font-semibold font-anek text-[#555]">
-          <a href="#services" class="hover:text-primary transition">আমাদের সেবা</a>
-          <a href="#tools" class="hover:text-primary transition">সহজ টুলস</a>
+          <a href="#tools" class="hover:text-primary transition">টুলস ও সেবা</a>
           <a href="#pricing" class="hover:text-primary transition">প্যাকেজ</a>
           <a href="#faq" class="hover:text-primary transition">জিজ্ঞাসা</a>
         </nav>
 
-        <!-- Actions -->
         <div class="flex items-center gap-2 sm:gap-3">
-          <div class="hidden sm:flex items-center gap-0.5 border border-gray-200 rounded-full px-1.5 py-1 bg-gray-50 text-xs font-semibold">
-            <span class="px-2 py-1 rounded-full bg-primary text-white cursor-pointer">বাং</span>
-            <span class="px-2 py-1 rounded-full text-gray-500 cursor-pointer">EN</span>
-          </div>
           <button id="loginBtn" type="button" class="inline-flex items-center gap-2 bg-primary text-white font-medium text-sm rounded-full px-5 py-2.5 shadow btn-hover">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
             <span id="loginBtnText">লগইন</span>
           </button>
-          <button id="mobileMenuBtn" type="button" class="lg:hidden p-2 rounded-md hover:bg-gray-100">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-          </button>
         </div>
       </div>
-    </div>
-
-    <!-- Mobile Navigation Drawer -->
-    <div id="mobileNav" class="hidden lg:hidden bg-white border-b border-gray-200 px-4 pt-2 pb-4 space-y-2 font-anek font-semibold">
-      <a href="#services" class="block py-2 text-gray-700 hover:text-primary">আমাদের সেবা</a>
-      <a href="#tools" class="block py-2 text-gray-700 hover:text-primary">সহজ টুলস</a>
-      <a href="#pricing" class="block py-2 text-gray-700 hover:text-primary">প্যাকেজ</a>
-      <a href="#faq" class="block py-2 text-gray-700 hover:text-primary">জিজ্ঞাসা</a>
     </div>
   </header>
 
   <!-- ========== HERO ========== -->
-  <section class="relative overflow-hidden bg-gradient-to-br from-[#F8F7FF] via-white to-[#FFF6E9] py-12 lg:py-24">
+  <section class="relative overflow-hidden bg-gradient-to-br from-[#F8F7FF] via-white to-[#FFF6E9] py-12 lg:py-20">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="grid lg:grid-cols-2 gap-12 items-center">
         <div>
           <div class="inline-flex items-center gap-2 border border-orange rounded-full py-1.5 px-4 bg-[#FFF6E9] mb-4">
-            <span class="text-xs sm:text-sm font-medium">৩৫০০০+ বর্তমান ব্যবহারকারী</span>
+            <span class="text-xs sm:text-sm font-medium text-orange">৩৫০০০+ বর্তমান ব্যবহারকারী</span>
           </div>
-          <h1 class="font-anek font-bold text-3xl sm:text-4xl lg:text-5xl xl:text-[56px] leading-[1.25] tracking-tight">
-            আপনার সব <span class="text-gradient">ডিজিটাল কাজ এক জায়গায়,</span><br/>
-            সহজ ও নিরাপদ
+          <h1 class="font-anek font-bold text-3xl sm:text-4xl lg:text-5xl leading-[1.25]">
+            আপনার সব <span class="text-gradient">ডিজিটাল কাজ ও সিভি তৈরি</span> এক জায়গায়
           </h1>
-          <p class="mt-4 text-base lg:text-lg text-black/70 max-w-lg">
-            এআই ফটো এডিট, ম্যানুয়াল এডিট, বাল্ক এডিট, ছবি থেকে লেখা, PDF ↔ Word, ডকুমেন্ট তৈরি — কম্পিউটার দোকানের সব কাজ এখন এক প্ল্যাটফর্মে।
+          <p class="mt-4 text-base lg:text-lg text-black/70">
+            সিভি তৈরি, ছবি এডিট, ছবি থেকে বাংলা লেখা বের করা, PDF ↔ Word কনভার্ট — এক ক্লিকেই সম্পূর্ণ ফ্রি-তে ব্যবহার করুন।
           </p>
           <div class="mt-6 flex flex-col sm:flex-row gap-3">
             <a href="#tools" class="inline-flex items-center justify-center gap-2 bg-hero-button text-white font-medium text-base rounded-full px-7 py-3.5 shadow-lg btn-hover">
-              এখনই শুরু করুন
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+              টুলস ব্যবহার করুন
             </a>
-            <button type="button" class="inline-flex items-center justify-center gap-2 bg-white border border-gray-200 text-gray-700 font-medium text-base rounded-full px-7 py-3.5 shadow btn-hover">
-              <svg class="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-              ডেমো ভিডিও দেখুন
+            <button onclick="openTool('cv')" class="inline-flex items-center justify-center gap-2 bg-white border border-gray-300 text-gray-800 font-medium text-base rounded-full px-7 py-3.5 shadow btn-hover">
+              📄 সিভি বানান (CV Maker)
             </button>
-          </div>
-          <ul class="mt-8 flex flex-wrap gap-4 text-sm font-medium text-gray-600">
-            <li class="flex items-center gap-2"><span class="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-xs">✓</span> এক ক্লিকেই ফটো এডিট</li>
-            <li class="flex items-center gap-2"><span class="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-xs">✓</span> এক জায়গায় সব টুল</li>
-            <li class="flex items-center gap-2"><span class="w-5 h-5 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 text-xs">✓</span> সময় বাঁচবে, ঝামেলা কমবে</li>
-          </ul>
-        </div>
-
-        <!-- Hero Card Preview -->
-        <div class="hidden lg:block relative">
-          <div class="bg-white border border-gray-100 rounded-3xl shadow-xl p-6 max-w-md ml-auto">
-            <div class="bg-violet-gradient h-14 rounded-t-2xl -mx-6 -mt-6 mb-6 flex items-center justify-end px-6 gap-2">
-              <span class="w-3 h-3 rounded-full bg-white/40"></span>
-              <span class="w-3 h-3 rounded-full bg-white/40"></span>
-              <span class="w-3 h-3 rounded-full bg-white"></span>
-            </div>
-            <div class="space-y-3">
-              <div class="flex items-center justify-between p-4 rounded-2xl bg-gray-50">
-                <div class="flex items-center gap-3">
-                  <div class="w-11 h-11 rounded-xl bg-orange-gradient flex items-center justify-center text-white text-lg">✨</div>
-                  <div>
-                    <p class="font-semibold text-sm">এআই ফটো এডিট</p>
-                    <p class="text-xs text-gray-500">স্মার্ট অটো এডিটিং</p>
-                  </div>
-                </div>
-                <span class="text-xs font-semibold text-green-600">আক্টিভ</span>
-              </div>
-              <div class="flex items-center justify-between p-4 rounded-2xl bg-gray-50">
-                <div class="flex items-center gap-3">
-                  <div class="w-11 h-11 rounded-xl bg-violet-gradient flex items-center justify-center text-white text-lg">✏️</div>
-                  <div>
-                    <p class="font-semibold text-sm">ম্যানুয়াল এডিট</p>
-                    <p class="text-xs text-gray-500">নিজের মতো এডিট</p>
-                  </div>
-                </div>
-                <span class="text-xs font-semibold text-green-600">আক্টিভ</span>
-              </div>
-              <div class="flex items-center justify-between p-4 rounded-2xl bg-gray-50">
-                <div class="flex items-center gap-3">
-                  <div class="w-11 h-11 rounded-xl bg-green-gradient flex items-center justify-center text-white text-lg">📦</div>
-                  <div>
-                    <p class="font-semibold text-sm">বাল্ক ফটো এডিট</p>
-                    <p class="text-xs text-gray-500">একসাথে অনেক ছবি</p>
-                  </div>
-                </div>
-                <span class="text-xs font-semibold text-green-600">মুহূর্তেই</span>
-              </div>
-            </div>
-          </div>
-          <!-- Floating stats -->
-          <div class="absolute -top-4 -left-4 bg-white border border-gray-100 rounded-2xl p-4 shadow-lg max-w-[200px]">
-            <p class="text-xs text-gray-500">প্রতি মাসে সময় বাঁচায়</p>
-            <p class="text-xl font-bold font-anek">১২০+ ঘণ্টা</p>
-            <div class="w-full bg-gray-100 rounded-full h-1.5 mt-2"><div class="w-[90%] h-full bg-green-gradient rounded-full"></div></div>
-          </div>
-          <div class="absolute -bottom-2 -right-2 bg-violet-gradient text-white rounded-2xl p-4 shadow-lg max-w-[220px]">
-            <p class="text-xs opacity-90">এখন পর্যন্ত মোট</p>
-            <p class="text-2xl font-bold font-anek mt-1">৩ লক্ষ+ ইমেজ</p>
-            <p class="text-xs mt-2 opacity-80">আমার কাজ ব্যবহার করে এডিট করা হয়েছে</p>
           </div>
         </div>
       </div>
@@ -220,645 +133,238 @@
   <!-- ========== TOOLS GRID ========== -->
   <section id="tools" class="py-12 lg:py-20 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-10 lg:mb-14">
-        <div class="inline-flex items-center gap-2 border border-orange rounded-full py-1.5 px-4 bg-[#FFF6E9] mb-3">
-          <span class="text-sm text-[#A81603]">সহজ টুলস</span>
-        </div>
-        <h2 class="font-anek font-bold text-2xl lg:text-4xl">কম্পিউটার দোকানের সব কাজ এক জায়গায়</h2>
-        <p class="mt-3 text-gray-600 max-w-xl mx-auto">নিচের টুলগুলোতে ক্লিক করে সরাসরি কাজ শুরু করুন</p>
+      <div class="text-center mb-10">
+        <h2 class="font-anek font-bold text-2xl lg:text-4xl">সহজ টুলস সমূহ</h2>
+        <p class="mt-2 text-gray-600">নিচের যেকোনো টুল বেছে নিয়ে সরাসরি কাজ শুরু করুন</p>
       </div>
 
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
-        <!-- AI Photo Edit -->
-        <a href="#ai-edit" class="tool-card group bg-white rounded-2xl lg:rounded-3xl p-5 lg:p-6 text-center shadow-card border border-gray-50">
-          <div class="w-16 h-16 lg:w-20 lg:h-20 mx-auto -mt-10 mb-3 rounded-2xl bg-dark-gradient flex items-center justify-center text-3xl shadow-lg group-hover:scale-105 transition">✨</div>
-          <h3 class="font-anek font-bold text-sm lg:text-base">এআই ফটো এডিট</h3>
-          <p class="text-xs text-gray-500 mt-1">২০ সেকেন্ডে ছবি তৈরি</p>
-        </a>
+        
+        <!-- CV Builder (New Tool) -->
+        <div onclick="openTool('cv')" class="tool-card group bg-white rounded-2xl p-5 text-center shadow-card border border-primary/20">
+          <div class="w-16 h-16 mx-auto -mt-10 mb-3 rounded-2xl bg-violet-gradient flex items-center justify-center text-3xl shadow-lg group-hover:scale-105 transition">📄</div>
+          <h3 class="font-anek font-bold text-base text-primary">সিভি তৈরি (CV Maker)</h3>
+          <p class="text-xs text-gray-500 mt-1">সহজে প্রফেশনাল সিভি বানান</p>
+        </div>
 
-        <!-- Manual Photo Edit -->
-        <a href="#manual-edit" class="tool-card group bg-white rounded-2xl lg:rounded-3xl p-5 lg:p-6 text-center shadow-card border border-gray-50">
-          <div class="w-16 h-16 lg:w-20 lg:h-20 mx-auto -mt-10 mb-3 rounded-2xl bg-blue-gradient flex items-center justify-center text-3xl shadow-lg group-hover:scale-105 transition">✏️</div>
-          <h3 class="font-anek font-bold text-sm lg:text-base">ম্যানুয়াল ফটো এডিট</h3>
-          <p class="text-xs text-gray-500 mt-1">নিজের মতো এডিট করুন</p>
-        </a>
-
-        <!-- Bulk Photo Edit -->
-        <a href="#bulk-edit" class="tool-card group bg-white rounded-2xl lg:rounded-3xl p-5 lg:p-6 text-center shadow-card border border-gray-50">
-          <div class="w-16 h-16 lg:w-20 lg:h-20 mx-auto -mt-10 mb-3 rounded-2xl bg-green-gradient flex items-center justify-center text-3xl shadow-lg group-hover:scale-105 transition">📦</div>
-          <h3 class="font-anek font-bold text-sm lg:text-base">বাল্ক ফটো এডিট</h3>
-          <p class="text-xs text-gray-500 mt-1">একসাথে অনেক ছবি</p>
-        </a>
-
-        <!-- Document -->
-        <a href="#document" class="tool-card group bg-white rounded-2xl lg:rounded-3xl p-5 lg:p-6 text-center shadow-card border border-gray-50">
-          <div class="w-16 h-16 lg:w-20 lg:h-20 mx-auto -mt-10 mb-3 rounded-2xl bg-violet-gradient flex items-center justify-center text-3xl shadow-lg group-hover:scale-105 transition">📄</div>
-          <h3 class="font-anek font-bold text-sm lg:text-base">ডকুমেন্ট তৈরি</h3>
-          <p class="text-xs text-gray-500 mt-1">৫০০+ টেমপ্লেট</p>
-        </a>
+        <!-- Photo Edit -->
+        <div onclick="openTool('photo')" class="tool-card group bg-white rounded-2xl p-5 text-center shadow-card border border-gray-50">
+          <div class="w-16 h-16 mx-auto -mt-10 mb-3 rounded-2xl bg-blue-gradient flex items-center justify-center text-3xl shadow-lg group-hover:scale-105 transition">🖼️</div>
+          <h3 class="font-anek font-bold text-base">পাসপোর্ট ফটো এডিটর</h3>
+          <p class="text-xs text-gray-500 mt-1">ক্রপ ও সাইজ পরিবর্তন</p>
+        </div>
 
         <!-- Image to Text (OCR) -->
-        <a href="#ocr" class="tool-card group bg-white rounded-2xl lg:rounded-3xl p-5 lg:p-6 text-center shadow-card border border-gray-50">
-          <div class="w-16 h-16 lg:w-20 lg:h-20 mx-auto -mt-10 mb-3 rounded-2xl bg-orange-gradient flex items-center justify-center text-3xl shadow-lg group-hover:scale-105 transition">🔤</div>
-          <h3 class="font-anek font-bold text-sm lg:text-base">ছবি থেকে লেখা</h3>
-          <p class="text-xs text-gray-500 mt-1">OCR – টেক্সট এক্সট্রাক্ট</p>
-        </a>
+        <div onclick="openTool('ocr')" class="tool-card group bg-white rounded-2xl p-5 text-center shadow-card border border-gray-50">
+          <div class="w-16 h-16 mx-auto -mt-10 mb-3 rounded-2xl bg-orange-gradient flex items-center justify-center text-3xl shadow-lg group-hover:scale-105 transition">🔤</div>
+          <h3 class="font-anek font-bold text-base">ছবি থেকে লেখা (OCR)</h3>
+          <p class="text-xs text-gray-500 mt-1">ছবি থেকে টেক্সট বের করুন</p>
+        </div>
 
-        <!-- PDF to Word -->
-        <a href="#pdf2word" class="tool-card group bg-white rounded-2xl lg:rounded-3xl p-5 lg:p-6 text-center shadow-card border border-gray-50">
-          <div class="w-16 h-16 lg:w-20 lg:h-20 mx-auto -mt-10 mb-3 rounded-2xl bg-pink-gradient flex items-center justify-center text-3xl shadow-lg group-hover:scale-105 transition">📑</div>
-          <h3 class="font-anek font-bold text-sm lg:text-base">PDF থেকে Word</h3>
-          <p class="text-xs text-gray-500 mt-1">সহজে কনভার্ট করুন</p>
-        </a>
+        <!-- PDF Converter -->
+        <div onclick="openTool('pdf')" class="tool-card group bg-white rounded-2xl p-5 text-center shadow-card border border-gray-50">
+          <div class="w-16 h-16 mx-auto -mt-10 mb-3 rounded-2xl bg-pink-gradient flex items-center justify-center text-3xl shadow-lg group-hover:scale-105 transition">📑</div>
+          <h3 class="font-anek font-bold text-base">PDF & Word টুলস</h3>
+          <p class="text-xs text-gray-500 mt-1">কনভার্ট ও সম্পাদনা</p>
+        </div>
 
-        <!-- Word to PDF -->
-        <a href="#word2pdf" class="tool-card group bg-white rounded-2xl lg:rounded-3xl p-5 lg:p-6 text-center shadow-card border border-gray-50">
-          <div class="w-16 h-16 lg:w-20 lg:h-20 mx-auto -mt-10 mb-3 rounded-2xl bg-blue-gradient flex items-center justify-center text-3xl shadow-lg group-hover:scale-105 transition">📘</div>
-          <h3 class="font-anek font-bold text-sm lg:text-base">Word থেকে PDF</h3>
-          <p class="text-xs text-gray-500 mt-1">এক ক্লিকে কনভার্ট</p>
-        </a>
-
-        <!-- More Tools -->
-        <a href="#more-tools" class="tool-card group bg-white rounded-2xl lg:rounded-3xl p-5 lg:p-6 text-center shadow-card border border-gray-50">
-          <div class="w-16 h-16 lg:w-20 lg:h-20 mx-auto -mt-10 mb-3 rounded-2xl bg-dark-gradient flex items-center justify-center text-3xl shadow-lg group-hover:scale-105 transition">🛠️</div>
-          <h3 class="font-anek font-bold text-sm lg:text-base">আরও টুলস</h3>
-          <p class="text-xs text-gray-500 mt-1">৫৬+ ফ্রি টুলস</p>
-        </a>
       </div>
     </div>
   </section>
 
-  <!-- ========== AI SECTION ========== -->
-  <section id="ai-edit" class="py-12 lg:py-20 bg-[#F8F7FF]">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-10 lg:mb-14">
-        <div class="inline-flex items-center gap-2 border border-orange rounded-full py-1.5 px-4 bg-[#FFF6E9] mb-3">
-          <span class="text-sm text-[#A81603]">AI ফটোশপ</span>
-        </div>
-        <h2 class="font-anek font-bold text-2xl lg:text-4xl">তৈরি করুন <span class="text-gradient">প্রফেশনাল ছবি</span> আরও দ্রুত</h2>
-        <p class="mt-3 text-gray-600 max-w-xl mx-auto">ফটোশপ ছাড়াই কয়েক সেকেন্ডে নরমাল ছবি থেকে প্রফেশনাল ছবি তৈরি করুন</p>
-      </div>
-
-      <div class="grid lg:grid-cols-2 gap-6">
-        <div class="bg-gradient-to-br from-[#016328] to-[#22c55e] rounded-3xl p-8 lg:p-12 text-white">
-          <span class="inline-flex items-center gap-2 bg-white/20 border border-white/30 rounded-full px-4 py-2 text-sm font-bold">AI POWERED</span>
-          <h3 class="font-anek font-bold text-3xl lg:text-5xl mt-6">১০ গুণ দ্রুত</h3>
-          <h3 class="font-anek font-bold text-3xl lg:text-5xl text-green-100">কাজ সম্পন্ন করুন</h3>
-          <p class="mt-4 text-green-50 opacity-90">ঘন্টার কাজ মিনিটে শেষ করুন। পোশাক পরিবর্তন, ব্যাকগ্রাউন্ড, পাসপোর্ট সাইজ — সব এক ক্লিকে।</p>
-          <div class="grid grid-cols-3 gap-3 mt-8">
-            <div class="bg-white/15 border border-white/25 rounded-xl p-3 text-center">
-              <p class="font-bold text-lg">৬+ ঘণ্টা</p>
-              <p class="text-xs opacity-80">সময় বাঁচান</p>
-            </div>
-            <div class="bg-white/15 border border-white/25 rounded-xl p-3 text-center">
-              <p class="font-bold text-lg">এক ক্লিকে</p>
-              <p class="text-xs opacity-80">ছবি তৈরি</p>
-            </div>
-            <div class="bg-white/15 border border-white/25 rounded-xl p-3 text-center">
-              <p class="font-bold text-lg">আপনিও</p>
-              <p class="text-xs opacity-80">শুরু করুন</p>
-            </div>
-          </div>
-          <a href="#tools" class="mt-8 inline-flex items-center gap-2 bg-white text-green-800 font-bold rounded-full px-8 py-3.5 btn-hover">AI টুলস ব্যবহার শুরু করুন →</a>
-        </div>
-
-        <div class="space-y-4">
-          <div class="bg-white rounded-2xl p-6 shadow-card">
-            <div class="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center text-2xl mb-3">🧠</div>
-            <h4 class="font-anek font-semibold text-xl">স্মার্ট এআই এডিটর</h4>
-            <p class="text-sm text-gray-600 mt-2">ফটোশপ ছাড়াই কয়েক সেকেন্ডে সাধারণ ছবি থেকে প্রফেশনাল ছবি তৈরি করুন।</p>
-          </div>
-          <div class="bg-white rounded-2xl p-6 shadow-card">
-            <div class="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center text-2xl mb-3">👔</div>
-            <h4 class="font-anek font-semibold text-xl">প্রফেশনাল পোশাক এডিট</h4>
-            <p class="text-sm text-gray-600 mt-2">নীল/কালো স্যুট, নেভি ব্লেজার, সাদা শার্ট, পোলো — যেকোনো পোশাকে ছবি এডিট করুন।</p>
-          </div>
-          <div class="bg-white rounded-2xl p-6 shadow-card">
-            <div class="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center text-2xl mb-3">🖼️</div>
-            <h4 class="font-anek font-semibold text-xl">ব্যাকগ্রাউন্ড ও সাইজ</h4>
-            <p class="text-sm text-gray-600 mt-2">পাসপোর্ট, ভিসা, NID, জন্ম নিবন্ধন — নির্দিষ্ট সাইজে JPG সেভ করুন।</p>
-          </div>
-        </div>
+  <!-- ========== DYNAMIC TOOL WORKING MODAL ========== -->
+  <div id="toolModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 p-4 overflow-y-auto">
+    <div class="bg-white rounded-3xl w-full max-w-4xl p-6 lg:p-8 shadow-2xl relative my-8 max-h-[90vh] overflow-y-auto">
+      <button onclick="closeToolModal()" class="absolute top-4 right-4 w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-xl font-bold hover:bg-gray-200">✕</button>
+      
+      <div id="modalContent">
+        <!-- Content injects dynamically via JavaScript -->
       </div>
     </div>
-  </section>
-
-  <!-- ========== DOCUMENT + CONVERSION ========== -->
-  <section id="document" class="py-12 lg:py-20">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-10 lg:mb-14">
-        <div class="inline-flex items-center gap-2 border border-orange rounded-full py-1.5 px-4 bg-[#FFF6E9] mb-3">
-          <span class="text-sm text-[#A81603]">ডকুমেন্ট ও কনভার্শন</span>
-        </div>
-        <h2 class="font-anek font-bold text-2xl lg:text-4xl"><span class="text-gradient">চুক্তিপত্র, PDF, Word</span> মুহূর্তেই তৈরি করুন</h2>
-      </div>
-
-      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        <div class="bg-white rounded-2xl p-6 shadow-card border border-gray-50">
-          <div class="flex justify-between items-start">
-            <div class="w-12 h-12 rounded-xl bg-green-gradient flex items-center justify-center text-white text-xl">📝</div>
-            <span class="text-[10px] font-medium bg-green-100 text-green-800 border border-green-200 rounded-full px-3 py-1">AI পাওয়ারড</span>
-          </div>
-          <h3 class="font-anek font-semibold text-lg mt-4">এক ঝলকেই তথ্য পরিবর্তন</h3>
-          <p class="text-sm text-gray-600 mt-2">সহজ ফর্ম দিয়ে ৫০ পৃষ্ঠা পর্যন্ত পেপারের তথ্য পরিবর্তন করুন।</p>
-        </div>
-        <div class="bg-white rounded-2xl p-6 shadow-card border border-gray-50">
-          <div class="flex justify-between items-start">
-            <div class="w-12 h-12 rounded-xl bg-orange-gradient flex items-center justify-center text-white text-xl">📑</div>
-            <span class="text-[10px] font-medium bg-orange-100 text-orange-800 border border-orange-200 rounded-full px-3 py-1">জনপ্রিয়</span>
-          </div>
-          <h3 class="font-anek font-semibold text-lg mt-4">PDF থেকে Word</h3>
-          <p class="text-sm text-gray-600 mt-2">যেকোনো PDF ফাইল সহজেই Editable Word (.docx) এ কনভার্ট করুন।</p>
-        </div>
-        <div class="bg-white rounded-2xl p-6 shadow-card border border-gray-50">
-          <div class="flex justify-between items-start">
-            <div class="w-12 h-12 rounded-xl bg-violet-gradient flex items-center justify-center text-white text-xl">📘</div>
-            <span class="text-[10px] font-medium bg-purple-100 text-purple-800 border border-purple-200 rounded-full px-3 py-1">সুরক্ষিত</span>
-          </div>
-          <h3 class="font-anek font-semibold text-lg mt-4">Word থেকে PDF</h3>
-          <p class="text-sm text-gray-600 mt-2">Word ফাইল এক ক্লিকে প্রিন্ট-রেডি PDF এ রূপান্তর করুন।</p>
-        </div>
-        <div class="bg-white rounded-2xl p-6 shadow-card border border-gray-50">
-          <div class="flex justify-between items-start">
-            <div class="w-12 h-12 rounded-xl bg-blue-gradient flex items-center justify-center text-white text-xl">🔤</div>
-            <span class="text-[10px] font-medium bg-blue-100 text-blue-800 border border-blue-200 rounded-full px-3 py-1">OCR</span>
-          </div>
-          <h3 class="font-anek font-semibold text-lg mt-4">ছবি থেকে লেখা</h3>
-          <p class="text-sm text-gray-600 mt-2">যেকোনো ছবি বা স্ক্যান থেকে বাংলা/ইংরেজি টেক্সট বের করুন।</p>
-        </div>
-        <div class="bg-white rounded-2xl p-6 shadow-card border border-gray-50">
-          <div class="flex justify-between items-start">
-            <div class="w-12 h-12 rounded-xl bg-pink-gradient flex items-center justify-center text-white text-xl">🖨️</div>
-            <span class="text-[10px] font-medium bg-pink-100 text-pink-800 border border-pink-200 rounded-full px-3 py-1">প্রিন্ট</span>
-          </div>
-          <h3 class="font-anek font-semibold text-lg mt-4">প্রিন্ট মিডিয়া</h3>
-          <p class="text-sm text-gray-600 mt-2">বিজনেস কার্ড, ফ্লায়ার, ব্যানার, পোস্টার — রেডি-টু-প্রিন্ট ডিজাইন।</p>
-        </div>
-        <div class="bg-white rounded-2xl p-6 shadow-card border border-gray-50">
-          <div class="flex justify-between items-start">
-            <div class="w-12 h-12 rounded-xl bg-dark-gradient flex items-center justify-center text-white text-xl">💼</div>
-            <span class="text-[10px] font-medium bg-gray-100 text-gray-700 border border-gray-200 rounded-full px-3 py-1">দোকান</span>
-          </div>
-          <h3 class="font-anek font-semibold text-lg mt-4">কম্পিউটার দোকান টুলস</h3>
-          <p class="text-sm text-gray-600 mt-2">ফর্ম ফিলআপ, সার্টিফিকেট, ইনভয়েস, রিসিপ্ট — সব দোকানের কাজ।</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ========== WHY US ========== -->
-  <section id="services" class="py-12 lg:py-20 bg-gray-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-10">
-        <div class="inline-flex items-center gap-2 border border-orange rounded-full py-1.5 px-4 bg-[#FFF6E9] mb-3">
-          <span class="text-sm text-[#A81603]">কেন বেছে নেবেন</span>
-        </div>
-        <h2 class="font-anek font-bold text-2xl lg:text-4xl"><span class="text-gradient">সহজ ব্যবহার,</span> এবং বেশি সুবিধা</h2>
-      </div>
-      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        <div class="bg-white rounded-2xl p-6 shadow-card">
-          <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-2xl mb-4">🔗</div>
-          <h3 class="font-anek font-bold text-lg">পেনড্রাইভ ছাড়াই শেয়ার</h3>
-          <p class="text-sm text-gray-600 mt-2">ফাইল সরাসরি শেয়ার বা ইমেইল করুন।</p>
-        </div>
-        <div class="bg-white rounded-2xl p-6 shadow-card">
-          <div class="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center text-2xl mb-4">🔒</div>
-          <h3 class="font-anek font-bold text-lg">সাইবার নিরাপত্তা</h3>
-          <p class="text-sm text-gray-600 mt-2">Firebase Auth + Security Rules দিয়ে সুরক্ষিত।</p>
-        </div>
-        <div class="bg-white rounded-2xl p-6 shadow-card">
-          <div class="w-12 h-12 rounded-xl bg-purple-50 flex items-center justify-center text-2xl mb-4">🔍</div>
-          <h3 class="font-anek font-bold text-lg">দ্রুত সার্চ ও ট্যাগ</h3>
-          <p class="text-sm text-gray-600 mt-2">নাম, তারিখ, ক্যাটাগরি দিয়ে খুঁজুন।</p>
-        </div>
-        <div class="bg-white rounded-2xl p-6 shadow-card">
-          <div class="w-12 h-12 rounded-xl bg-orange-50 flex items-center justify-center text-2xl mb-4">📌</div>
-          <h3 class="font-anek font-bold text-lg">পছন্দের ফাইল পিন</h3>
-          <p class="text-sm text-gray-600 mt-2">টেমপ্লেট হাতের কাছে রাখুন।</p>
-        </div>
-        <div class="bg-white rounded-2xl p-6 shadow-card">
-          <div class="w-12 h-12 rounded-xl bg-yellow-50 flex items-center justify-center text-2xl mb-4">💾</div>
-          <h3 class="font-anek font-bold text-lg">সরাসরি সেভ ও প্রিন্ট</h3>
-          <p class="text-sm text-gray-600 mt-2">তৈরি ফাইল সেভ, প্রিন্ট বা ইমেইল।</p>
-        </div>
-        <div class="bg-white rounded-2xl p-6 shadow-card">
-          <div class="w-12 h-12 rounded-xl bg-pink-50 flex items-center justify-center text-2xl mb-4">📱</div>
-          <h3 class="font-anek font-bold text-lg">মোবাইল ফ্রেন্ডলি</h3>
-          <p class="text-sm text-gray-600 mt-2">যেকোনো ডিভাইস থেকে ব্যবহার করুন।</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ========== PRICING ========== -->
-  <section id="pricing" class="py-12 lg:py-20">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-10">
-        <div class="inline-flex items-center gap-2 border border-orange rounded-full py-1.5 px-4 bg-[#FFF6E9] mb-3">
-          <span class="text-sm text-[#A81603]">প্যাকেজ</span>
-        </div>
-        <h2 class="font-anek font-bold text-2xl lg:text-4xl">আপনার জন্য সঠিক <span class="text-gradient">প্ল্যান</span> বেছে নিন</h2>
-      </div>
-      <div class="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
-        <div class="bg-white border-2 border-gray-100 rounded-3xl p-8 shadow-card">
-          <span class="text-xs font-bold bg-gray-100 text-gray-600 rounded-full px-3 py-1">ফ্রি প্ল্যান</span>
-          <h3 class="font-anek font-bold text-2xl mt-4">সম্পূর্ণ বিনামূল্যে</h3>
-          <p class="text-4xl font-bold font-anek mt-2">০ <span class="text-base font-normal text-gray-500">টাকা</span></p>
-          <ul class="mt-6 space-y-3 text-sm text-gray-600">
-            <li class="flex gap-2"><span class="text-green-500">✓</span> বেসিক টেমপ্লেট</li>
-            <li class="flex gap-2"><span class="text-green-500">✓</span> লিমিটেড ডকুমেন্ট</li>
-            <li class="flex gap-2"><span class="text-green-500">✓</span> লিমিটেড ইমেজ এডিট</li>
-            <li class="flex gap-2"><span class="text-green-500">✓</span> ফাইল শেয়ার</li>
-          </ul>
-          <button type="button" class="mt-8 w-full py-3 rounded-full border-2 border-primary text-primary font-bold btn-hover">এখনই শুরু করুন</button>
-        </div>
-        <div class="bg-gradient-to-br from-primary to-[#D6249F] text-white rounded-3xl p-8 shadow-xl relative overflow-hidden">
-          <span class="text-xs font-bold bg-white/20 rounded-full px-3 py-1">প্রো প্ল্যান</span>
-          <h3 class="font-anek font-bold text-2xl mt-4">পেশাদার</h3>
-          <p class="text-4xl font-bold font-anek mt-2">৫০০ <span class="text-base font-normal opacity-80">টাকা/মাস</span></p>
-          <ul class="mt-6 space-y-3 text-sm opacity-95">
-            <li class="flex gap-2"><span>✓</span> আনলিমিটেড ডকুমেন্ট</li>
-            <li class="flex gap-2"><span>✓</span> আনলিমিটেড ইমেজ এডিট</li>
-            <li class="flex gap-2"><span>✓</span> সব ফরম্যাট ডাউনলোড</li>
-            <li class="flex gap-2"><span>✓</span> প্রায়োরিটি সাপোর্ট</li>
-          </ul>
-          <button type="button" class="mt-8 w-full py-3 rounded-full bg-white text-primary font-bold btn-hover">শুরু করুন</button>
-        </div>
-      </div>
-    </div>
-  </section>
+  </div>
 
   <!-- ========== FAQ ========== -->
-  <section id="faq" class="py-12 lg:py-20 bg-gray-50">
+  <section id="faq" class="py-12 bg-gray-50">
     <div class="max-w-3xl mx-auto px-4 sm:px-6">
-      <div class="text-center mb-10">
-        <div class="inline-flex items-center gap-2 border border-orange rounded-full py-1.5 px-4 bg-[#FFF6E9] mb-3">
-          <span class="text-sm text-[#A81603]">জিজ্ঞাসা (FAQ)</span>
+      <h2 class="font-anek font-bold text-2xl text-center mb-6">সাধারণ জিজ্ঞাসা</h2>
+      <div class="space-y-3">
+        <div class="faq-item bg-white rounded-2xl border p-4">
+          <h3 class="font-bold">১. সিভি তৈরি করার পর কিভাবে ডাউনলোড করবো?</h3>
+          <p class="text-sm text-gray-600 mt-1">সিভি ফর্ম টি পূরণ করার পর 'ডাউনলোড/প্রিন্ট করুন' বাটনে ক্লিক করলেই সরাসরি PDF ফরম্যাটে সেভ করতে পারবেন।</p>
         </div>
-        <h2 class="font-anek font-bold text-2xl lg:text-4xl">সাধারণ জিজ্ঞাসা</h2>
-      </div>
-
-      <div class="space-y-3" id="faqList">
-        <div class="faq-item open bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <button type="button" class="faq-btn w-full flex items-center gap-3 px-5 py-4 text-left">
-            <span class="text-orange font-bold text-sm w-6">01</span>
-            <span class="flex-1 font-anek font-semibold text-[15px]">আমার কাজ কী এবং এটি কীভাবে কাজ করে?</span>
-            <span class="faq-icon w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 transition">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
-            </span>
-          </button>
-          <div class="faq-answer px-5 pb-4 pl-14 text-sm text-gray-600">
-            আমার কাজ একটি অনলাইন ডকুমেন্ট, ফটো এডিট এবং ফাইল কনভার্শন প্ল্যাটফর্ম। এখানে আপনি টেমপ্লেট বেছে নিয়ে ডকুমেন্ট তৈরি, ছবি এডিট, PDF↔Word কনভার্ট এবং ছবি থেকে লেখা বের করতে পারবেন।
-          </div>
+        <div class="faq-item bg-white rounded-2xl border p-4">
+          <h3 class="font-bold">২. ছবি থেকে লেখা (OCR) কিভাবে কাজ করে?</h3>
+          <p class="text-sm text-gray-600 mt-1">যেকোনো ছবি আপলোড করলে আমাদের অটোমেটিক সিস্টেম ছবিটি স্ক্যান করে সেখান থেকে সব লেখা আলাদা করে উপস্থাপন করবে।</p>
         </div>
-
-        <div class="faq-item bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <button type="button" class="faq-btn w-full flex items-center gap-3 px-5 py-4 text-left">
-            <span class="text-gray-400 font-bold text-sm w-6">02</span>
-            <span class="flex-1 font-anek font-semibold text-[15px]">কোন কোন টুল পাওয়া যায়?</span>
-            <span class="faq-icon w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 transition">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
-            </span>
-          </button>
-          <div class="faq-answer px-5 pb-4 pl-14 text-sm text-gray-600">
-            এআই ফটো এডিট, ম্যানুয়াল এডিট, বাল্ক এডিট, ডকুমেন্ট টেমপ্লেট, ছবি থেকে লেখা (OCR), PDF থেকে Word, Word থেকে PDF, প্রিন্ট মিডিয়া এবং আরও ৫০+ টুলস।
-          </div>
-        </div>
-
-        <div class="faq-item bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <button type="button" class="faq-btn w-full flex items-center gap-3 px-5 py-4 text-left">
-            <span class="text-gray-400 font-bold text-sm w-6">03</span>
-            <span class="flex-1 font-anek font-semibold text-[15px]">মোবাইল থেকে ব্যবহার করা যায়?</span>
-            <span class="faq-icon w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 transition">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
-            </span>
-          </button>
-          <div class="faq-answer px-5 pb-4 pl-14 text-sm text-gray-600">
-            হ্যাঁ, সম্পূর্ণ মোবাইল-ফ্রেন্ডলি। স্মার্টফোন, ট্যাবলেট বা কম্পিউটার থেকে ব্রাউজারে ব্যবহার করতে পারবেন। কোনো অ্যাপ ডাউনলোড লাগবে না।
-          </div>
-        </div>
-
-        <div class="faq-item bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <button type="button" class="faq-btn w-full flex items-center gap-3 px-5 py-4 text-left">
-            <span class="text-gray-400 font-bold text-sm w-6">04</span>
-            <span class="flex-1 font-anek font-semibold text-[15px]">ফাইল কি নিরাপদ থাকে?</span>
-            <span class="faq-icon w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 transition">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
-            </span>
-          </button>
-          <div class="faq-answer px-5 pb-4 pl-14 text-sm text-gray-600">
-            হ্যাঁ। Firebase Authentication ও Security Rules ব্যবহার করা হয়েছে। আপনার ফাইল নিরাপদভাবে প্রসেস ও সংরক্ষণ করা হয়।
-          </div>
-        </div>
-
-        <div class="faq-item bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <button type="button" class="faq-btn w-full flex items-center gap-3 px-5 py-4 text-left">
-            <span class="text-gray-400 font-bold text-sm w-6">05</span>
-            <span class="flex-1 font-anek font-semibold text-[15px]">অ্যাকাউন্ট তৈরি করতে হবে?</span>
-            <span class="faq-icon w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 transition">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
-            </span>
-          </button>
-          <div class="faq-answer px-5 pb-4 pl-14 text-sm text-gray-600">
-            কিছু ফিচার ব্যবহার করতে অ্যাকাউন্ট লাগতে পারে। এতে আপনার তৈরি ফাইল সংরক্ষণ ও পরে এডিট করা সহজ হয়।
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ========== CTA ========== -->
-  <section class="py-12 lg:py-20 bg-gradient-to-br from-primary via-[#9B6BFF] to-[#D6249F]">
-    <div class="max-w-3xl mx-auto px-4 text-center text-white">
-      <div class="inline-flex items-center gap-2 border border-white/40 rounded-full py-1.5 px-4 bg-white/10 mb-4">
-        <span class="text-sm">আমাদের বিশেষত্ব</span>
-      </div>
-      <h2 class="font-anek font-bold text-2xl md:text-4xl lg:text-5xl">এখনই শুরু করুন বিনামূল্যে!</h2>
-      <p class="mt-3 text-white/90 max-w-lg mx-auto">আজই যোগ দিন এবং আপনার দৈনন্দিন কাজকে আরও সহজ করুন — আমার কাজের সাথে।</p>
-      <div class="mt-8 flex flex-col sm:flex-row justify-center gap-3">
-        <button id="ctaRegister" type="button" class="inline-flex items-center justify-center gap-2 bg-white text-[#F54900] font-bold rounded-full px-8 py-3.5 shadow-lg btn-hover">
-          বিনামূল্যে শুরু করুন
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-        </button>
-        <button type="button" class="inline-flex items-center justify-center gap-2 border-2 border-white/50 text-white font-bold rounded-full px-8 py-3.5 btn-hover">ডেমো ভিডিও দেখুন</button>
-      </div>
-      <div class="mt-10 flex flex-wrap justify-center gap-3 text-sm">
-        <span class="inline-flex items-center gap-1.5 bg-white/10 border border-white/20 rounded-full px-4 py-2">✓ এক ক্লিকেই ফাইল তৈরি</span>
-        <span class="inline-flex items-center gap-1.5 bg-white/10 border border-white/20 rounded-full px-4 py-2">✓ এক জায়গায় সব টুল</span>
-        <span class="inline-flex items-center gap-1.5 bg-white/10 border border-white/20 rounded-full px-4 py-2">✓ সময় বাঁচবে, ঝামেলা কমবে</span>
       </div>
     </div>
   </section>
 
   <!-- ========== FOOTER ========== -->
-  <footer class="bg-[#101828] text-gray-400 py-12 lg:py-16">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
-        <div class="lg:col-span-1">
-          <div class="flex items-center gap-2 mb-4">
-            <div class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-white font-bold">আ</div>
-            <span class="font-anek font-bold text-xl text-white">আমার কাজ</span>
-          </div>
-          <p class="text-sm leading-relaxed">ডকুমেন্ট, ডিজাইন, ফটো এডিট, PDF/Word কনভার্শন ও AI টুলস — সব এক জায়গায়।</p>
-          <ul class="mt-5 space-y-2 text-sm">
-            <li class="flex items-center gap-2">📧 support@amarkaj.com</li>
-            <li class="flex items-center gap-2">📞 +৮৮ ০১৭০০-৫৫৯৫৯৫</li>
-            <li class="flex items-center gap-2">📍 বগুড়া - ৫৮০০, বাংলাদেশ</li>
-          </ul>
-        </div>
-        <div>
-          <h4 class="text-white font-anek font-bold mb-4">সেবাসমূহ</h4>
-          <ul class="space-y-2 text-sm">
-            <li><a href="#ai-edit" class="hover:text-white transition">এআই ফটো এডিট</a></li>
-            <li><a href="#manual-edit" class="hover:text-white transition">ম্যানুয়াল ফটো এডিট</a></li>
-            <li><a href="#bulk-edit" class="hover:text-white transition">বাল্ক ফটো এডিট</a></li>
-            <li><a href="#document" class="hover:text-white transition">ডকুমেন্ট টেমপ্লেট</a></li>
-            <li><a href="#ocr" class="hover:text-white transition">ছবি থেকে লেখা</a></li>
-            <li><a href="#pdf2word" class="hover:text-white transition">PDF ↔ Word</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4 class="text-white font-anek font-bold mb-4">পেজ</h4>
-          <ul class="space-y-2 text-sm">
-            <li><a href="#" class="hover:text-white transition">আমাদের সম্পর্কে</a></li>
-            <li><a href="#pricing" class="hover:text-white transition">প্যাকেজ</a></li>
-            <li><a href="#faq" class="hover:text-white transition">জিজ্ঞাসা</a></li>
-            <li><a href="#" class="hover:text-white transition">যোগাযোগ</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4 class="text-white font-anek font-bold mb-4">সহায়তা</h4>
-          <ul class="space-y-2 text-sm">
-            <li><a href="#" class="hover:text-white transition">শর্তাবলী</a></li>
-            <li><a href="#" class="hover:text-white transition">গোপনীয়তা নীতি</a></li>
-            <li><a href="#" class="hover:text-white transition">রিফান্ড নীতি</a></li>
-          </ul>
-        </div>
-      </div>
-      <div class="border-t border-gray-800 mt-10 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-        <p class="text-sm">© ২০২৬ আমার কাজ। সর্বস্বত্ব সংরক্ষিত।</p>
-        <div class="flex gap-3">
-          <a href="#" class="w-9 h-9 rounded-lg bg-gray-800 flex items-center justify-center hover:bg-black transition text-white">f</a>
-          <a href="#" class="w-9 h-9 rounded-lg bg-gray-800 flex items-center justify-center hover:bg-black transition text-white">▶</a>
-        </div>
-      </div>
-    </div>
+  <footer class="bg-[#101828] text-gray-400 py-8 text-center text-sm">
+    <p>© ২০২৬ আমার কাজ। সর্বস্বত্ব সংরক্ষিত।</p>
   </footer>
 
-  <!-- WhatsApp FAB -->
-  <a href="https://wa.me/8801700559595?text=আসসালামু%20আলাইকুম%2C%20আমি%20আমার%20কাজ%20সম্পর্কে%20জানতে%20চাই।" target="_blank" rel="noopener"
-     class="fixed bottom-6 right-6 z-50 w-14 h-14 lg:w-16 lg:h-16 bg-[#25D366] text-white rounded-full shadow-lg flex items-center justify-center hover:scale-105 transition"
-     aria-label="WhatsApp">
-    <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 448 512"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg>
-  </a>
-
-  <!-- ========== FIREBASE + AUTH MODAL ========== -->
-  <div id="authModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/50 p-4">
-    <div class="bg-white rounded-3xl w-full max-w-md p-8 shadow-2xl relative">
-      <button id="closeModal" type="button" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200">✕</button>
-      <h3 class="font-anek font-bold text-2xl text-center mb-2" id="authTitle">লগইন করুন</h3>
-      <p class="text-sm text-gray-500 text-center mb-6">আমার কাজ অ্যাকাউন্টে প্রবেশ করুন</p>
-      
-      <form id="authForm" class="space-y-4" onsubmit="return false;">
-        <div>
-          <label class="text-sm font-medium" for="authEmail">ইমেইল</label>
-          <input type="email" id="authEmail" required class="mt-1 w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/40" placeholder="আপনার ইমেইল" />
-        </div>
-        <div>
-          <label class="text-sm font-medium" for="authPassword">পাসওয়ার্ড</label>
-          <input type="password" id="authPassword" required minlength="6" class="mt-1 w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/40" placeholder="কমপক্ষে ৬ অক্ষর" />
-        </div>
-        <button type="submit" id="authSubmit" class="w-full bg-primary text-white font-bold rounded-full py-3.5 btn-hover">লগইন</button>
-      </form>
-      
-      <p class="text-center text-sm mt-4 text-gray-500">
-        <span id="authSwitchText">অ্যাকাউন্ট নেই?</span>
-        <button id="authSwitchBtn" type="button" class="text-primary font-semibold ml-1">রেজিস্টার করুন</button>
-      </p>
-      <p id="authError" class="text-red-500 text-sm text-center mt-3 hidden"></p>
-      <p id="authSuccess" class="text-green-600 text-sm text-center mt-3 hidden"></p>
-    </div>
-  </div>
-
-  <!-- UI Functional Scripts -->
+  <!-- ========== JAVASCRIPT LOGIC ========== -->
   <script>
-    // FAQ Toggle functionality
-    document.addEventListener('DOMContentLoaded', () => {
-      const faqBtns = document.querySelectorAll('.faq-btn');
-      faqBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-          const item = btn.closest('.faq-item');
-          const isOpen = item.classList.contains('open');
-          
-          document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
-          
-          if (!isOpen) {
-            item.classList.add('open');
-          }
-        });
-      });
-
-      // Mobile Menu Toggle
-      const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-      const mobileNav = document.getElementById('mobileNav');
-      if (mobileMenuBtn && mobileNav) {
-        mobileMenuBtn.addEventListener('click', () => {
-          mobileNav.classList.toggle('hidden');
-        });
-      }
-    });
-  </script>
-
-  <!-- Firebase Auth Module -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-analytics.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyCzmfEg39TV0cxGkSKivO7lYsier3KH9AY",
-      authDomain: "amarkaj-c7d5f.firebaseapp.com",
-      projectId: "amarkaj-c7d5f",
-      storageBucket: "amarkaj-c7d5f.firebasestorage.app",
-      messagingSenderId: "183473425547",
-      appId: "1:183473425547:web:f713861eeaac48b978188e",
-      measurementId: "G-HXVW2W079G"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    try { getAnalytics(app); } catch(e) {}
-
-    // Modal UI elements
-    const modal = document.getElementById('authModal');
-    const loginBtn = document.getElementById('loginBtn');
-    const loginBtnText = document.getElementById('loginBtnText');
-    const ctaRegister = document.getElementById('ctaRegister');
-    const closeModal = document.getElementById('closeModal');
-    const authForm = document.getElementById('authForm');
-    const authTitle = document.getElementById('authTitle');
-    const authSubmit = document.getElementById('authSubmit');
-    const authSwitchBtn = document.getElementById('authSwitchBtn');
-    const authSwitchText = document.getElementById('authSwitchText');
-    const authError = document.getElementById('authError');
-    const authSuccess = document.getElementById('authSuccess');
-
-    let isLoginMode = true;
-    let currentUser = null;
-
-    function openModal(register = false) {
-      isLoginMode = !register;
-      updateAuthUI();
+    // Tool Modal Controller
+    function openTool(toolName) {
+      const modal = document.getElementById('toolModal');
+      const content = document.getElementById('modalContent');
       modal.classList.remove('hidden');
       modal.classList.add('flex');
-      authError.classList.add('hidden');
-      authSuccess.classList.add('hidden');
+
+      if (toolName === 'cv') {
+        content.innerHTML = `
+          <h2 class="font-anek font-bold text-2xl mb-4 text-primary">📄 প্রফেশনাল সিভি তৈরি করুন</h2>
+          <div class="grid lg:grid-cols-2 gap-6">
+            <!-- Form Input -->
+            <div class="space-y-3 bg-gray-50 p-4 rounded-2xl text-sm">
+              <h3 class="font-bold border-b pb-2">তথ্য প্রবেশ করুন:</h3>
+              <input type="text" id="cvName" oninput="updateCV()" placeholder="পূর্ণ নাম" class="w-full p-2.5 border rounded-xl" value="মোহাম্মদ রহিম" />
+              <input type="text" id="cvTitle" oninput="updateCV()" placeholder="পদবী (যেমন: কম্পিউটার অপারেটর)" class="w-full p-2.5 border rounded-xl" value="কম্পিউটার অপারেটর" />
+              <input type="email" id="cvEmail" oninput="updateCV()" placeholder="ইমেইল" class="w-full p-2.5 border rounded-xl" value="rahim@gmail.com" />
+              <input type="text" id="cvPhone" oninput="updateCV()" placeholder="ফোন নম্বর" class="w-full p-2.5 border rounded-xl" value="+৮৮০ ১৭০০০০০-০০০" />
+              <textarea id="cvEdu" oninput="updateCV()" placeholder="শিক্ষাগত যোগ্যতা" class="w-full p-2.5 border rounded-xl h-20">বি.এসসি (কম্পিউটার সাইন্স) - ঢাকা বিশ্ববিদ্যালয়</textarea>
+              <textarea id="cvExp" oninput="updateCV()" placeholder="কাজের অভিজ্ঞতা" class="w-full p-2.5 border rounded-xl h-20">২ বছরের আইটি ও ডকুমেন্ট প্রসেসিং এর অভিজ্ঞতা।</textarea>
+              <button onclick="window.print()" class="w-full bg-primary text-white font-bold py-3 rounded-xl shadow btn-hover">🖨️ ডাউনলোড / প্রিন্ট করুন (PDF)</button>
+            </div>
+
+            <!-- CV Live Preview Area -->
+            <div id="cvPreviewArea" class="border p-6 rounded-2xl bg-white shadow-inner">
+              <div class="border-b-2 border-primary pb-4 mb-4">
+                <h1 id="pvName" class="text-2xl font-bold text-gray-800">মোহাম্মদ রহিম</h1>
+                <p id="pvTitle" class="text-primary font-semibold">কম্পিউটার অপারেটর</p>
+                <div class="text-xs text-gray-500 mt-2 flex gap-3">
+                  <span id="pvEmail">📧 rahim@gmail.com</span> | 
+                  <span id="pvPhone">📞 +৮৮০ ১৭০০০০০-০০০</span>
+                </div>
+              </div>
+              <div class="mb-4">
+                <h4 class="font-bold text-sm text-gray-700 border-b mb-1">শিক্ষাগত যোগ্যতা</h4>
+                <p id="pvEdu" class="text-xs text-gray-600 whitespace-pre-line">বি.এসসি (কম্পিউটার সাইন্স) - ঢাকা বিশ্ববিদ্যালয়</p>
+              </div>
+              <div>
+                <h4 class="font-bold text-sm text-gray-700 border-b mb-1">অভিজ্ঞতা</h4>
+                <p id="pvExp" class="text-xs text-gray-600 whitespace-pre-line">২ বছরের আইটি ও ডকুমেন্ট প্রসেসিং এর অভিজ্ঞতা।</p>
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (toolName === 'photo') {
+        content.innerHTML = `
+          <h2 class="font-anek font-bold text-2xl mb-4 text-blue-600">🖼️ পাসপোর্ট ফটো এডিটর</h2>
+          <div class="space-y-4">
+            <input type="file" id="imgInput" accept="image/*" class="w-full p-2 border rounded-xl" onchange="processImage(event)" />
+            <div class="flex justify-center border p-4 rounded-xl bg-gray-50 min-h-[200px] items-center">
+              <canvas id="photoCanvas" class="max-w-full hidden rounded shadow"></canvas>
+              <p id="imgPlaceholder" class="text-gray-400">ছবি নির্বাচন করুন</p>
+            </div>
+            <div id="photoControls" class="hidden flex gap-3">
+              <button onclick="applyPassportSize()" class="bg-green-600 text-white px-4 py-2 rounded-xl text-sm font-bold">পাসপোর্ট সাইজ ক্রপ</button>
+              <button onclick="downloadCanvasImg()" class="bg-primary text-white px-4 py-2 rounded-xl text-sm font-bold">ডাউনলোড করুন</button>
+            </div>
+          </div>
+        `;
+      } else if (toolName === 'ocr') {
+        content.innerHTML = `
+          <h2 class="font-anek font-bold text-2xl mb-4 text-orange-600">🔤 ছবি থেকে লেখা বের করুন (OCR)</h2>
+          <div class="space-y-4">
+            <input type="file" id="ocrInput" accept="image/*" class="w-full p-2 border rounded-xl" />
+            <button onclick="runOCR()" class="bg-orange-500 text-white font-bold px-6 py-2.5 rounded-xl btn-hover w-full">লেখা এক্সট্রাক্ট করুন</button>
+            <div id="ocrStatus" class="text-sm font-semibold text-gray-500 text-center"></div>
+            <textarea id="ocrResult" class="w-full h-40 p-3 border rounded-xl text-sm" placeholder="এখানে এক্সট্রাক্ট হওয়া লেখা দেখতে পাবেন..."></textarea>
+          </div>
+        `;
+      } else if (toolName === 'pdf') {
+        content.innerHTML = `
+          <h2 class="font-anek font-bold text-2xl mb-4 text-pink-600">📑 PDF ও ফাইল কনভার্টার</h2>
+          <div class="p-6 border-2 border-dashed rounded-2xl text-center space-y-3">
+            <p class="text-gray-600 font-semibold">আপনার PDF অথবা Word ফাইল এখানে ড্রপ করুন</p>
+            <input type="file" class="block mx-auto text-sm text-gray-500" />
+            <button onclick="alert('ফাইল প্রসেসিং শুরু হয়েছে...')" class="bg-pink-600 text-white font-bold px-6 py-2 rounded-xl btn-hover">কনভার্ট শুরু করুন</button>
+          </div>
+        `;
+      }
     }
 
-    function closeModalFn() {
+    function closeToolModal() {
+      const modal = document.getElementById('toolModal');
       modal.classList.add('hidden');
       modal.classList.remove('flex');
     }
 
-    function updateAuthUI() {
-      if (isLoginMode) {
-        authTitle.textContent = 'লগইন করুন';
-        authSubmit.textContent = 'লগইন';
-        authSwitchText.textContent = 'অ্যাকাউন্ট নেই?';
-        authSwitchBtn.textContent = 'রেজিস্টার করুন';
-      } else {
-        authTitle.textContent = 'রেজিস্টার করুন';
-        authSubmit.textContent = 'অ্যাকাউন্ট তৈরি করুন';
-        authSwitchText.textContent = 'ইতিমধ্যে অ্যাকাউন্ট আছে?';
-        authSwitchBtn.textContent = 'লগইন করুন';
-      }
+    // Live CV Update Function
+    function updateCV() {
+      document.getElementById('pvName').innerText = document.getElementById('cvName').value || 'নাম';
+      document.getElementById('pvTitle').innerText = document.getElementById('cvTitle').value || 'পদবী';
+      document.getElementById('pvEmail').innerText = '📧 ' + (document.getElementById('cvEmail').value || '');
+      document.getElementById('pvPhone').innerText = '📞 ' + (document.getElementById('cvPhone').value || '');
+      document.getElementById('pvEdu').innerText = document.getElementById('cvEdu').value || '';
+      document.getElementById('pvExp').innerText = document.getElementById('cvExp').value || '';
     }
 
-    // Event Listeners
-    if (loginBtn) {
-      loginBtn.addEventListener('click', () => {
-        if (currentUser) {
-          if (confirm('আপনি কি লগআউট করতে চান?')) {
-            signOut(auth);
-          }
-        } else {
-          openModal(false);
+    // Photo Processing Logic
+    let rawImage = new Image();
+    function processImage(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        rawImage.src = event.target.result;
+        rawImage.onload = function() {
+          const canvas = document.getElementById('photoCanvas');
+          const ctx = canvas.getContext('2d');
+          canvas.width = rawImage.width;
+          canvas.height = rawImage.height;
+          ctx.drawImage(rawImage, 0, 0);
+          canvas.classList.remove('hidden');
+          document.getElementById('imgPlaceholder').classList.add('hidden');
+          document.getElementById('photoControls').classList.remove('hidden');
         }
-      });
-    }
-
-    if (ctaRegister) {
-      ctaRegister.addEventListener('click', () => openModal(true));
-    }
-
-    if (closeModal) {
-      closeModal.addEventListener('click', closeModalFn);
-    }
-
-    if (modal) {
-      modal.addEventListener('click', (e) => {
-        if (e.target === modal) closeModalFn();
-      });
-    }
-
-    if (authSwitchBtn) {
-      authSwitchBtn.addEventListener('click', () => {
-        isLoginMode = !isLoginMode;
-        updateAuthUI();
-        authError.classList.add('hidden');
-      });
-    }
-
-    if (authForm) {
-      authForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const email = document.getElementById('authEmail').value.trim();
-        const password = document.getElementById('authPassword').value;
-
-        authError.classList.add('hidden');
-        authSuccess.classList.add('hidden');
-        authSubmit.disabled = true;
-        authSubmit.textContent = 'অপেক্ষা করুন...';
-
-        try {
-          if (isLoginMode) {
-            await signInWithEmailAndPassword(auth, email, password);
-            authSuccess.textContent = 'সফলভাবে লগইন হয়েছে!';
-          } else {
-            await createUserWithEmailAndPassword(auth, email, password);
-            authSuccess.textContent = 'অ্যাকাউন্ট তৈরি হয়েছে! স্বাগতম।';
-          }
-          authSuccess.classList.remove('hidden');
-          setTimeout(() => {
-            closeModalFn();
-            document.getElementById('authEmail').value = '';
-            document.getElementById('authPassword').value = '';
-          }, 1200);
-        } catch (err) {
-          let msg = 'কিছু সমস্যা হয়েছে। আবার চেষ্টা করুন।';
-          if (err.code === 'auth/email-already-in-use') msg = 'এই ইমেইল ইতিমধ্যে ব্যবহার করা হয়েছে।';
-          if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') msg = 'ইমেইল বা পাসওয়ার্ড ভুল।';
-          if (err.code === 'auth/weak-password') msg = 'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।';
-          if (err.code === 'auth/invalid-email') msg = 'সঠিক ইমেইল দিন।';
-          
-          authError.textContent = msg;
-          authError.classList.remove('hidden');
-        } finally {
-          authSubmit.disabled = false;
-          updateAuthUI();
-        }
-      });
-    }
-
-    // Monitor Firebase Auth State
-    onAuthStateChanged(auth, (user) => {
-      currentUser = user;
-      if (user) {
-        if (loginBtnText) loginBtnText.textContent = 'প্রোফাইল (লগআউট)';
-      } else {
-        if (loginBtnText) loginBtnText.textContent = 'লগইন';
       }
-    });
+      reader.readAsDataURL(file);
+    }
+
+    function applyPassportSize() {
+      const canvas = document.getElementById('photoCanvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = 350;
+      canvas.height = 450;
+      ctx.drawImage(rawImage, 0, 0, 350, 450);
+    }
+
+    function downloadCanvasImg() {
+      const canvas = document.getElementById('photoCanvas');
+      const link = document.createElement('a');
+      link.download = 'passport-photo.png';
+      link.href = canvas.toDataURL();
+      link.click();
+    }
+
+    // OCR Logic
+    function runOCR() {
+      const input = document.getElementById('ocrInput');
+      const status = document.getElementById('ocrStatus');
+      const result = document.getElementById('ocrResult');
+
+      if (!input.files[0]) {
+        alert('অনুগ্রহ করে একটি ছবি নির্বাচন করুন!');
+        return;
+      }
+
+      status.innerText = 'ছবি স্ক্যান করা হচ্ছে... অনুগ্রহ করে একটু অপেক্ষা করুন।';
+      Tesseract.recognize(
+        input.files[0],
+        'ben+eng',
+        { logger: m => { if(m.status === 'recognizing text') status.innerText = `প্রসেসিং: ${Math.round(m.progress * 100)}%`; } }
+      ).then(({ data: { text } }) => {
+        status.innerText = 'কাজ সম্পন্ন হয়েছে!';
+        result.value = text;
+      }).catch(err => {
+        status.innerText = 'সমস্যা হয়েছে, আবার চেষ্টা করুন।';
+      });
+    }
   </script>
 </body>
 </html>
