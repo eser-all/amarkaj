@@ -27,7 +27,12 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.js"></script>
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
   
+  <!-- MediaPipe Selfie Segmentation for True AI BG Removal -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js" crossorigin="anonymous"></script>
+
   <!-- Cropper.js -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
@@ -119,7 +124,7 @@
     <section class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white py-12 relative overflow-hidden">
       <div class="max-w-4xl mx-auto px-4 text-center relative z-10">
         <h2 class="text-3xl md:text-5xl font-extrabold mb-3 leading-tight">স্মার্ট এডিটিং ও প্রফেশনাল ফাইল ম্যানেজার</h2>
-        <p class="text-base md:text-lg opacity-90 font-light">ডাটা সুরক্ষাসহ AI ফটো ব্যাকগ্রাউন্ড রিমুভার • A4 প্রিন্ট গ্রিড • স্মার্ট ডকুমেন্ট এডিটর</p>
+        <p class="text-base md:text-lg opacity-90 font-light">ডাটা সুরক্ষাসহ AI ফটো ব্যাকগ্রাউন্ড রিমুভার • A4 প্রিন্ট গ্রিড • স্মার্ট ডকুমেন্ট এডিটর & PDF মার্জার</p>
       </div>
     </section>
 
@@ -136,6 +141,11 @@
         <div class="tool-card" onclick="showTool('doceditor')">
           <div class="text-4xl">📄</div>
           <h4 class="font-semibold text-sm md:text-base">স্মার্ট ডকুমেন্ট এডিটর & OCR</h4>
+        </div>
+
+        <div class="tool-card" onclick="showTool('pdfmerge')">
+          <div class="text-4xl">📚</div>
+          <h4 class="font-semibold text-sm md:text-base">একাধিক PDF মার্জার</h4>
         </div>
 
         <div class="tool-card" onclick="showTool('ppgrid')">
@@ -162,11 +172,6 @@
           <div class="text-4xl">🪪</div>
           <h4 class="font-semibold text-sm md:text-base">NID → PDF মেকার</h4>
         </div>
-
-        <div class="tool-card" onclick="showTool('passport')">
-          <div class="text-4xl">🛂</div>
-          <h4 class="font-semibold text-sm md:text-base">পাসপোর্ট → PDF মেকার</h4>
-        </div>
       </div>
     </section>
 
@@ -187,13 +192,6 @@
           <div id="ai-controls" class="hidden space-y-4">
             <div class="bg-indigo-50/70 dark:bg-gray-700/50 p-4 rounded-2xl border border-indigo-100 dark:border-gray-600">
               <h4 class="font-bold text-sm text-indigo-700 dark:text-indigo-300 mb-3">✨ AI ব্যাকগ্রাউন্ড এডিটর:</h4>
-              
-              <div class="mb-3 flex flex-wrap items-center gap-3 bg-white dark:bg-gray-800 p-2.5 rounded-xl border dark:border-gray-600">
-                <span class="text-xs font-semibold">AI Tolerance (সেন্সিটিভিটি):</span>
-                <input type="range" id="ai-tolerance" min="5" max="120" value="45" class="w-32 accent-indigo-600">
-                <span id="tolerance-val" class="text-xs font-bold text-indigo-600 dark:text-indigo-400">45</span>
-                <span class="text-[11px] text-gray-500 dark:text-gray-400">(অতিরিক্ত কেটে গেলে টলারেন্স কমান)</span>
-              </div>
 
               <div class="flex flex-wrap gap-3 items-center">
                 <div class="flex items-center gap-2">
@@ -299,8 +297,18 @@
               </div>
 
               <div class="flex items-center gap-1 border-l pl-2 border-gray-300 dark:border-gray-600">
-                <label class="text-xs font-semibold">সাইজ:</label>
+                <label class="text-xs font-semibold">ফন্ট সাইজ:</label>
                 <input type="number" id="doc-font-size" value="22" min="10" max="100" class="w-14 p-1 rounded border text-center font-bold dark:bg-gray-800">
+              </div>
+
+              <div class="flex items-center gap-1">
+                <label class="text-xs font-semibold">ফন্ট স্টাইল:</label>
+                <select id="doc-font-family" class="p-1 rounded border dark:bg-gray-800 text-xs">
+                  <option value="'Kalpurush', sans-serif">কালপুরুষ (বাংলা)</option>
+                  <option value="Arial, sans-serif">Arial (Sans)</option>
+                  <option value="'Times New Roman', serif">Times (Serif)</option>
+                  <option value="'Courier New', monospace">Courier (Mono)</option>
+                </select>
               </div>
 
               <div class="flex items-center gap-1">
@@ -328,7 +336,15 @@
           </div>
         </div>
 
-        <!-- ==================== 3. PASSPORT GRID PANEL ==================== -->
+        <!-- ==================== 3. PDF MERGER PANEL ==================== -->
+        <div id="panel-pdfmerge" class="tool-panel">
+          <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">একাধিক PDF ফাইল সিলেক্ট করে একসাথে জুড়ে নতুন একটি PDF বানিয়ে ডাউনলোড করুন।</p>
+          <input type="file" id="pdf-merge-input" accept="application/pdf" multiple class="mb-4 block w-full text-sm">
+          <div id="pdf-file-list" class="space-y-2 mb-4 text-sm font-medium"></div>
+          <button onclick="mergePdfFiles()" class="btn-primary">📚 PDF মার্জ করুন ও ডাউনলোড করুন</button>
+        </div>
+
+        <!-- ==================== 4. PASSPORT GRID PANEL ==================== -->
         <div id="panel-ppgrid" class="tool-panel">
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">পাসপোর্ট সাইজের ছবি আপলোড করে A4 পেজে বিভিন্ন কপিতে সাজিয়ে ডাউনলোড করুন।</p>
           <input type="file" id="pp-input" accept="image/*" class="mb-4 block w-full text-sm">
@@ -358,7 +374,7 @@
           </div>
         </div>
 
-        <!-- ==================== 4. LIVE SCANNER PANEL ==================== -->
+        <!-- ==================== 5. LIVE SCANNER PANEL ==================== -->
         <div id="panel-scanner" class="tool-panel">
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">ক্যামেরা দিয়ে সরাসরি ডকুমেন্ট স্ক্যান করুন।</p>
           <div class="flex flex-wrap gap-3 mb-4">
@@ -381,7 +397,7 @@
           </div>
         </div>
 
-        <!-- ==================== 5. COMPRESS PANEL ==================== -->
+        <!-- ==================== 6. COMPRESS PANEL ==================== -->
         <div id="panel-compress" class="tool-panel">
           <input type="file" id="compress-input" accept="image/*" class="mb-4 block w-full text-sm">
           <div class="mb-4">
@@ -392,7 +408,7 @@
           <div id="compress-result" class="mt-6"></div>
         </div>
 
-        <!-- ==================== 6. CONVERT PANEL ==================== -->
+        <!-- ==================== 7. CONVERT PANEL ==================== -->
         <div id="panel-convert" class="tool-panel">
           <input type="file" id="convert-input" accept="image/*" class="mb-4 block w-full text-sm">
           <select id="convert-format" class="border dark:border-gray-700 rounded-xl px-4 py-2.5 mb-4 w-full bg-white dark:bg-gray-700">
@@ -404,21 +420,13 @@
           <div id="convert-result" class="mt-6"></div>
         </div>
 
-        <!-- ==================== 7. NID PANEL ==================== -->
+        <!-- ==================== 8. NID PANEL ==================== -->
         <div id="panel-nid" class="tool-panel">
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">NID কার্ডের সামনের এবং পেছনের অংশ আপলোড করুন:</p>
           <input type="file" id="nid-front" accept="image/*" class="mb-2 block w-full text-sm">
           <input type="file" id="nid-back" accept="image/*" class="mb-4 block w-full text-sm">
           <button onclick="createNidPdf()" class="btn-primary">NID PDF তৈরি করুন</button>
           <div id="nid-result" class="mt-6"></div>
-        </div>
-
-        <!-- ==================== 8. PASSPORT PANEL ==================== -->
-        <div id="panel-passport" class="tool-panel">
-          <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">পাসপোর্ট পেজের ছবি নির্বাচন করুন:</p>
-          <input type="file" id="passport-input" accept="image/*" multiple class="mb-4 block w-full text-sm">
-          <button onclick="createPassportPdf()" class="btn-primary">পাসপোর্ট PDF তৈরি করুন</button>
-          <div id="passport-result" class="mt-6"></div>
         </div>
 
       </div>
@@ -459,12 +467,12 @@
       const titles = {
         scanner: 'লাইভ এইচডি স্ক্যানার',
         ai: 'AI ফটো এডিট ও ব্যাকগ্রাউন্ড চেঞ্জার',
-        ppgrid: 'A4 পেপারে পাসপোর্ট ফটো গ্রিড মেকার',
         doceditor: 'স্মার্ট ডকুমেন্ট এডিটর & OCR',
+        pdfmerge: 'একাধিক PDF ফাইল মার্জার',
+        ppgrid: 'A4 পেপারে পাসপোর্ট ফটো গ্রিড মেকার',
         compress: 'স্মার্ট ইমেজ কম্প্রেস',
         convert: 'ইমেজ ফরম্যাট কনভার্ট',
-        nid: 'NID কার্ড → PDF',
-        passport: 'পাসপোর্ট → PDF'
+        nid: 'NID কার্ড → PDF'
       };
 
       document.getElementById('tool-title').textContent = titles[tool];
@@ -481,14 +489,22 @@
       document.getElementById('quality-value').textContent = Math.round(this.value * 100) + '%';
     });
 
-    document.getElementById('ai-tolerance').addEventListener('input', function() {
-      document.getElementById('tolerance-val').textContent = this.value;
-    });
-
-    // ========== ADVANCED AI BACKGROUND ISOLATION LOGIC ==========
+    // ========== ADVANCED MEDIAPIPE AI BACKGROUND REMOVAL ==========
     let cropper = null;
     let originalAiImageSrc = null;
     let baseLoadedImage = null; 
+    let selfieSegmentation = null;
+
+    // Initialize MediaPipe AI Segmentation Model
+    function initMediaPipe() {
+      if (!selfieSegmentation) {
+        selfieSegmentation = new SelfieSegmentation({
+          locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`
+        });
+        selfieSegmentation.setOptions({ modelSelection: 1 });
+      }
+    }
+    initMediaPipe();
 
     document.getElementById('ai-input').addEventListener('change', function(e) {
       const file = e.target.files[0];
@@ -520,92 +536,60 @@
       applyBgColor();
     }
 
-    function isolateForegroundAI(imgElement, tolerance) {
+    function getSegmentedMask(imageElem) {
       return new Promise((resolve) => {
-        const canvas = document.createElement('canvas');
-        canvas.width = imgElement.naturalWidth || imgElement.width;
-        canvas.height = imgElement.naturalHeight || imgElement.height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(imgElement, 0, 0);
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = imageElem.naturalWidth || imageElem.width;
+        tempCanvas.height = imageElem.naturalHeight || imageElem.height;
+        const tempCtx = tempCanvas.getContext('2d');
 
-        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const data = imgData.data;
+        selfieSegmentation.onResults((results) => {
+          tempCtx.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
+          tempCtx.drawImage(results.segmentationMask, 0, 0, tempCanvas.width, tempCanvas.height);
+          resolve(tempCanvas);
+        });
 
-        const borderPixels = [];
-        const w = canvas.width;
-        const h = canvas.height;
-
-        for (let x = 0; x < w; x += 5) {
-          borderPixels.push(getPixelRGB(data, x, 0, w));
-          borderPixels.push(getPixelRGB(data, x, h - 1, w));
-        }
-        for (let y = 0; y < h; y += 5) {
-          borderPixels.push(getPixelRGB(data, 0, y, w));
-          borderPixels.push(getPixelRGB(data, w - 1, y, w));
-        }
-
-        let avgR = 0, avgG = 0, avgB = 0;
-        borderPixels.forEach(p => { avgR += p.r; avgG += p.g; avgB += p.b; });
-        avgR /= borderPixels.length;
-        avgG /= borderPixels.length;
-        avgB /= borderPixels.length;
-
-        for (let i = 0; i < data.length; i += 4) {
-          const r = data[i];
-          const g = data[i + 1];
-          const b = data[i + 2];
-
-          const dist = Math.sqrt(
-            (r - avgR) ** 2 +
-            (g - avgG) ** 2 +
-            (b - avgB) ** 2
-          );
-
-          if (dist < tolerance) {
-            data[i + 3] = 0; 
-          } else if (dist < tolerance + 15) {
-            data[i + 3] = Math.round(((dist - tolerance) / 15) * 255);
-          }
-        }
-
-        ctx.putImageData(imgData, 0, 0);
-        resolve(canvas);
+        selfieSegmentation.send({ image: imageElem });
       });
-    }
-
-    function getPixelRGB(data, x, y, width) {
-      const idx = (y * width + x) * 4;
-      return { r: data[idx], g: data[idx + 1], b: data[idx + 2] };
     }
 
     async function applyBgColor() {
       const img = document.getElementById('ai-image');
-      if (!baseLoadedImage) return showToast('একটি ছবি লোড করুন', '⚠️️');
+      if (!baseLoadedImage) return showToast('একটি ছবি লোড করুন', '⚠️');
       
-      toggleLoader(true, "AI ব্যাকগ্রাউন্ড পরিবর্তন ও এজ স্মুথিং করা হচ্ছে...");
+      toggleLoader(true, "AI দিয়ে সাবজেক্ট চিনে ব্যাকগ্রাউন্ড চেঞ্জ করা হচ্ছে...");
       const color = document.getElementById('ai-bg-color').value;
-      const tolerance = parseInt(document.getElementById('ai-tolerance').value);
 
-      setTimeout(async () => {
-        const foregroundCanvas = await isolateForegroundAI(baseLoadedImage, tolerance);
+      try {
+        const maskCanvas = await getSegmentedMask(baseLoadedImage);
 
-        const outputCanvas = document.createElement('canvas');
-        outputCanvas.width = baseLoadedImage.naturalWidth || baseLoadedImage.width;
-        outputCanvas.height = baseLoadedImage.naturalHeight || baseLoadedImage.height;
-        const ctx = outputCanvas.getContext('2d');
+        const canvas = document.createElement('canvas');
+        canvas.width = baseLoadedImage.naturalWidth || baseLoadedImage.width;
+        canvas.height = baseLoadedImage.naturalHeight || baseLoadedImage.height;
+        const ctx = canvas.getContext('2d');
 
+        // Draw Background Color
         ctx.fillStyle = color;
-        ctx.fillRect(0, 0, outputCanvas.width, outputCanvas.height);
-        ctx.drawImage(foregroundCanvas, 0, 0);
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        const newUrl = outputCanvas.toDataURL('image/png');
+        // Mask Composite to draw Subject only
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.drawImage(maskCanvas, 0, 0, canvas.width, canvas.height);
+
+        ctx.globalCompositeOperation = 'destination-over';
+        ctx.drawImage(baseLoadedImage, 0, 0, canvas.width, canvas.height);
+
+        const newUrl = canvas.toDataURL('image/png');
         img.src = newUrl;
         
         const dlBtn = document.getElementById('ai-download');
         dlBtn.href = newUrl;
         toggleLoader(false);
         showToast('ব্যাকগ্রাউন্ড সফলভাবে পরিবর্তন করা হয়েছে!', '🎨');
-      }, 100);
+      } catch(e) {
+        toggleLoader(false);
+        showToast('প্রসেসিংয়ে ত্রুটি ঘটেছে', '❌');
+      }
     }
 
     async function applyBgImage() {
@@ -614,29 +598,38 @@
       if (!baseLoadedImage || !bgFile) return showToast('ছবি এবং ব্যাকগ্রাউন্ড উভয় ফাইল নির্বাচন করুন', '⚠️');
 
       toggleLoader(true, "কাস্টম ব্যাকগ্রাউন্ড প্রসেস করা হচ্ছে...");
-      const tolerance = parseInt(document.getElementById('ai-tolerance').value);
 
       const reader = new FileReader();
       reader.onload = function(evt) {
         const bgImg = new Image();
         bgImg.onload = async function() {
-          const foregroundCanvas = await isolateForegroundAI(baseLoadedImage, tolerance);
+          try {
+            const maskCanvas = await getSegmentedMask(baseLoadedImage);
 
-          const canvas = document.createElement('canvas');
-          canvas.width = baseLoadedImage.naturalWidth || baseLoadedImage.width;
-          canvas.height = baseLoadedImage.naturalHeight || baseLoadedImage.height;
-          const ctx = canvas.getContext('2d');
+            const canvas = document.createElement('canvas');
+            canvas.width = baseLoadedImage.naturalWidth || baseLoadedImage.width;
+            canvas.height = baseLoadedImage.naturalHeight || baseLoadedImage.height;
+            const ctx = canvas.getContext('2d');
 
-          ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
-          ctx.drawImage(foregroundCanvas, 0, 0);
+            ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
 
-          const newUrl = canvas.toDataURL('image/png');
-          img.src = newUrl;
-          
-          const dlBtn = document.getElementById('ai-download');
-          dlBtn.href = newUrl;
-          toggleLoader(false);
-          showToast('কাস্টম ব্যাকগ্রাউন্ড যোগ করা হয়েছে!', '🖼️');
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.drawImage(maskCanvas, 0, 0, canvas.width, canvas.height);
+
+            ctx.globalCompositeOperation = 'destination-over';
+            ctx.drawImage(baseLoadedImage, 0, 0, canvas.width, canvas.height);
+
+            const newUrl = canvas.toDataURL('image/png');
+            img.src = newUrl;
+            
+            const dlBtn = document.getElementById('ai-download');
+            dlBtn.href = newUrl;
+            toggleLoader(false);
+            showToast('কাস্টম ব্যাকগ্রাউন্ড যোগ করা হয়েছে!', '🖼️');
+          } catch(e) {
+            toggleLoader(false);
+            showToast('ত্রুটি ঘটেছে', '❌');
+          }
         };
         bgImg.src = evt.target.result;
       };
@@ -769,7 +762,266 @@
       setTimeout(() => { win.print(); win.close(); }, 500);
     }
 
-    // ========== OTHER TOOLS LOGIC ==========
+    // ========== PDF MERGER FUNCTIONALITY ==========
+    document.getElementById('pdf-merge-input').addEventListener('change', function(e) {
+      const files = Array.from(e.target.files);
+      const listContainer = document.getElementById('pdf-file-list');
+      listContainer.innerHTML = '';
+      
+      files.forEach((file, index) => {
+        const item = document.createElement('div');
+        item.className = 'flex justify-between items-center bg-gray-100 dark:bg-gray-700 p-2 rounded-lg';
+        item.innerHTML = `<span>📄 ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)</span>`;
+        listContainer.appendChild(item);
+      });
+    });
+
+    async function mergePdfFiles() {
+      const files = document.getElementById('pdf-merge-input').files;
+      if (!files || files.length < 2) return showToast('কমপক্ষে ২টি PDF ফাইল সিলেক্ট করুন', '⚠️');
+
+      toggleLoader(true, "PDF ফাইলগুলো একত্রিত করা হচ্ছে...");
+
+      try {
+        const mergedPdf = await PDFLib.PDFDocument.create();
+
+        for (let i = 0; i < files.length; i++) {
+          const fileBytes = await files[i].arrayBuffer();
+          const pdfDoc = await PDFLib.PDFDocument.load(fileBytes);
+          const copiedPages = await mergedPdf.copyPages(pdfDoc, pdfDoc.getPageIndices());
+          copiedPages.forEach((page) => mergedPdf.addPage(page));
+        }
+
+        const mergedPdfBytes = await mergedPdf.save();
+        const blob = new Blob([mergedPdfBytes], { type: 'application/pdf' });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'merged_document.pdf';
+        a.click();
+
+        toggleLoader(false);
+        showToast('PDF ফাইল সফলভাবে মার্জ হয়েছে!', '📚');
+      } catch (err) {
+        toggleLoader(false);
+        showToast('PDF মার্জ করতে সমস্যা হয়েছে', '❌');
+      }
+    }
+
+    // ========== DOCUMENT EDITOR CANVAS ==========
+    let docCanvas = document.getElementById('doc-canvas');
+    let docCtx = docCanvas.getContext('2d');
+    let rawDocImage = null;
+    let currentDocTool = 'erase-brush'; 
+    let isDrawing = false;
+    let startX = 0, startY = 0;
+
+    document.getElementById('doc-input').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        rawDocImage = new Image();
+        rawDocImage.onload = function() {
+          docCanvas.width = rawDocImage.width;
+          docCanvas.height = rawDocImage.height;
+          docCtx.drawImage(rawDocImage, 0, 0);
+          document.getElementById('doc-editor-tools').classList.remove('hidden');
+          showToast('ডকুমেন্ট এডিটর প্রস্তুত', '📄');
+        };
+        rawDocImage.src = evt.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    function fitToA4Standard() {
+      if (!docCanvas.width) return;
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = docCanvas.width;
+      tempCanvas.height = docCanvas.height;
+      tempCanvas.getContext('2d').drawImage(docCanvas, 0, 0);
+
+      docCanvas.width = 1240;
+      docCanvas.height = 1754;
+      docCtx.fillStyle = "#ffffff";
+      docCtx.fillRect(0, 0, 1240, 1754);
+      
+      const ratio = Math.min(1240 / tempCanvas.width, 1754 / tempCanvas.height);
+      const w = tempCanvas.width * ratio;
+      const h = tempCanvas.height * ratio;
+      const x = (1240 - w) / 2;
+      const y = (1754 - h) / 2;
+
+      docCtx.drawImage(tempCanvas, x, y, w, h);
+      showToast('A4 সাইজে ফিট হয়েছে', '📐');
+    }
+
+    function rotateDocCanvas() {
+      if (!docCanvas.width) return;
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = docCanvas.height;
+      tempCanvas.height = docCanvas.width;
+      const tempCtx = tempCanvas.getContext('2d');
+
+      tempCtx.translate(tempCanvas.width / 2, tempCanvas.height / 2);
+      tempCtx.rotate(90 * Math.PI / 180);
+      tempCtx.drawImage(docCanvas, -docCanvas.width / 2, -docCanvas.height / 2);
+
+      docCanvas.width = tempCanvas.width;
+      docCanvas.height = tempCanvas.height;
+      docCtx.drawImage(tempCanvas, 0, 0);
+      showToast('৯০° ঘোরানো হয়েছে', '🔄');
+    }
+
+    function setDocTool(tool) {
+      currentDocTool = tool;
+      document.getElementById('tool-erase-btn').className = 'btn-secondary py-1.5 px-3';
+      document.getElementById('tool-box-btn').className = 'btn-secondary py-1.5 px-3';
+      document.getElementById('tool-text-btn').className = 'btn-secondary py-1.5 px-3';
+
+      if (tool === 'erase-brush') {
+        document.getElementById('tool-erase-btn').className = 'btn-primary py-1.5 px-3';
+      } else if (tool === 'erase-box') {
+        document.getElementById('tool-box-btn').className = 'btn-primary py-1.5 px-3';
+      } else if (tool === 'text') {
+        document.getElementById('tool-text-btn').className = 'btn-primary py-1.5 px-3';
+      }
+    }
+
+    docCanvas.addEventListener('mousedown', handleDocPointerDown);
+    docCanvas.addEventListener('mousemove', handleDocPointerMove);
+    docCanvas.addEventListener('mouseup', handleDocPointerUp);
+
+    function getCanvasCoords(e) {
+      const rect = docCanvas.getBoundingClientRect();
+      const scaleX = docCanvas.width / rect.width;
+      const scaleY = docCanvas.height / rect.height;
+      return {
+        x: (e.clientX - rect.left) * scaleX,
+        y: (e.clientY - rect.top) * scaleY
+      };
+    }
+
+    function handleDocPointerDown(e) {
+      const coords = getCanvasCoords(e);
+      startX = coords.x;
+      startY = coords.y;
+      isDrawing = true;
+
+      if (currentDocTool === 'erase-brush') {
+        eraseBrushAt(coords.x, coords.y);
+      } else if (currentDocTool === 'text') {
+        const text = prompt("আপনার টেক্সটটি লিখুন:");
+        if (text) {
+          const fontSize = document.getElementById('doc-font-size').value;
+          const fontFamily = document.getElementById('doc-font-family').value;
+          const color = document.getElementById('doc-text-color').value;
+          
+          docCtx.font = `${fontSize}px ${fontFamily}`;
+          docCtx.fillStyle = color;
+          docCtx.fillText(text, coords.x, coords.y);
+          showToast('লেখা যুক্ত হয়েছে', '✅');
+        }
+        isDrawing = false;
+      }
+    }
+
+    function handleDocPointerMove(e) {
+      if (!isDrawing) return;
+      const coords = getCanvasCoords(e);
+      if (currentDocTool === 'erase-brush') {
+        eraseBrushAt(coords.x, coords.y);
+      }
+    }
+
+    function handleDocPointerUp(e) {
+      if (!isDrawing) return;
+      isDrawing = false;
+
+      if (currentDocTool === 'erase-box' && e) {
+        const coords = getCanvasCoords(e);
+        const width = coords.x - startX;
+        const height = coords.y - startY;
+        const eraseColor = document.getElementById('doc-erase-color').value;
+
+        docCtx.fillStyle = eraseColor;
+        docCtx.fillRect(startX, startY, width, height);
+        showToast('অঞ্চলটি মোছা হয়েছে', '🧹');
+      }
+    }
+
+    function eraseBrushAt(x, y) {
+      const fontSize = document.getElementById('doc-font-size').value;
+      const eraseColor = document.getElementById('doc-erase-color').value;
+      docCtx.fillStyle = eraseColor;
+      docCtx.beginPath();
+      docCtx.arc(x, y, fontSize / 2, 0, Math.PI * 2);
+      docCtx.fill();
+    }
+
+    function resetDocCanvas() {
+      if (rawDocImage) {
+        docCanvas.width = rawDocImage.width;
+        docCanvas.height = rawDocImage.height;
+        docCtx.drawImage(rawDocImage, 0, 0);
+        showToast('রিসেট করা হয়েছে', '🔄');
+      }
+    }
+
+    async function processScanToText() {
+      const file = document.getElementById('doc-input').files[0];
+      if (!file) return showToast('একটি ফাইল দিন', '⚠️');
+      
+      toggleLoader(true, "OCR দিয়ে বাংলা ও ইংরেজি টেক্সট এক্সট্র্যাক্ট হচ্ছে...");
+      try {
+        const worker = await Tesseract.createWorker('ben+eng');
+        const ret = await worker.recognize(file);
+        const txtArea = document.getElementById('doc-editor-text');
+        txtArea.value = ret.data.text;
+        txtArea.classList.remove('hidden');
+        await worker.terminate();
+        toggleLoader(false);
+        showToast('OCR সম্পূর্ণ!', '📄');
+      } catch (err) {
+        toggleLoader(false);
+        showToast('ত্রুটি ঘটেছে', '❌');
+      }
+    }
+
+    function printDocCanvas() {
+      if (!docCanvas.width) return;
+      const win = window.open('', '_blank');
+      win.document.write(`<img src="${docCanvas.toDataURL('image/jpeg', 1.0)}" style="width:100%;"/>`);
+      win.document.close();
+      win.focus();
+      setTimeout(() => { win.print(); win.close(); }, 500);
+    }
+
+    function downloadDocPdf() {
+      if (!docCanvas.width) return;
+      const imgData = docCanvas.toDataURL('image/jpeg', 1.0);
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      pdf.addImage(imgData, 'JPEG', 0, 0, 210, (docCanvas.height * 210) / docCanvas.width);
+      pdf.save('edited-document.pdf');
+    }
+
+    function downloadDocWord() {
+      const text = document.getElementById('doc-editor-text').value || "সম্পাদিত ডকুমেন্ট।";
+      const imgData = docCanvas.toDataURL('image/png');
+      
+      const sourceHTML = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'></head><body><div style="text-align:center;"><img src="${imgData}" style="max-width:100%;"/></div><br/><p style="font-family:'Kalpurush', sans-serif;">${text.replace(/\n/g, "<br>")}</p></body></html>`;
+      const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
+      
+      const fileDownload = document.createElement("a");
+      fileDownload.href = source;
+      fileDownload.download = 'edited-document.doc';
+      fileDownload.click();
+    }
+
+    // ========== CAMERA & COMPRESS UTILITIES ==========
     let videoStream = null;
     let currentFacingMode = 'environment';
 
@@ -877,218 +1129,6 @@
       setTimeout(() => { win.print(); win.close(); }, 500);
     }
 
-    // Document Editor Canvas
-    let docCanvas = document.getElementById('doc-canvas');
-    let docCtx = docCanvas.getContext('2d');
-    let rawDocImage = null;
-    let currentDocTool = 'erase-brush'; 
-    let isDrawing = false;
-    let startX = 0, startY = 0;
-
-    document.getElementById('doc-input').addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        rawDocImage = new Image();
-        rawDocImage.onload = function() {
-          docCanvas.width = rawDocImage.width;
-          docCanvas.height = rawDocImage.height;
-          docCtx.drawImage(rawDocImage, 0, 0);
-          document.getElementById('doc-editor-tools').classList.remove('hidden');
-          showToast('ডকুমেন্ট এডিটর প্রস্তুত', '📄');
-        };
-        rawDocImage.src = evt.target.result;
-      };
-      reader.readAsDataURL(file);
-    });
-
-    function fitToA4Standard() {
-      if (!docCanvas.width) return;
-      const tempCanvas = document.createElement('canvas');
-      tempCanvas.width = docCanvas.width;
-      tempCanvas.height = docCanvas.height;
-      tempCanvas.getContext('2d').drawImage(docCanvas, 0, 0);
-
-      docCanvas.width = 1240;
-      docCanvas.height = 1754;
-      docCtx.fillStyle = "#ffffff";
-      docCtx.fillRect(0, 0, 1240, 1754);
-      
-      const ratio = Math.min(1240 / tempCanvas.width, 1754 / tempCanvas.height);
-      const w = tempCanvas.width * ratio;
-      const h = tempCanvas.height * ratio;
-      const x = (1240 - w) / 2;
-      const y = (1754 - h) / 2;
-
-      docCtx.drawImage(tempCanvas, x, y, w, h);
-      showToast('A4 সাইজে ফিট হয়েছে', '📐');
-    }
-
-    function rotateDocCanvas() {
-      if (!docCanvas.width) return;
-      const tempCanvas = document.createElement('canvas');
-      tempCanvas.width = docCanvas.height;
-      tempCanvas.height = docCanvas.width;
-      const tempCtx = tempCanvas.getContext('2d');
-
-      tempCtx.translate(tempCanvas.width / 2, tempCanvas.height / 2);
-      tempCtx.rotate(90 * Math.PI / 180);
-      tempCtx.drawImage(docCanvas, -docCanvas.width / 2, -docCanvas.height / 2);
-
-      docCanvas.width = tempCanvas.width;
-      docCanvas.height = tempCanvas.height;
-      docCtx.drawImage(tempCanvas, 0, 0);
-      showToast('৯০° ঘোরানো হয়েছে', '🔄');
-    }
-
-    function setDocTool(tool) {
-      currentDocTool = tool;
-      document.getElementById('tool-erase-btn').className = 'btn-secondary py-1.5 px-3';
-      document.getElementById('tool-box-btn').className = 'btn-secondary py-1.5 px-3';
-      document.getElementById('tool-text-btn').className = 'btn-secondary py-1.5 px-3';
-
-      if (tool === 'erase-brush') {
-        document.getElementById('tool-erase-btn').className = 'btn-primary py-1.5 px-3';
-      } else if (tool === 'erase-box') {
-        document.getElementById('tool-box-btn').className = 'btn-primary py-1.5 px-3';
-      } else if (tool === 'text') {
-        document.getElementById('tool-text-btn').className = 'btn-primary py-1.5 px-3';
-      }
-    }
-
-    docCanvas.addEventListener('mousedown', handleDocPointerDown);
-    docCanvas.addEventListener('mousemove', handleDocPointerMove);
-    docCanvas.addEventListener('mouseup', handleDocPointerUp);
-
-    function getCanvasCoords(e) {
-      const rect = docCanvas.getBoundingClientRect();
-      const scaleX = docCanvas.width / rect.width;
-      const scaleY = docCanvas.height / rect.height;
-      return {
-        x: (e.clientX - rect.left) * scaleX,
-        y: (e.clientY - rect.top) * scaleY
-      };
-    }
-
-    function handleDocPointerDown(e) {
-      const coords = getCanvasCoords(e);
-      startX = coords.x;
-      startY = coords.y;
-      isDrawing = true;
-
-      if (currentDocTool === 'erase-brush') {
-        eraseBrushAt(coords.x, coords.y);
-      } else if (currentDocTool === 'text') {
-        const text = prompt("আপনার টেক্সটটি লিখুন:");
-        if (text) {
-          const fontSize = document.getElementById('doc-font-size').value;
-          const color = document.getElementById('doc-text-color').value;
-          
-          docCtx.font = `${fontSize}px 'Kalpurush', Arial, sans-serif`;
-          docCtx.fillStyle = color;
-          docCtx.fillText(text, coords.x, coords.y);
-          showToast('লেখা যুক্ত হয়েছে', '✅');
-        }
-        isDrawing = false;
-      }
-    }
-
-    function handleDocPointerMove(e) {
-      if (!isDrawing) return;
-      const coords = getCanvasCoords(e);
-      if (currentDocTool === 'erase-brush') {
-        eraseBrushAt(coords.x, coords.y);
-      }
-    }
-
-    function handleDocPointerUp(e) {
-      if (!isDrawing) return;
-      isDrawing = false;
-
-      if (currentDocTool === 'erase-box' && e) {
-        const coords = getCanvasCoords(e);
-        const width = coords.x - startX;
-        const height = coords.y - startY;
-        const eraseColor = document.getElementById('doc-erase-color').value;
-
-        docCtx.fillStyle = eraseColor;
-        docCtx.fillRect(startX, startY, width, height);
-        showToast('অঞ্চলটি মোছা হয়েছে', '🧹');
-      }
-    }
-
-    function eraseBrushAt(x, y) {
-      const fontSize = document.getElementById('doc-font-size').value;
-      const eraseColor = document.getElementById('doc-erase-color').value;
-      docCtx.fillStyle = eraseColor;
-      docCtx.beginPath();
-      docCtx.arc(x, y, fontSize / 2, 0, Math.PI * 2);
-      docCtx.fill();
-    }
-
-    function resetDocCanvas() {
-      if (rawDocImage) {
-        docCanvas.width = rawDocImage.width;
-        docCanvas.height = rawDocImage.height;
-        docCtx.drawImage(rawDocImage, 0, 0);
-        showToast('রিসেট করা হয়েছে', '🔄');
-      }
-    }
-
-    async function processScanToText() {
-      const file = document.getElementById('doc-input').files[0];
-      if (!file) return showToast('একটি ফাইল দিন', '⚠️');
-      
-      toggleLoader(true, "OCR দিয়ে বাংলা ও ইংরেজি টেক্সট এক্সট্র্যাক্ট হচ্ছে...");
-      try {
-        const worker = await Tesseract.createWorker('ben+eng');
-        const ret = await worker.recognize(file);
-        const txtArea = document.getElementById('doc-editor-text');
-        txtArea.value = ret.data.text;
-        txtArea.classList.remove('hidden');
-        await worker.terminate();
-        toggleLoader(false);
-        showToast('OCR সম্পূর্ণ!', '📄');
-      } catch (err) {
-        toggleLoader(false);
-        showToast('ত্রুটি ঘটেছে', '❌');
-      }
-    }
-
-    function printDocCanvas() {
-      if (!docCanvas.width) return;
-      const win = window.open('', '_blank');
-      win.document.write(`<img src="${docCanvas.toDataURL('image/jpeg', 1.0)}" style="width:100%;"/>`);
-      win.document.close();
-      win.focus();
-      setTimeout(() => { win.print(); win.close(); }, 500);
-    }
-
-    function downloadDocPdf() {
-      if (!docCanvas.width) return;
-      const imgData = docCanvas.toDataURL('image/jpeg', 1.0);
-      const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      pdf.addImage(imgData, 'JPEG', 0, 0, 210, (docCanvas.height * 210) / docCanvas.width);
-      pdf.save('edited-document.pdf');
-    }
-
-    function downloadDocWord() {
-      const text = document.getElementById('doc-editor-text').value || "সম্পাদিত ডকুমেন্ট।";
-      const imgData = docCanvas.toDataURL('image/png');
-      
-      const sourceHTML = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'></head><body><div style="text-align:center;"><img src="${imgData}" style="max-width:100%;"/></div><br/><p style="font-family:'Kalpurush', sans-serif;">${text.replace(/\n/g, "<br>")}</p></body></html>`;
-      const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
-      
-      const fileDownload = document.createElement("a");
-      fileDownload.href = source;
-      fileDownload.download = 'edited-document.doc';
-      fileDownload.click();
-    }
-
-    // Compress, Convert, NID & Passport Utilities
     async function compressImage() {
       const file = document.getElementById('compress-input').files[0];
       if (!file) return showToast('ছবি সিলেক্ট করুন', '⚠️');
@@ -1152,31 +1192,6 @@
         doc.save('nid-card.pdf');
         toggleLoader(false);
         showToast('NID PDF তৈরি হয়েছে!', '🪪');
-      }).catch(() => toggleLoader(false));
-    }
-
-    function createPassportPdf() {
-      const files = document.getElementById('passport-input').files;
-      if (!files || files.length === 0) return showToast('ছবি সিলেক্ট করুন', '⚠️️');
-      
-      toggleLoader(true, "PDF তৈরি হচ্ছে...");
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF('p', 'mm', 'a4');
-
-      const readFile = (file) => new Promise(res => {
-        const reader = new FileReader();
-        reader.onload = e => res(e.target.result);
-        reader.readAsDataURL(file);
-      });
-
-      Promise.all(Array.from(files).map(readFile)).then(images => {
-        images.forEach((img, i) => {
-          if (i > 0) doc.addPage();
-          doc.addImage(img, 'JPEG', 10, 10, 190, 270);
-        });
-        doc.save('passport-docs.pdf');
-        toggleLoader(false);
-        showToast('পাসপোর্ট PDF রেডি!', '🛂');
       }).catch(() => toggleLoader(false));
     }
   </script>
