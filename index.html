@@ -277,7 +277,7 @@
 
         <!-- ==================== 3. PASSPORT PHOTO GRID PANEL ==================== -->
         <div id="panel-ppgrid" class="tool-panel">
-          <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">পাসপোর্ট সাইজের ছবি আপলোড করে A4 পেজে ২ থেকে ১৬ কপি সাজিয়ে ডাউনলোড বা প্রিন্ট করুন।</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">পাসপোর্ট সাইজের ছবি আপলোড করে A4 পেজে ২ থেকে ২০ কপি সাজিয়ে ডাউনলোড বা প্রিন্ট করুন।</p>
           <input type="file" id="pp-input" accept="image/*" class="mb-4 block w-full text-sm">
           
           <div class="mb-4">
@@ -291,6 +291,8 @@
               <option value="12">১২ কপি</option>
               <option value="14">১৪ কপি</option>
               <option value="16" selected>১৬ কপি</option>
+              <option value="18">১৮ কপি</option>
+              <option value="20">২০ কপি</option>
             </select>
           </div>
 
@@ -597,12 +599,21 @@
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, a4Width, a4Height);
 
-      const photoWidth = 210;
-      const photoHeight = 260;
-      const gap = 30;
-      const startX = 60;
-      const startY = 80;
-      const cols = 5;
+      // Dynamically adjust spacing and dimensions if copy count is high (like 18 or 20)
+      let photoWidth = 210;
+      let photoHeight = 260;
+      let gap = 30;
+      let startX = 60;
+      let startY = 80;
+      let cols = 5;
+
+      if (count > 16) {
+        photoWidth = 190;
+        photoHeight = 245;
+        gap = 25;
+        startX = 80;
+        startY = 60;
+      }
 
       for (let i = 0; i < count; i++) {
         const row = Math.floor(i / cols);
@@ -617,7 +628,7 @@
 
       document.getElementById('pp-preview-container').classList.remove('hidden');
       document.getElementById('pp-print-btn').classList.remove('hidden');
-      showToast('গ্রিড তৈরি সফল হয়েছে!', '🖼️️');
+      showToast('গ্রিড তৈরি সফল হয়েছে!', '🖼');
     }
 
     function downloadPPPdf() {
