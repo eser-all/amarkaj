@@ -20,6 +20,9 @@
     }
   </script>
 
+  <!-- Kalpurush Bangla Font Support -->
+  <link href="https://fonts.maateen.me/kalpurush/font.css" rel="stylesheet" />
+
   <!-- External Libraries -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
@@ -59,6 +62,9 @@
   </script>
 
   <style>
+    body {
+      font-family: 'Kalpurush', sans-serif, system-ui;
+    }
     .tool-card {
       @apply bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer text-center border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center gap-2;
     }
@@ -143,7 +149,7 @@
     <section class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white py-14 relative overflow-hidden">
       <div class="max-w-4xl mx-auto px-4 text-center relative z-10">
         <h2 class="text-3xl md:text-5xl font-extrabold mb-4 leading-tight">সব ডিজিটাল কাজ এক জায়গায়</h2>
-        <p class="text-base md:text-lg opacity-90 font-light">স্ক্যানার • ক্যানন ডকুমেন্ট এডিটর • পাসপোর্ট গ্রিড A4 • AI ফটো এডিট</p>
+        <p class="text-base md:text-lg opacity-90 font-light">স্ক্যানার • ক্যানন ডকুমেন্ট এডিটর • পাসপোর্ট গ্রিড A4 • AI ফটো ব্যাকগ্রাউন্ড এডিট</p>
       </div>
     </section>
 
@@ -195,7 +201,7 @@
     </section>
 
     <!-- Workspace -->
-    <section id="workspace" class="max-w-4xl mx-auto px-4 pb-20 hidden">
+    <section id="workspace" class="max-w-5xl mx-auto px-4 pb-20 hidden">
       <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-6 md:p-8 border border-gray-100 dark:border-gray-700">
         <div class="flex justify-between items-center mb-6 border-b dark:border-gray-700 pb-4">
           <h3 id="tool-title" class="text-xl font-bold text-indigo-600 dark:text-indigo-400"></h3>
@@ -226,12 +232,39 @@
           </div>
         </div>
 
-        <!-- ==================== 2. AI EDIT & A4 PRINT GRID PANEL ==================== -->
+        <!-- ==================== 2. AI EDIT, BACKGROUND CHANGE & A4 PRINT GRID PANEL ==================== -->
         <div id="panel-ai" class="tool-panel">
-          <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">ছবি এডিট, ফিল্টার ও ক্রপ করে সরাসরি সিঙ্গেল ডাউনলোড বা A4 পেপারে ২-২০ কপি সাজিয়ে প্রিন্ট করুন।</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">ছবি এডিট, ব্যাকগ্রাউন্ড কালার/ইমেজ পরিবর্তন, ফিল্টার ও ক্রপ করে সরাসরি সিঙ্গেল ডাউনলোড বা A4 পেপারে সাজিয়ে প্রিন্ট করুন।</p>
           <input type="file" id="ai-input" accept="image/*" class="mb-4 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
           
           <div id="ai-controls" class="hidden space-y-4">
+            <!-- Background Change Toolbar -->
+            <div class="bg-indigo-50/70 dark:bg-gray-700/50 p-4 rounded-2xl border border-indigo-100 dark:border-gray-600">
+              <h4 class="font-bold text-sm text-indigo-700 dark:text-indigo-300 mb-3">🎨 প্রফেশনাল ব্যাকগ্রাউন্ড পরিবর্তন:</h4>
+              <div class="flex flex-wrap gap-4 items-center">
+                <div class="flex items-center gap-2">
+                  <label class="text-xs font-semibold">কালার নির্বাচন:</label>
+                  <input type="color" id="ai-bg-color" value="#3b82f6" class="w-8 h-8 rounded cursor-pointer border-0">
+                  <button onclick="applyBgColor()" class="btn-primary py-1.5 px-3 text-xs">কালার বসান</button>
+                </div>
+                
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-semibold">অথবা দ্রুত কালার:</span>
+                  <button onclick="quickBg('#ffffff')" class="w-6 h-6 rounded-full bg-white border border-gray-400 shadow" title="সাদা"></button>
+                  <button onclick="quickBg('#3b82f6')" class="w-6 h-6 rounded-full bg-blue-500 shadow" title="পাসপোর্ট ব্লু"></button>
+                  <button onclick="quickBg('#e0f2fe')" class="w-6 h-6 rounded-full bg-sky-100 border shadow" title="হালকা নীল"></button>
+                  <button onclick="quickBg('#ef4444')" class="w-6 h-6 rounded-full bg-red-500 shadow" title="লাল"></button>
+                </div>
+
+                <div class="flex items-center gap-2 border-l border-gray-300 dark:border-gray-600 pl-3">
+                  <label class="text-xs font-semibold">ব্যাকগ্রাউন্ড ছবি:</label>
+                  <input type="file" id="ai-bg-image-file" accept="image/*" class="text-xs text-gray-500 w-40">
+                  <button onclick="applyBgImage()" class="btn-secondary py-1.5 px-3 text-xs">ছবি বসান</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Image Filters -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 dark:bg-gray-700/50 p-4 rounded-2xl">
               <div>
                 <label class="block text-xs font-semibold mb-1">উজ্জ্বলতা (Brightness)</label>
@@ -330,46 +363,72 @@
           </div>
         </div>
 
-        <!-- ==================== 4. SCANNER & DOCUMENT EDITOR (CANON SCANNER TOOL) ==================== -->
+        <!-- ==================== 4. SCANNER & ADVANCED DOCUMENT EDITOR (CANON SCANNER ENHANCED) ==================== -->
         <div id="panel-doceditor" class="tool-panel">
-          <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">ক্যানন স্ক্যানার বা ফটো থেকে আপলোডকৃত ডকুমেন্টের ভুল অংশ মুছে ফেলুন, নতুন লেখা যোগ করুন এবং PDF/Word-এ সেভ করুন।</p>
-          <input type="file" id="doc-input" accept="image/*" class="mb-4 block w-full text-sm">
+          <div class="bg-indigo-50 dark:bg-indigo-950/50 p-4 rounded-2xl border border-indigo-100 dark:border-indigo-800/50 mb-4">
+            <p class="text-sm text-indigo-900 dark:text-indigo-200 font-medium">🖨️ ক্যানন বা যেকোনো স্ক্যানার থেকে সরাসরি বা গ্যালোরি থেকে A4 ডকুমেন্ট আপলোড করুন। বাংলা ও ইংরেজি ভুল লেখা সহজে ড্র্যাগ করে মুছে ফেলুন এবং ফন্ট স্টাইল ঠিক রেখে নতুন টেক্সট যুক্ত করে সরাসরি প্রিন্ট বা PDF/Word সেভ করুন।</p>
+          </div>
+
+          <div class="mb-4 flex flex-wrap gap-3 items-center">
+            <input type="file" id="doc-input" accept="image/*" class="block w-full md:w-auto text-sm file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer">
+            <button onclick="fitToA4Standard()" class="btn-secondary text-xs">📐 A4 পেজ অটো-ফিট করুন</button>
+            <button onclick="rotateDocCanvas()" class="btn-secondary text-xs">🔄 ঘোরান (Rotate 90°)</button>
+          </div>
 
           <div id="doc-editor-tools" class="hidden space-y-4">
-            <!-- Toolbar -->
-            <div class="flex flex-wrap gap-2 p-3 bg-gray-100 dark:bg-gray-700 rounded-2xl items-center text-xs md:text-sm">
-              <button onclick="setDocTool('erase')" id="tool-erase-btn" class="btn-secondary py-1.5 px-3">🧹 ইরেজার (লেখা মুছুন)</button>
-              <button onclick="setDocTool('text')" id="tool-text-btn" class="btn-secondary py-1.5 px-3">✏️ টেক্সট লিখুন</button>
+            <!-- Enhanced Toolbar -->
+            <div class="flex flex-wrap gap-2 p-3 bg-gray-100 dark:bg-gray-700 rounded-2xl items-center text-xs md:text-sm shadow-inner">
               
-              <div class="flex items-center gap-1 border-l pl-2 dark:border-gray-600">
-                <label class="text-xs">সাইজ:</label>
-                <input type="number" id="doc-font-size" value="18" min="10" max="60" class="w-14 p-1 rounded border dark:bg-gray-800">
+              <!-- Tools Selection -->
+              <div class="flex items-center gap-1 border-r pr-2 border-gray-300 dark:border-gray-600">
+                <button onclick="setDocTool('erase-brush')" id="tool-erase-btn" class="btn-primary py-1.5 px-3">🖌️ ব্রাশ ইরেজার</button>
+                <button onclick="setDocTool('erase-box')" id="tool-box-btn" class="btn-secondary py-1.5 px-3">🔳 বক্স ইরেজার (লাইন মুছুন)</button>
+                <button onclick="setDocTool('text')" id="tool-text-btn" class="btn-secondary py-1.5 px-3">✏️ টেক্সট লিখুন (বাংলা/Eng)</button>
+              </div>
+
+              <!-- Erase Color Picker -->
+              <div class="flex items-center gap-1">
+                <label class="text-xs font-semibold">মুছার ব্যাকগ্রাউন্ড:</label>
+                <input type="color" id="doc-erase-color" value="#ffffff" class="w-7 h-7 rounded border cursor-pointer" title="কাগজের কালারের সাথে মিলিয়ে মুছুন">
+              </div>
+
+              <!-- Text Font & Size -->
+              <div class="flex items-center gap-1 border-l pl-2 border-gray-300 dark:border-gray-600">
+                <label class="text-xs font-semibold">সাইজ:</label>
+                <input type="number" id="doc-font-size" value="22" min="10" max="100" class="w-14 p-1 rounded border dark:bg-gray-800 text-center font-bold">
               </div>
 
               <div class="flex items-center gap-1">
-                <label class="text-xs">কালার:</label>
-                <input type="color" id="doc-text-color" value="#000000" class="w-8 h-8 rounded border cursor-pointer">
+                <label class="text-xs font-semibold">কালার:</label>
+                <input type="color" id="doc-text-color" value="#000000" class="w-7 h-7 rounded border cursor-pointer">
               </div>
 
-              <button onclick="resetDocCanvas()" class="btn-danger py-1.5 px-3 ml-auto">রিসেট</button>
+              <div class="flex items-center gap-1">
+                <label class="text-xs font-semibold">বোল্ড:</label>
+                <input type="checkbox" id="doc-text-bold" class="w-4 h-4 accent-indigo-600">
+              </div>
+
+              <button onclick="resetDocCanvas()" class="btn-danger py-1.5 px-3 ml-auto">🔄 রিসেট</button>
             </div>
 
-            <!-- Interactive Canvas -->
-            <div class="border dark:border-gray-700 rounded-2xl overflow-auto bg-gray-200 dark:bg-gray-900 max-h-[500px] flex justify-center p-2">
-              <canvas id="doc-canvas" class="bg-white shadow-lg cursor-crosshair"></canvas>
+            <!-- Canvas Container -->
+            <div class="border dark:border-gray-700 rounded-2xl overflow-auto bg-gray-300 dark:bg-gray-900 max-h-[550px] flex justify-center p-3 shadow-inner relative">
+              <canvas id="doc-canvas" class="bg-white shadow-2xl cursor-crosshair rounded"></canvas>
             </div>
 
-            <!-- OCR Text Converter -->
+            <!-- OCR Extraction -->
             <div class="border-t dark:border-gray-700 pt-4">
-              <button onclick="processScanToText()" class="btn-secondary mb-2">🔍 ছবিতে লেখা থাকলে ওয়ার্ডের জন্য এক্সট্র্যাক্ট করুন (OCR)</button>
-              <textarea id="doc-editor-text" placeholder="OCR এক্সট্র্যাক্ট করা টেক্সট এখানে দেখাবে..." class="w-full h-32 p-3 border dark:border-gray-700 dark:bg-gray-900 rounded-xl text-sm leading-relaxed mb-3 hidden"></textarea>
+              <button onclick="processScanToText()" class="btn-secondary mb-2 w-full md:w-auto">🔍 ছবির পুরো লেখা ওয়ার্ডের জন্য আলাদা করুন (Bangla & English OCR)</button>
+              <textarea id="doc-editor-text" placeholder="OCR এর মাধ্যমে এক্সট্র্যাক্ট করা টেক্সট এখানে দেখাবে..." class="w-full h-32 p-3 border dark:border-gray-700 dark:bg-gray-900 rounded-xl text-sm leading-relaxed mb-3 hidden"></textarea>
             </div>
 
-            <!-- Export Buttons -->
-            <div class="flex flex-wrap gap-3">
-              <button onclick="downloadDocPdf()" class="btn-primary bg-red-600 hover:bg-red-700">📄 PDF ডাউনলোড</button>
-              <button onclick="downloadDocWord()" class="btn-primary bg-blue-600 hover:bg-blue-700">📝 Word (.doc) ডাউনলোড</button>
+            <!-- Export & Print Action Buttons -->
+            <div class="flex flex-wrap gap-3 border-t dark:border-gray-700 pt-4">
+              <button onclick="printDocCanvas()" class="btn-primary bg-emerald-600 hover:bg-emerald-700">🖨️ A4 পেপারে সরাসরি প্রিন্ট</button>
+              <button onclick="downloadDocPdf()" class="btn-primary bg-red-600 hover:bg-red-700">📄 A4 PDF ডাউনলোড</button>
+              <button onclick="downloadDocWord()" class="btn-primary bg-blue-600 hover:bg-blue-700">📝 Word (.doc) সেভ করুন</button>
             </div>
+
           </div>
         </div>
 
@@ -417,7 +476,7 @@
     </section>
   </div>
 
-  <!-- Footer (Developed by Antu completely at the bottom border) -->
+  <!-- Footer -->
   <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-4 text-center text-sm transition-colors mt-auto">
     <p class="text-gray-600 dark:text-gray-400">© Amarkaj Tools. Developed by <span class="rainbow-text text-base ml-1">Antu</span></p>
   </footer>
@@ -451,7 +510,7 @@
 
       const titles = {
         scanner: 'লাইভ ক্যামেরা স্ক্যানার',
-        ai: 'AI ফটো এডিট ও A4 প্রিন্ট গ্রিড',
+        ai: 'AI ফটো এডিট, ব্যাকগ্রাউন্ড পরিবর্তন ও A4 প্রিন্ট গ্রিড',
         ppgrid: 'A4 পেপারে পাসপোর্ট ফটো গ্রিড মেকার',
         doceditor: 'স্ক্যানার ও ডকুমেন্ট এডভান্সড এডিটর',
         compress: 'ইমেজ কম্প্রেস',
@@ -525,7 +584,7 @@
       showToast('ছবি ক্যাপচার সম্পন্ন!', '✅');
     }
 
-    // ========== 2. AI EDIT, CROP & A4 PRINT GRID ==========
+    // ========== 2. AI EDIT, BACKGROUND CHANGE, CROP & A4 PRINT GRID ==========
     let cropper = null;
     let originalAiImageSrc = null;
 
@@ -548,6 +607,77 @@
       };
       reader.readAsDataURL(file);
     });
+
+    // Background Color Change Functions
+    function quickBg(color) {
+      document.getElementById('ai-bg-color').value = color;
+      applyBgColor();
+    }
+
+    function applyBgColor() {
+      const img = document.getElementById('ai-image');
+      if (!img.src) return showToast('একটি ছবি লোড করুন', '⚠️');
+      
+      const color = document.getElementById('ai-bg-color').value;
+      const tempImg = new Image();
+      
+      tempImg.onload = function() {
+        const canvas = document.createElement('canvas');
+        canvas.width = tempImg.width;
+        canvas.height = tempImg.height;
+        const ctx = canvas.getContext('2d');
+
+        // Draw solid background color
+        ctx.fillStyle = color;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Draw the image on top
+        ctx.drawImage(tempImg, 0, 0);
+
+        const newUrl = canvas.toDataURL('image/png');
+        img.src = newUrl;
+        
+        const dlBtn = document.getElementById('ai-download');
+        dlBtn.href = newUrl;
+        showToast('ব্যাকগ্রাউন্ড কালার পরিবর্তন করা হয়েছে!', '🎨');
+      };
+      tempImg.src = img.src;
+    }
+
+    function applyBgImage() {
+      const img = document.getElementById('ai-image');
+      const bgFile = document.getElementById('ai-bg-image-file').files[0];
+      if (!img.src || !bgFile) return showToast('ছবি এবং ব্যাকগ্রাউন্ড উভয় ফাইল নির্বাচন করুন', '⚠️️');
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const bgImg = new Image();
+        bgImg.onload = function() {
+          const tempImg = new Image();
+          tempImg.onload = function() {
+            const canvas = document.createElement('canvas');
+            canvas.width = tempImg.width;
+            canvas.height = tempImg.height;
+            const ctx = canvas.getContext('2d');
+
+            // Draw Background Image stretched to canvas size
+            ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+            // Draw Subject Image
+            ctx.drawImage(tempImg, 0, 0);
+
+            const newUrl = canvas.toDataURL('image/png');
+            img.src = newUrl;
+            
+            const dlBtn = document.getElementById('ai-download');
+            dlBtn.href = newUrl;
+            showToast('কাস্টম ব্যাকগ্রাউন্ড যুক্ত হয়েছে!', '🖼️');
+          };
+          tempImg.src = img.src;
+        };
+        bgImg.src = evt.target.result;
+      };
+      reader.readAsDataURL(bgFile);
+    }
 
     function applyFilters() {
       const img = document.getElementById('ai-image');
@@ -613,7 +743,6 @@
       }
     }
 
-    // AI Section -> A4 Grid Feature
     function generateAiA4Grid() {
       const imgElem = document.getElementById('ai-image');
       if (!imgElem.src) return showToast('একটি ছবি লোড করুন', '⚠️');
@@ -761,12 +890,14 @@
       setTimeout(() => { win.print(); win.close(); }, 500);
     }
 
-    // ========== 4. ADVANCED DOCUMENT EDITOR (CANON SCANNER / IMAGE EDIT) ==========
+    // ========== 4. ADVANCED CANON DOCUMENT EDITOR ENHANCEMENT ==========
     let docCanvas = document.getElementById('doc-canvas');
     let docCtx = docCanvas.getContext('2d');
     let rawDocImage = null;
-    let currentDocTool = 'erase'; 
+    let currentDocTool = 'erase-brush'; 
     let isDrawing = false;
+    let startX = 0, startY = 0;
+    let canvasHistory = [];
 
     document.getElementById('doc-input').addEventListener('change', function(e) {
       const file = e.target.files[0];
@@ -779,35 +910,83 @@
           docCanvas.width = rawDocImage.width;
           docCanvas.height = rawDocImage.height;
           docCtx.drawImage(rawDocImage, 0, 0);
+          saveCanvasState();
           document.getElementById('doc-editor-tools').classList.remove('hidden');
-          showToast('ডকুমেন্ট এডিটর প্রস্তুত', '📄');
+          showToast('ক্যানন স্ক্যানড ডকুমেন্ট প্রস্তুত', '📄');
         };
         rawDocImage.src = evt.target.result;
       };
       reader.readAsDataURL(file);
     });
 
+    function saveCanvasState() {
+      if (canvasHistory.length > 10) canvasHistory.shift();
+      canvasHistory.push(docCtx.getImageData(0, 0, docCanvas.width, docCanvas.height));
+    }
+
+    function fitToA4Standard() {
+      if (!docCanvas.width) return showToast('আগে একটি স্ক্যান ফাইল আপলোড করুন', '⚠️');
+      const a4Width = 1240;
+      const a4Height = 1754;
+      
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = docCanvas.width;
+      tempCanvas.height = docCanvas.height;
+      tempCanvas.getContext('2d').drawImage(docCanvas, 0, 0);
+
+      docCanvas.width = a4Width;
+      docCanvas.height = a4Height;
+      docCtx.fillStyle = "#ffffff";
+      docCtx.fillRect(0, 0, a4Width, a4Height);
+      docCtx.drawImage(tempCanvas, 0, 0, a4Width, a4Height);
+      saveCanvasState();
+      showToast('A4 স্ট্যান্ডার্ড সাইজে ফিট করা হয়েছে', '📐');
+    }
+
+    function rotateDocCanvas() {
+      if (!docCanvas.width) return;
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = docCanvas.height;
+      tempCanvas.height = docCanvas.width;
+      const tempCtx = tempCanvas.getContext('2d');
+
+      tempCtx.translate(tempCanvas.width / 2, tempCanvas.height / 2);
+      tempCtx.rotate(90 * Math.PI / 180);
+      tempCtx.drawImage(docCanvas, -docCanvas.width / 2, -docCanvas.height / 2);
+
+      docCanvas.width = tempCanvas.width;
+      docCanvas.height = tempCanvas.height;
+      docCtx.drawImage(tempCanvas, 0, 0);
+      saveCanvasState();
+      showToast('ডকুমেন্ট ৯০° ঘোরানো হয়েছে', '🔄');
+    }
+
     function setDocTool(tool) {
       currentDocTool = tool;
-      if (tool === 'erase') {
+      document.getElementById('tool-erase-btn').className = 'btn-secondary py-1.5 px-3';
+      document.getElementById('tool-box-btn').className = 'btn-secondary py-1.5 px-3';
+      document.getElementById('tool-text-btn').className = 'btn-secondary py-1.5 px-3';
+
+      if (tool === 'erase-brush') {
         document.getElementById('tool-erase-btn').className = 'btn-primary py-1.5 px-3';
-        document.getElementById('tool-text-btn').className = 'btn-secondary py-1.5 px-3';
-        showToast('মাউস/টাচ দিয়ে যেকোনো অংশ মুছে ফেলুন (White-out)', '🧹');
-      } else {
+        showToast('ব্রাশ দিয়ে লেখা মুছুন (White-Out/Color Match)', '🖌️');
+      } else if (tool === 'erase-box') {
+        document.getElementById('tool-box-btn').className = 'btn-primary py-1.5 px-3';
+        showToast('ড্র্যাগ করে পুরো এলাকা বা লাইন একসাথে মুছুন', '🔳');
+      } else if (tool === 'text') {
         document.getElementById('tool-text-btn').className = 'btn-primary py-1.5 px-3';
-        document.getElementById('tool-erase-btn').className = 'btn-secondary py-1.5 px-3';
-        showToast('ক্যানভাসে ক্লিক করে টেক্সট বসান', '✏️');
+        showToast('ক্যানভাসে ক্লিক করে বাংলা/ইংরেজি টেক্সট যোগ করুন', '✏️️');
       }
     }
 
-    // Canvas Interactions (Erase & Add Text)
-    docCanvas.addEventListener('mousedown', startDocAction);
-    docCanvas.addEventListener('mousemove', drawDocErase);
-    docCanvas.addEventListener('mouseup', () => isDrawing = false);
+    // Canvas Mouse & Touch Logic
+    docCanvas.addEventListener('mousedown', handleDocPointerDown);
+    docCanvas.addEventListener('mousemove', handleDocPointerMove);
+    docCanvas.addEventListener('mouseup', handleDocPointerUp);
 
-    docCanvas.addEventListener('touchstart', (e) => { startDocAction(e.touches[0]); e.preventDefault(); });
-    docCanvas.addEventListener('touchmove', (e) => { drawDocErase(e.touches[0]); e.preventDefault(); });
-    docCanvas.addEventListener('touchend', () => isDrawing = false);
+    docCanvas.addEventListener('touchstart', (e) => { handleDocPointerDown(e.touches[0]); e.preventDefault(); });
+    docCanvas.addEventListener('touchmove', (e) => { handleDocPointerMove(e.touches[0]); e.preventDefault(); });
+    docCanvas.addEventListener('touchend', (e) => { handleDocPointerUp(e); e.preventDefault(); });
 
     function getCanvasCoords(e) {
       const rect = docCanvas.getBoundingClientRect();
@@ -819,34 +998,66 @@
       };
     }
 
-    function startDocAction(e) {
+    function handleDocPointerDown(e) {
       const coords = getCanvasCoords(e);
-      if (currentDocTool === 'erase') {
-        isDrawing = true;
-        eraseAt(coords.x, coords.y);
+      startX = coords.x;
+      startY = coords.y;
+      isDrawing = true;
+
+      if (currentDocTool === 'erase-brush') {
+        eraseBrushAt(coords.x, coords.y);
       } else if (currentDocTool === 'text') {
-        const text = prompt("যে লেখাটি যুক্ত করতে চান লিখুন:");
+        const text = prompt("যে বাংলা বা ইংরেজি লেখাটি বসাতে চান লিখুন:");
         if (text) {
           const fontSize = document.getElementById('doc-font-size').value;
           const color = document.getElementById('doc-text-color').value;
+          const isBold = document.getElementById('doc-text-bold').checked;
           
-          docCtx.font = `${fontSize}px Kalpurush, Arial, sans-serif`;
+          docCtx.font = `${isBold ? 'bold ' : ''}${fontSize}px 'Kalpurush', Arial, sans-serif`;
           docCtx.fillStyle = color;
           docCtx.fillText(text, coords.x, coords.y);
-          showToast('টেক্সট যুক্ত হয়েছে', '✅');
+          saveCanvasState();
+          showToast('নতুন লেখা যুক্ত হয়েছে', '✅');
         }
+        isDrawing = false;
       }
     }
 
-    function drawDocErase(e) {
-      if (!isDrawing || currentDocTool !== 'erase') return;
+    function handleDocPointerMove(e) {
+      if (!isDrawing) return;
       const coords = getCanvasCoords(e);
-      eraseAt(coords.x, coords.y);
+
+      if (currentDocTool === 'erase-brush') {
+        eraseBrushAt(coords.x, coords.y);
+      }
     }
 
-    function eraseAt(x, y) {
+    function handleDocPointerUp(e) {
+      if (!isDrawing) return;
+      isDrawing = false;
+
+      if (currentDocTool === 'erase-box' && e) {
+        let coords;
+        if(e.changedTouches) coords = getCanvasCoords(e.changedTouches[0]);
+        else coords = getCanvasCoords(e);
+
+        const width = coords.x - startX;
+        const height = coords.y - startY;
+        const eraseColor = document.getElementById('doc-erase-color').value;
+
+        docCtx.fillStyle = eraseColor;
+        docCtx.fillRect(startX, startY, width, height);
+        saveCanvasState();
+        showToast('এলাকা সফলভাবে মুছে ফেলা হয়েছে', '🧹');
+      } else if (currentDocTool === 'erase-brush') {
+        saveCanvasState();
+      }
+    }
+
+    function eraseBrushAt(x, y) {
       const fontSize = document.getElementById('doc-font-size').value;
-      docCtx.fillStyle = '#ffffff';
+      const eraseColor = document.getElementById('doc-erase-color').value;
+      docCtx.fillStyle = eraseColor;
       docCtx.beginPath();
       docCtx.arc(x, y, fontSize / 2, 0, Math.PI * 2);
       docCtx.fill();
@@ -854,16 +1065,19 @@
 
     function resetDocCanvas() {
       if (rawDocImage) {
+        docCanvas.width = rawDocImage.width;
+        docCanvas.height = rawDocImage.height;
         docCtx.drawImage(rawDocImage, 0, 0);
-        showToast('ক্যানভাস রিসেট করা হয়েছে', '🔄');
+        saveCanvasState();
+        showToast('অরিজিনাল স্ক্যান ক্যানভাসে রিসেট করা হয়েছে', '🔄');
       }
     }
 
     async function processScanToText() {
       const file = document.getElementById('doc-input').files[0];
-      if (!file) return showToast('ডকুমেন্ট লোড করুন', '⚠️');
+      if (!file) return showToast('ক্যানন স্ক্যান করা ফাইল আপলোড করুন', '⚠️');
       
-      toggleLoader(true, "ডকুমেন্ট থেকে টেক্সট এক্সট্র্যাক্ট করা হচ্ছে...");
+      toggleLoader(true, "ডকুমেন্ট থেকে বাংলা ও ইংরেজি টেক্সট রিড করা হচ্ছে...");
       try {
         const worker = await Tesseract.createWorker('ben+eng');
         const ret = await worker.recognize(file);
@@ -872,19 +1086,39 @@
         txtArea.classList.remove('hidden');
         await worker.terminate();
         toggleLoader(false);
-        showToast('OCR টেক্সট সফলভাবে তৈরি হয়েছে!', '📄');
+        showToast('OCR টেক্সট এক্সট্র্যাক্ট সম্পন্ন!', '📄');
       } catch (err) {
         toggleLoader(false);
         showToast('ত্রুটি: ' + err.message, '❌');
       }
     }
 
+    function printDocCanvas() {
+      if (!docCanvas.width) return showToast('প্রিন্ট করার মত কোনো ডকুমেন্ট নেই', '⚠️');
+      const win = window.open('', '_blank');
+      win.document.write(`
+        <html>
+          <head><title>Print Document</title></head>
+          <body style="margin:0; display:flex; justify-content:center; align-items:center;">
+            <img src="${docCanvas.toDataURL('image/jpeg', 1.0)}" style="width:100%; max-width:210mm; height:auto;"/>
+          </body>
+        </html>
+      `);
+      win.document.close();
+      win.focus();
+      setTimeout(() => { win.print(); win.close(); }, 500);
+    }
+
     function downloadDocPdf() {
+      if (!docCanvas.width) return showToast('কোনো ডকুমেন্ট নেই', '⚠️');
       const imgData = docCanvas.toDataURL('image/jpeg', 1.0);
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF('p', 'mm', 'a4');
-      pdf.addImage(imgData, 'JPEG', 0, 0, 210, (docCanvas.height * 210) / docCanvas.width);
-      pdf.save('edited-document.pdf');
+      const pdfWidth = 210;
+      const pdfHeight = (docCanvas.height * pdfWidth) / docCanvas.width;
+      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save('edited-canon-doc.pdf');
+      showToast('A4 PDF সেভ হয়েছে!', '📄');
     }
 
     function downloadDocWord() {
@@ -892,7 +1126,7 @@
       const imgData = docCanvas.toDataURL('image/png');
       
       const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'></head><body>";
-      const body = `<div style="text-align:center;"><img src="${imgData}" style="max-width:100%; font-size:12px;"/></div><br/><p>${text.replace(/\n/g, "<br>")}</p>`;
+      const body = `<div style="text-align:center;"><img src="${imgData}" style="max-width:100%; height:auto;"/></div><br/><p style="font-family:'Kalpurush', sans-serif;">${text.replace(/\n/g, "<br>")}</p>`;
       const footer = "</body></html>";
       
       const sourceHTML = header + body + footer;
@@ -901,10 +1135,10 @@
       const fileDownload = document.createElement("a");
       document.body.appendChild(fileDownload);
       fileDownload.href = source;
-      fileDownload.download = 'edited-document.doc';
+      fileDownload.download = 'edited-canon-doc.doc';
       fileDownload.click();
       document.body.removeChild(fileDownload);
-      showToast('Word ফাইল প্রস্তুত ও ডাউনলোড হয়েছে!', '📝');
+      showToast('Word ফাইল সেভ হয়েছে!', '📝');
     }
 
     // ========== 5, 6, 7 & 8. UTILITIES ==========
