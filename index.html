@@ -1,16 +1,31 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="bn" class="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Amarkaj - প্রফেশনাল টুলস + AI Edit</title>
 
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50: '#f0f5ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- External Libraries -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.js"></script>
   
-  <!-- Cropper.js for Cropping -->
+  <!-- Cropper.js -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
@@ -45,255 +60,343 @@
 
   <style>
     .tool-card {
-      @apply bg-white rounded-2xl p-6 shadow-md hover:shadow-xl transition cursor-pointer text-center border border-gray-100;
+      @apply bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer text-center border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center gap-2;
     }
     .tool-card:hover { transform: translateY(-4px); }
     .btn-primary {
-      @apply bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-5 py-2.5 rounded-xl transition text-sm cursor-pointer inline-flex items-center justify-center gap-2;
+      @apply bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-5 py-2.5 rounded-xl transition-all text-sm cursor-pointer inline-flex items-center justify-center gap-2 shadow-sm active:scale-95;
     }
     .btn-secondary {
-      @apply bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium px-5 py-2.5 rounded-xl transition text-sm cursor-pointer;
+      @apply bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white text-gray-800 font-medium px-5 py-2.5 rounded-xl transition-all text-sm cursor-pointer active:scale-95;
     }
     .btn-danger {
-      @apply bg-red-500 hover:bg-red-600 text-white font-medium px-5 py-2.5 rounded-xl transition text-sm cursor-pointer;
+      @apply bg-red-500 hover:bg-red-600 text-white font-medium px-5 py-2.5 rounded-xl transition-all text-sm cursor-pointer active:scale-95;
     }
     .tool-panel { display: none; }
-    .tool-panel.active { display: block; }
+    .tool-panel.active { display: block; animation: fadeIn 0.3s ease-in-out; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Custom Toast */
+    #toast {
+      visibility: hidden;
+      min-width: 250px;
+      transform: translateX(-50%);
+      transition: visibility 0s, opacity 0.3s linear;
+    }
+    #toast.show {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    /* Rainbow Animation for Antu */
+    .rainbow-text {
+      background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff, #ff0000);
+      background-size: 200% auto;
+      color: transparent;
+      -webkit-background-clip: text;
+      background-clip: text;
+      animation: rainbow 3s linear infinite;
+      font-weight: 800;
+    }
+
+    @keyframes rainbow {
+      0% { background-position: 0% center; }
+      100% { background-position: 200% center; }
+    }
   </style>
 </head>
-<body class="bg-gray-50 text-gray-800">
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 min-h-screen transition-colors duration-200 flex flex-col justify-between">
 
-  <!-- Header -->
-  <header class="bg-white shadow-sm sticky top-0 z-50">
-    <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-      <h1 class="text-2xl font-bold text-indigo-600">Amarkaj</h1>
-      <span class="text-sm text-gray-500">AI + প্রফেশনাল টুলস</span>
+  <div>
+    <!-- Toast Container -->
+    <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 bg-gray-900 text-white text-sm px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2 opacity-0">
+      <span id="toast-icon">ℹ️</span>
+      <span id="toast-msg">বার্তা</span>
     </div>
-  </header>
 
-  <!-- Hero -->
-  <section class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-14">
-    <div class="max-w-4xl mx-auto px-4 text-center">
-      <h2 class="text-3xl md:text-5xl font-bold mb-3">সব ডিজিটাল কাজ এক জায়গায়</h2>
-      <p class="text-lg opacity-90">স্ক্যানার • ক্রপ ও বিউটিফিকেশন • পাসপোর্ট গ্রিড PDF • OCR টু ওয়ার্ড • কম্প্রেস</p>
+    <!-- Global Loader -->
+    <div id="global-loader" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 hidden flex flex-col items-center justify-center text-white">
+      <div class="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin mb-3"></div>
+      <p id="loader-text" class="text-sm font-medium">প্রসেসিং হচ্ছে...</p>
     </div>
-  </section>
 
-  <!-- Tools Grid -->
-  <section class="max-w-6xl mx-auto px-4 py-14">
-    <h3 class="text-2xl font-bold text-center mb-10">টুলস বেছে নিন</h3>
-
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
-      <div class="tool-card" onclick="showTool('scanner')">
-        <div class="text-4xl mb-3">📷</div>
-        <h4 class="font-semibold">লাইভ ক্যামেরা স্ক্যানার</h4>
-      </div>
-
-      <div class="tool-card" onclick="showTool('ai')">
-        <div class="text-4xl mb-3">🤖</div>
-        <h4 class="font-semibold">AI এডিট ও ক্রপ</h4>
-      </div>
-
-      <div class="tool-card" onclick="showTool('ppgrid')">
-        <div class="text-4xl mb-3">🖼️</div>
-        <h4 class="font-semibold">পাসপোর্ট ছবি গ্রিড (A4)</h4>
-      </div>
-
-      <div class="tool-card" onclick="showTool('doceditor')">
-        <div class="text-4xl mb-3">📄</div>
-        <h4 class="font-semibold">স্ক্যান টু ওয়ার্ড এডিটর</h4>
-      </div>
-
-      <div class="tool-card" onclick="showTool('compress')">
-        <div class="text-4xl mb-3">📦</div>
-        <h4 class="font-semibold">ইমেজ কম্প্রেস</h4>
-      </div>
-
-      <div class="tool-card" onclick="showTool('convert')">
-        <div class="text-4xl mb-3">🔄</div>
-        <h4 class="font-semibold">ইমেজ কনভার্ট</h4>
-      </div>
-
-      <div class="tool-card" onclick="showTool('nid')">
-        <div class="text-4xl mb-3">🪪</div>
-        <h4 class="font-semibold">NID → PDF</h4>
-      </div>
-
-      <div class="tool-card" onclick="showTool('passport')">
-        <div class="text-4xl mb-3">🛂</div>
-        <h4 class="font-semibold">পাসপোর্ট → PDF</h4>
-      </div>
-    </div>
-  </section>
-
-  <!-- Workspace -->
-  <section id="workspace" class="max-w-4xl mx-auto px-4 pb-20 hidden">
-    <div class="bg-white rounded-2xl shadow-xl p-6 md:p-8">
-      <div class="flex justify-between items-center mb-6 border-b pb-4">
-        <h3 id="tool-title" class="text-xl font-bold text-indigo-600"></h3>
-        <button onclick="hideTool()" class="text-gray-400 hover:text-red-500 text-2xl font-bold">✕</button>
-      </div>
-
-      <!-- ==================== 1. CAMERA SCANNER PANEL ==================== -->
-      <div id="panel-scanner" class="tool-panel">
-        <p class="text-sm text-gray-500 mb-4">ক্যামেরা দিয়ে সরাসরি ডকুমেন্ট স্ক্যান করুন অথবা ফাইল আপলোড করুন।</p>
-        <div class="flex flex-wrap gap-3 mb-4">
-          <button onclick="startCamera()" class="btn-primary">📷 ক্যামেরা চালু করুন</button>
-          <button onclick="stopCamera()" class="btn-danger">ক্যামেরা বন্ধ করুন</button>
+    <!-- Header -->
+    <header class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md shadow-sm sticky top-0 z-40 transition-colors">
+      <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">⚡</span>
+          <h1 class="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Amarkaj</h1>
         </div>
-        
-        <div class="relative bg-black rounded-xl overflow-hidden mb-4 min-h-[250px] flex items-center justify-center">
-          <video id="scanner-video" autoplay playsinline class="w-full hidden"></video>
-          <canvas id="scanner-canvas" class="hidden"></canvas>
-          <span id="camera-placeholder" class="text-white text-sm">ক্যামেরা বন্ধ রয়েছে</span>
-        </div>
-
-        <button id="snap-btn" onclick="takeSnapshot()" class="btn-primary w-full hidden">📸 ছবি তুলুন (Capture)</button>
-        
-        <div id="scanned-result-container" class="mt-6 hidden border-t pt-4">
-          <p class="font-semibold mb-2">স্ক্যানকৃত ছবি:</p>
-          <img id="scanned-img" class="max-h-80 mx-auto rounded-lg border mb-4" />
-          <a id="scanned-download" class="btn-primary">ডাউনলোড স্ক্যান কপি</a>
-        </div>
-      </div>
-
-      <!-- ==================== 2. AI EDIT & CROP PANEL ==================== -->
-      <div id="panel-ai" class="tool-panel">
-        <input type="file" id="ai-input" accept="image/*" class="mb-4 block w-full text-sm">
-        
-        <div id="ai-controls" class="hidden space-y-4">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl">
-            <div>
-              <label class="block text-xs font-semibold mb-1">উজ্জ্বলতা (Brightness)</label>
-              <input type="range" id="filter-brightness" min="50" max="150" value="100" class="w-full">
-            </div>
-            <div>
-              <label class="block text-xs font-semibold mb-1">বৈসাদৃশ্য (Contrast)</label>
-              <input type="range" id="filter-contrast" min="50" max="150" value="100" class="w-full">
-            </div>
-            <div>
-              <label class="block text-xs font-semibold mb-1">স্মুথনেস/বিউটি (Smoothness)</label>
-              <input type="range" id="filter-blur" min="0" max="5" step="0.5" value="0" class="w-full">
-            </div>
-            <div>
-              <label class="block text-xs font-semibold mb-1">স্যাচুরেশন (Saturation)</label>
-              <input type="range" id="filter-saturate" min="0" max="200" value="100" class="w-full">
-            </div>
-          </div>
-
-          <div class="flex flex-wrap gap-2">
-            <button onclick="applyFilters()" class="btn-primary">ফিল্টার প্রয়োগ করুন</button>
-            <button onclick="enableCrop()" class="btn-secondary">✂️ ক্রপ মেকার চালু করুন</button>
-            <button onclick="cropImage()" class="btn-primary bg-green-600 hover:bg-green-700">ক্রপ সম্পন্ন করুন</button>
-            <button onclick="aiRemoveBg()" class="btn-primary">রিমুভ ব্যাকগ্রাউন্ড (API)</button>
-            <button onclick="aiReset()" class="btn-secondary">রিসেট</button>
-          </div>
-
-          <div class="max-h-[400px] overflow-hidden rounded-xl border bg-gray-100 flex items-center justify-center p-2">
-            <img id="ai-image" class="max-w-full max-h-[380px]" />
-          </div>
-
-          <div class="text-right">
-            <a id="ai-download" class="btn-primary bg-green-600 hover:bg-green-700 hidden">এডিটেড ছবি ডাউনলোড</a>
-          </div>
-        </div>
-        <p id="ai-status" class="mt-2 text-sm text-gray-500"></p>
-      </div>
-
-      <!-- ==================== 3. PASSPORT PHOTO GRID PANEL ==================== -->
-      <div id="panel-ppgrid" class="tool-panel">
-        <p class="text-sm text-gray-500 mb-4">পাসপোর্ট সাইজের ছবি আপলোড করে A4 পেজে ২ থেকে ১৬ কপি সাজিয়ে ডাউনলোড বা প্রিন্ট করুন।</p>
-        <input type="file" id="pp-input" accept="image/*" class="mb-4 block w-full text-sm">
-        
-        <div class="mb-4">
-          <label class="block text-sm font-semibold mb-1">কপি সংখ্যা নির্বাচন করুন:</label>
-          <select id="pp-count" class="border rounded-lg px-4 py-2 w-full bg-white">
-            <option value="2">২ কপি</option>
-            <option value="4">৪ কপি</option>
-            <option value="6">৬ কপি</option>
-            <option value="8">৮ কপি</option>
-            <option value="10">১০ কপি</option>
-            <option value="12">১২ কপি</option>
-            <option value="14">১৪ কপি</option>
-            <option value="16" selected>১৬ কপি</option>
-          </select>
-        </div>
-
-        <div class="flex gap-3">
-          <button onclick="generatePPGrid()" class="btn-primary">গ্রিড তৈরি করুন</button>
-          <button onclick="printPPGrid()" id="pp-print-btn" class="btn-secondary hidden">🖨️ সরাসরি প্রিন্ট করুন</button>
-        </div>
-
-        <div id="pp-preview-container" class="mt-6 hidden">
-          <p class="text-sm font-semibold mb-2">A4 পেজ প্রিভিউ:</p>
-          <div class="border p-2 bg-gray-200 rounded-lg max-h-[400px] overflow-y-auto">
-            <canvas id="pp-canvas" class="mx-auto bg-white shadow-md"></canvas>
-          </div>
-          <button onclick="downloadPPPdf()" class="btn-primary w-full mt-4">📄 A4 PDF ডাউনলোড করুন</button>
-        </div>
-      </div>
-
-      <!-- ==================== 4. SCAN TO WORD EDITOR PANEL ==================== -->
-      <div id="panel-doceditor" class="tool-panel">
-        <p class="text-sm text-gray-500 mb-4">যেকোনো ডকুমেন্টের ছবি আপলোড করুন। OCR এর মাধ্যমে লেখা এডিটেবল টেক্সটে রূপান্তর হবে।</p>
-        <input type="file" id="doc-input" accept="image/*" class="mb-4 block w-full text-sm">
-        <button onclick="processScanToDoc()" class="btn-primary mb-4">টেক্সট এক্সট্র্যাক্ট করুন</button>
-
-        <div id="doc-editor-container" class="hidden">
-          <label class="block text-sm font-semibold mb-1">সম্পাদনা যোগ্য টেক্সট (এখানে ইচ্ছেমত পরিবর্তন করুন):</label>
-          <textarea id="doc-editor-text" class="w-full h-64 p-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm leading-relaxed mb-4"></textarea>
+        <div class="flex items-center gap-3 md:gap-4">
+          <button onclick="toggleDarkMode()" class="p-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-200 hover:opacity-80 transition" title="ডার্ক মোড">
+            🌙
+          </button>
+          <span class="text-xs font-semibold px-2.5 py-1 bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 rounded-full border border-indigo-200 dark:border-indigo-800 hidden sm:inline-block">PRO AI Tools</span>
           
-          <div class="flex flex-wrap gap-3">
-            <button onclick="downloadDocx()" class="btn-primary bg-blue-600 hover:bg-blue-700">📝 Word (.doc) ফাইল ডাউনলোড</button>
-            <button onclick="copyDocText()" class="btn-secondary">📋 টেক্সট কপি করুন</button>
+          <!-- Developer Tag Header -->
+          <span class="text-xs font-medium text-gray-500 dark:text-gray-400 border-l border-gray-300 dark:border-gray-700 pl-3">
+            Developed by <span class="rainbow-text">Antu</span>
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white py-14 relative overflow-hidden">
+      <div class="max-w-4xl mx-auto px-4 text-center relative z-10">
+        <h2 class="text-3xl md:text-5xl font-extrabold mb-4 leading-tight">সব ডিজিটাল কাজ এক জায়গায়</h2>
+        <p class="text-base md:text-lg opacity-90 font-light">স্ক্যানার • ক্রপ ও বিউটিফিকেশন • পাসপোর্ট গ্রিড PDF • OCR টু ওয়ার্ড • কম্প্রেস</p>
+      </div>
+    </section>
+
+    <!-- Tools Grid -->
+    <section class="max-w-6xl mx-auto px-4 py-12">
+      <h3 class="text-xl font-bold text-center mb-8 text-gray-700 dark:text-gray-200">টুলস বেছে নিন</h3>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+        <div class="tool-card" onclick="showTool('scanner')">
+          <div class="text-4xl">📷</div>
+          <h4 class="font-semibold text-sm md:text-base">লাইভ ক্যামেরা স্ক্যানার</h4>
+        </div>
+
+        <div class="tool-card" onclick="showTool('ai')">
+          <div class="text-4xl">🤖</div>
+          <h4 class="font-semibold text-sm md:text-base">AI এডিট ও ক্রপ</h4>
+        </div>
+
+        <div class="tool-card" onclick="showTool('ppgrid')">
+          <div class="text-4xl">🖼️</div>
+          <h4 class="font-semibold text-sm md:text-base">পাসপোর্ট ছবি গ্রিড (A4)</h4>
+        </div>
+
+        <div class="tool-card" onclick="showTool('doceditor')">
+          <div class="text-4xl">📄</div>
+          <h4 class="font-semibold text-sm md:text-base">স্ক্যান টু ওয়ার্ড এডিটর</h4>
+        </div>
+
+        <div class="tool-card" onclick="showTool('compress')">
+          <div class="text-4xl">📦</div>
+          <h4 class="font-semibold text-sm md:text-base">ইমেজ কম্প্রেস</h4>
+        </div>
+
+        <div class="tool-card" onclick="showTool('convert')">
+          <div class="text-4xl">🔄</div>
+          <h4 class="font-semibold text-sm md:text-base">ইমেজ কনভার্ট</h4>
+        </div>
+
+        <div class="tool-card" onclick="showTool('nid')">
+          <div class="text-4xl">🪪</div>
+          <h4 class="font-semibold text-sm md:text-base">NID → PDF</h4>
+        </div>
+
+        <div class="tool-card" onclick="showTool('passport')">
+          <div class="text-4xl">🛂</div>
+          <h4 class="font-semibold text-sm md:text-base">পাসপোর্ট → PDF</h4>
+        </div>
+      </div>
+    </section>
+
+    <!-- Workspace -->
+    <section id="workspace" class="max-w-4xl mx-auto px-4 pb-20 hidden">
+      <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-6 md:p-8 border border-gray-100 dark:border-gray-700">
+        <div class="flex justify-between items-center mb-6 border-b dark:border-gray-700 pb-4">
+          <h3 id="tool-title" class="text-xl font-bold text-indigo-600 dark:text-indigo-400"></h3>
+          <button onclick="hideTool()" class="text-gray-400 hover:text-red-500 text-2xl font-bold transition">✕</button>
+        </div>
+
+        <!-- ==================== 1. CAMERA SCANNER PANEL ==================== -->
+        <div id="panel-scanner" class="tool-panel">
+          <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">ক্যামেরা দিয়ে সরাসরি ডকুমেন্ট স্ক্যান করুন অথবা ফাইল আপলোড করুন।</p>
+          <div class="flex flex-wrap gap-3 mb-4">
+            <button onclick="startCamera()" class="btn-primary">📷 ক্যামেরা চালু করুন</button>
+            <button onclick="switchCamera()" class="btn-secondary">🔄 ক্যামেরা স্যুইচ</button>
+            <button onclick="stopCamera()" class="btn-danger">ক্যামেরা বন্ধ করুন</button>
+          </div>
+          
+          <div class="relative bg-black rounded-2xl overflow-hidden mb-4 min-h-[250px] flex items-center justify-center shadow-inner">
+            <video id="scanner-video" autoplay playsinline class="w-full hidden"></video>
+            <canvas id="scanner-canvas" class="hidden"></canvas>
+            <span id="camera-placeholder" class="text-white text-sm opacity-70">ক্যামেরা বন্ধ রয়েছে</span>
+          </div>
+
+          <button id="snap-btn" onclick="takeSnapshot()" class="btn-primary w-full hidden py-3">📸 ছবি তুলুন (Capture)</button>
+          
+          <div id="scanned-result-container" class="mt-6 hidden border-t dark:border-gray-700 pt-4">
+            <p class="font-semibold mb-2">স্ক্যানকৃত ছবি:</p>
+            <img id="scanned-img" class="max-h-80 mx-auto rounded-lg border dark:border-gray-700 mb-4 shadow" />
+            <a id="scanned-download" class="btn-primary">ডাউনলোড স্ক্যান কপি</a>
           </div>
         </div>
-        <p id="doc-status" class="mt-2 text-sm text-gray-500"></p>
-      </div>
 
-      <!-- ==================== 5. COMPRESS PANEL ==================== -->
-      <div id="panel-compress" class="tool-panel">
-        <input type="file" id="compress-input" accept="image/*" class="mb-4 block w-full text-sm">
-        <div class="mb-4">
-          <label class="block text-sm mb-1">কোয়ালিটি: <span id="quality-value">80%</span></label>
-          <input type="range" id="quality" min="0.1" max="1" step="0.05" value="0.8" class="w-full">
+        <!-- ==================== 2. AI EDIT & CROP PANEL ==================== -->
+        <div id="panel-ai" class="tool-panel">
+          <input type="file" id="ai-input" accept="image/*" class="mb-4 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+          
+          <div id="ai-controls" class="hidden space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 dark:bg-gray-700/50 p-4 rounded-2xl">
+              <div>
+                <label class="block text-xs font-semibold mb-1">উজ্জ্বলতা (Brightness)</label>
+                <input type="range" id="filter-brightness" min="50" max="150" value="100" class="w-full accent-indigo-600">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold mb-1">বৈসাদৃশ্য (Contrast)</label>
+                <input type="range" id="filter-contrast" min="50" max="150" value="100" class="w-full accent-indigo-600">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold mb-1">স্মুথনেস/বিউটি (Blur)</label>
+                <input type="range" id="filter-blur" min="0" max="5" step="0.5" value="0" class="w-full accent-indigo-600">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold mb-1">স্যাচুরেশন (Saturation)</label>
+                <input type="range" id="filter-saturate" min="0" max="200" value="100" class="w-full accent-indigo-600">
+              </div>
+            </div>
+
+            <div class="flex flex-wrap gap-2">
+              <button onclick="applyFilters()" class="btn-primary">ফিল্টার প্রয়োগ করুন</button>
+              <button onclick="enableCrop()" class="btn-secondary">✂️ ক্রপ মেকার চালু করুন</button>
+              <button onclick="cropImage()" class="btn-primary bg-green-600 hover:bg-green-700">ক্রপ সম্পন্ন করুন</button>
+              <button onclick="aiRemoveBg()" class="btn-primary">রিমুভ ব্যাকগ্রাউন্ড (API)</button>
+              <button onclick="aiReset()" class="btn-secondary">রিসেট</button>
+            </div>
+
+            <div class="max-h-[400px] overflow-hidden rounded-2xl border dark:border-gray-700 bg-gray-100 dark:bg-gray-900 flex items-center justify-center p-2">
+              <img id="ai-image" class="max-w-full max-h-[380px] object-contain" />
+            </div>
+
+            <div class="text-right">
+              <a id="ai-download" class="btn-primary bg-green-600 hover:bg-green-700 hidden">এডিটেড ছবি ডাউনলোড</a>
+            </div>
+          </div>
+          <p id="ai-status" class="mt-2 text-sm text-gray-500"></p>
         </div>
-        <button onclick="compressImage()" class="btn-primary">কম্প্রেস করুন</button>
-        <div id="compress-result" class="mt-6"></div>
-      </div>
 
-      <!-- ==================== 6. CONVERT PANEL ==================== -->
-      <div id="panel-convert" class="tool-panel">
-        <input type="file" id="convert-input" accept="image/*" class="mb-4 block w-full text-sm">
-        <select id="convert-format" class="border rounded-lg px-4 py-2 mb-4 w-full bg-white">
-          <option value="image/png">PNG</option>
-          <option value="image/jpeg">JPG</option>
-          <option value="image/webp">WebP</option>
-        </select>
-        <button onclick="convertImage()" class="btn-primary">কনভার্ট করুন</button>
-        <div id="convert-result" class="mt-6"></div>
-      </div>
+        <!-- ==================== 3. PASSPORT PHOTO GRID PANEL ==================== -->
+        <div id="panel-ppgrid" class="tool-panel">
+          <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">পাসপোর্ট সাইজের ছবি আপলোড করে A4 পেজে ২ থেকে ১৬ কপি সাজিয়ে ডাউনলোড বা প্রিন্ট করুন।</p>
+          <input type="file" id="pp-input" accept="image/*" class="mb-4 block w-full text-sm">
+          
+          <div class="mb-4">
+            <label class="block text-sm font-semibold mb-1">কপি সংখ্যা নির্বাচন করুন:</label>
+            <select id="pp-count" class="border dark:border-gray-700 rounded-xl px-4 py-2.5 w-full bg-white dark:bg-gray-700">
+              <option value="2">২ কপি</option>
+              <option value="4">৪ কপি</option>
+              <option value="6">৬ কপি</option>
+              <option value="8">৮ কপি</option>
+              <option value="10">১০ কপি</option>
+              <option value="12">১২ কপি</option>
+              <option value="14">১৪ কপি</option>
+              <option value="16" selected>১৬ কপি</option>
+            </select>
+          </div>
 
-      <!-- ==================== 7. NID PANEL ==================== -->
-      <div id="panel-nid" class="tool-panel">
-        <p class="text-sm text-gray-500 mb-2">NID কার্ডের সামনের এবং পেছনের অংশ আপলোড করুন:</p>
-        <input type="file" id="nid-front" accept="image/*" class="mb-2 block w-full text-sm">
-        <input type="file" id="nid-back" accept="image/*" class="mb-4 block w-full text-sm">
-        <button onclick="createNidPdf()" class="btn-primary">NID PDF তৈরি করুন</button>
-        <div id="nid-result" class="mt-6"></div>
-      </div>
+          <div class="flex gap-3">
+            <button onclick="generatePPGrid()" class="btn-primary">গ্রিড তৈরি করুন</button>
+            <button onclick="printPPGrid()" id="pp-print-btn" class="btn-secondary hidden">🖨️ সরাসরি প্রিন্ট করুন</button>
+          </div>
 
-      <!-- ==================== 8. PASSPORT PANEL ==================== -->
-      <div id="panel-passport" class="tool-panel">
-        <input type="file" id="passport-input" accept="image/*" class="mb-4 block w-full text-sm">
-        <button onclick="createPdf('passport')" class="btn-primary">পাসপোর্ট PDF তৈরি করুন</button>
-        <div id="passport-result" class="mt-6"></div>
-      </div>
+          <div id="pp-preview-container" class="mt-6 hidden">
+            <p class="text-sm font-semibold mb-2">A4 পেজ প্রিভিউ:</p>
+            <div class="border dark:border-gray-700 p-2 bg-gray-200 dark:bg-gray-900 rounded-2xl max-h-[400px] overflow-y-auto">
+              <canvas id="pp-canvas" class="mx-auto bg-white shadow-md rounded-lg"></canvas>
+            </div>
+            <button onclick="downloadPPPdf()" class="btn-primary w-full mt-4 py-3">📄 A4 PDF ডাউনলোড করুন</button>
+          </div>
+        </div>
 
-    </div>
-  </section>
+        <!-- ==================== 4. SCAN TO WORD EDITOR PANEL ==================== -->
+        <div id="panel-doceditor" class="tool-panel">
+          <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">যেকোনো ডকুমেন্টের ছবি আপলোড করুন। OCR এর মাধ্যমে লেখা এডিটেবল টেক্সটে রূপান্তর হবে।</p>
+          <input type="file" id="doc-input" accept="image/*" class="mb-4 block w-full text-sm">
+          <button onclick="processScanToDoc()" class="btn-primary mb-4">টেক্সট এক্সট্র্যাক্ট করুন</button>
+
+          <div id="doc-editor-container" class="hidden">
+            <label class="block text-sm font-semibold mb-1">সম্পাদনা যোগ্য টেক্সট (এখানে ইচ্ছেমত পরিবর্তন করুন):</label>
+            <textarea id="doc-editor-text" class="w-full h-64 p-3 border dark:border-gray-700 dark:bg-gray-900 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm leading-relaxed mb-4"></textarea>
+            
+            <div class="flex flex-wrap gap-3">
+              <button onclick="downloadDocx()" class="btn-primary bg-blue-600 hover:bg-blue-700">📝 Word (.doc) ফাইল ডাউনলোড</button>
+              <button onclick="copyDocText()" class="btn-secondary">📋 টেক্সট কপি করুন</button>
+            </div>
+          </div>
+          <p id="doc-status" class="mt-2 text-sm text-gray-500"></p>
+        </div>
+
+        <!-- ==================== 5. COMPRESS PANEL ==================== -->
+        <div id="panel-compress" class="tool-panel">
+          <input type="file" id="compress-input" accept="image/*" class="mb-4 block w-full text-sm">
+          <div class="mb-4">
+            <label class="block text-sm mb-1">কোয়ালিটি: <span id="quality-value">80%</span></label>
+            <input type="range" id="quality" min="0.1" max="1" step="0.05" value="0.8" class="w-full accent-indigo-600">
+          </div>
+          <button onclick="compressImage()" class="btn-primary">কম্প্রেস করুন</button>
+          <div id="compress-result" class="mt-6"></div>
+        </div>
+
+        <!-- ==================== 6. CONVERT PANEL ==================== -->
+        <div id="panel-convert" class="tool-panel">
+          <input type="file" id="convert-input" accept="image/*" class="mb-4 block w-full text-sm">
+          <select id="convert-format" class="border dark:border-gray-700 rounded-xl px-4 py-2.5 mb-4 w-full bg-white dark:bg-gray-700">
+            <option value="image/png">PNG</option>
+            <option value="image/jpeg">JPG</option>
+            <option value="image/webp">WebP</option>
+          </select>
+          <button onclick="convertImage()" class="btn-primary">কনভার্ট করুন</button>
+          <div id="convert-result" class="mt-6"></div>
+        </div>
+
+        <!-- ==================== 7. NID PANEL ==================== -->
+        <div id="panel-nid" class="tool-panel">
+          <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">NID কার্ডের সামনের এবং পেছনের অংশ আপলোড করুন:</p>
+          <input type="file" id="nid-front" accept="image/*" class="mb-2 block w-full text-sm">
+          <input type="file" id="nid-back" accept="image/*" class="mb-4 block w-full text-sm">
+          <button onclick="createNidPdf()" class="btn-primary">NID PDF তৈরি করুন</button>
+          <div id="nid-result" class="mt-6"></div>
+        </div>
+
+        <!-- ==================== 8. PASSPORT PANEL ==================== -->
+        <div id="panel-passport" class="tool-panel">
+          <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">এক বা একাধিক পাসপোর্ট পেজের ছবি নির্বাচন করুন:</p>
+          <input type="file" id="passport-input" accept="image/*" multiple class="mb-4 block w-full text-sm">
+          <button onclick="createPassportPdf()" class="btn-primary">পাসপোর্ট PDF তৈরি করুন</button>
+          <div id="passport-result" class="mt-6"></div>
+        </div>
+
+      </div>
+    </section>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-6 text-center text-sm text-gray-500 dark:text-gray-400 transition-colors">
+    <p>© Amarkaj Tools. Developed by <span class="rainbow-text text-base">Antu</span></p>
+  </footer>
 
   <script>
+    // ========== UI Helpers & Toast ==========
+    function showToast(message, icon = 'ℹ️') {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-msg').textContent = message;
+      document.getElementById('toast-icon').textContent = icon;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function toggleLoader(show, text = "প্রসেসিং হচ্ছে...") {
+      const loader = document.getElementById('global-loader');
+      document.getElementById('loader-text').textContent = text;
+      if (show) loader.classList.remove('hidden');
+      else loader.classList.add('hidden');
+    }
+
+    function toggleDarkMode() {
+      document.documentElement.classList.toggle('dark');
+      showToast('থিম পরিবর্তন করা হয়েছে', '🌙');
+    }
+
     // ========== UI Navigation ==========
     function showTool(tool) {
       document.getElementById('workspace').classList.remove('hidden');
@@ -326,18 +429,26 @@
 
     // ========== 1. CAMERA SCANNER LOGIC ==========
     let videoStream = null;
+    let currentFacingMode = 'environment';
 
     async function startCamera() {
       try {
-        videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        if (videoStream) stopCamera();
+        videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: currentFacingMode } });
         const video = document.getElementById('scanner-video');
         video.srcObject = videoStream;
         video.classList.remove('hidden');
         document.getElementById('camera-placeholder').classList.add('hidden');
         document.getElementById('snap-btn').classList.remove('hidden');
+        showToast('ক্যামেরা চালু করা হয়েছে', '📷');
       } catch (err) {
-        alert('ক্যামেরা চালু করা সম্ভব হয়নি: ' + err.message);
+        showToast('ক্যামেরা চালু করা সম্ভব হয়নি: ' + err.message, '⚠️');
       }
+    }
+
+    function switchCamera() {
+      currentFacingMode = (currentFacingMode === 'environment') ? 'user' : 'environment';
+      startCamera();
     }
 
     function stopCamera() {
@@ -364,6 +475,7 @@
       document.getElementById('scanned-download').download = 'scanned-document.jpg';
       document.getElementById('scanned-result-container').classList.remove('hidden');
       stopCamera();
+      showToast('ছবি ক্যাপচার সম্পন্ন!', '✅');
     }
 
     // ========== 2. AI EDIT, CROP & BEAUTIFY ==========
@@ -410,7 +522,7 @@
         dlBtn.href = filteredUrl;
         dlBtn.download = 'edited-photo.png';
         dlBtn.classList.remove('hidden');
-        document.getElementById('ai-status').textContent = 'ফিল্টার প্রয়োগ সফল হয়েছে!';
+        showToast('ফিল্টার প্রয়োগ সফল হয়েছে!', '✨');
       };
       tempImg.src = img.src;
     }
@@ -419,11 +531,11 @@
       const img = document.getElementById('ai-image');
       if (cropper) cropper.destroy();
       cropper = new Cropper(img, { aspectRatio: NaN, viewMode: 1 });
-      document.getElementById('ai-status').textContent = 'ক্রপ এরিয়া সিলেক্ট করে "ক্রপ সম্পন্ন করুন" এ চাপুন।';
+      showToast('ক্রপ মেকার চালু হয়েছে', '✂');
     }
 
     function cropImage() {
-      if (!cropper) return alert('আগে "ক্রপ মেকার চালু করুন" বাটনে ক্লিক করুন');
+      if (!cropper) return showToast('আগে ক্রপ মেকার চালু করুন', '⚠️');
       const canvas = cropper.getCroppedCanvas();
       const croppedUrl = canvas.toDataURL('image/png');
       
@@ -437,16 +549,11 @@
       dlBtn.href = croppedUrl;
       dlBtn.download = 'cropped-photo.png';
       dlBtn.classList.remove('hidden');
-      document.getElementById('ai-status').textContent = 'ছবি ক্রপ সম্পন্ন হয়েছে!';
+      showToast('ছবি ক্রপ সম্পন্ন হয়েছে!', '✅');
     }
 
     async function aiRemoveBg() {
-      const API_KEY = 'YOUR_REMOVE_BG_API_KEY_HERE';
-      if (API_KEY === 'YOUR_REMOVE_BG_API_KEY_HERE') {
-        alert('Remove.bg API Key প্রদান করা হয়নি। কোডে আপনার API Key যুক্ত করুন।');
-        return;
-      }
-      // API call logic...
+      showToast('API Key প্রদান করা হয়নি!', '⚠️');
     }
 
     function aiReset() {
@@ -457,7 +564,7 @@
         document.getElementById('filter-contrast').value = 100;
         document.getElementById('filter-blur').value = 0;
         document.getElementById('filter-saturate').value = 100;
-        document.getElementById('ai-status').textContent = 'মূল ছবিতে রিসেট করা হয়েছে।';
+        showToast('মূল ছবিতে রিসেট করা হয়েছে', '🔄');
       }
     }
 
@@ -476,13 +583,12 @@
     });
 
     function generatePPGrid() {
-      if (!ppImageObj) return alert('পাসপোর্ট সাইজের ছবি আপলোড করুন');
+      if (!ppImageObj) return showToast('পাসপোর্ট সাইজের ছবি আপলোড করুন', '⚠️');
       
       const count = parseInt(document.getElementById('pp-count').value);
       const canvas = document.getElementById('pp-canvas');
       const ctx = canvas.getContext('2d');
 
-      // A4 Size at 300 DPI
       const a4Width = 1240;
       const a4Height = 1754;
       canvas.width = a4Width;
@@ -491,23 +597,19 @@
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, a4Width, a4Height);
 
-      // Passport photo dimensions (45mm x 55mm approx in pixels)
       const photoWidth = 210;
       const photoHeight = 260;
       const gap = 30;
       const startX = 60;
       const startY = 80;
-
-      const cols = 5; // 5 photos per row max
+      const cols = 5;
 
       for (let i = 0; i < count; i++) {
         const row = Math.floor(i / cols);
         const col = i % cols;
-
         const x = startX + col * (photoWidth + gap);
         const y = startY + row * (photoHeight + gap);
 
-        // Draw photo with border
         ctx.strokeStyle = '#cccccc';
         ctx.strokeRect(x, y, photoWidth, photoHeight);
         ctx.drawImage(ppImageObj, x, y, photoWidth, photoHeight);
@@ -515,6 +617,7 @@
 
       document.getElementById('pp-preview-container').classList.remove('hidden');
       document.getElementById('pp-print-btn').classList.remove('hidden');
+      showToast('গ্রিড তৈরি সফল হয়েছে!', '🖼️️');
     }
 
     function downloadPPPdf() {
@@ -538,10 +641,9 @@
     // ========== 4. SCAN TO WORD EDITOR (OCR) ==========
     async function processScanToDoc() {
       const file = document.getElementById('doc-input').files[0];
-      if (!file) return alert('ডকুমেন্টের ছবি আপলোড করুন');
+      if (!file) return showToast('ডকুমেন্টের ছবি আপলোড করুন', '⚠️');
       
-      const status = document.getElementById('doc-status');
-      status.textContent = 'OCR দিয়ে টেক্সট স্ক্যান করা হচ্ছে... অনুগ্রহ করে অপেক্ষা করুন';
+      toggleLoader(true, "OCR দিয়ে টেক্সট স্ক্যান করা হচ্ছে...");
 
       try {
         const worker = await Tesseract.createWorker('ben+eng');
@@ -549,10 +651,12 @@
         
         document.getElementById('doc-editor-text').value = ret.data.text;
         document.getElementById('doc-editor-container').classList.remove('hidden');
-        status.textContent = 'টেক্সট সফলভাবে বের করা হয়েছে। নিচে এডিট করতে পারেন।';
         await worker.terminate();
+        toggleLoader(false);
+        showToast('টেক্সট সফলভাবে এক্সট্র্যাক্ট হয়েছে!', '📄');
       } catch (err) {
-        status.textContent = 'ত্রুটি: ' + err.message;
+        toggleLoader(false);
+        showToast('ত্রুটি: ' + err.message, '❌');
       }
     }
 
@@ -575,27 +679,35 @@
       const textarea = document.getElementById('doc-editor-text');
       textarea.select();
       navigator.clipboard.writeText(textarea.value);
-      alert('টেক্সট ক্লিপবোর্ডে কপি করা হয়েছে!');
+      showToast('টেক্সট কপি করা হয়েছে!', '📋');
     }
 
-    // ========== 5, 6, 7 & 8. OTHER UTILITIES ==========
+    // ========== 5, 6, 7 & 8. UTILITIES ==========
     async function compressImage() {
       const file = document.getElementById('compress-input').files[0];
-      if (!file) return alert('ছবি সিলেক্ট করুন');
+      if (!file) return showToast('ছবি সিলেক্ট করুন', '⚠️');
       const quality = parseFloat(document.getElementById('quality').value);
+      toggleLoader(true, "কম্প্রেস হচ্ছে...");
       try {
         const compressed = await imageCompression(file, { maxSizeMB: 1, initialQuality: quality });
         const url = URL.createObjectURL(compressed);
         document.getElementById('compress-result').innerHTML = `
-          <p class="text-sm">সাইজ: ${(compressed.size/1024).toFixed(1)} KB</p>
+          <p class="text-sm">নতুন সাইজ: ${(compressed.size/1024).toFixed(1)} KB</p>
           <a href="${url}" download="compressed.jpg" class="btn-primary mt-2 inline-block">ডাউনলোড</a>`;
-      } catch (err) { alert(err.message); }
+        toggleLoader(false);
+        showToast('কম্প্রেস সম্পন্ন হয়েছে!', '📦');
+      } catch (err) {
+        toggleLoader(false);
+        showToast(err.message, '❌'); 
+      }
     }
 
     function convertImage() {
       const file = document.getElementById('convert-input').files[0];
       const format = document.getElementById('convert-format').value;
-      if (!file) return alert('ছবি সিলেক্ট করুন');
+      if (!file) return showToast('ছবি সিলেক্ট করুন', '⚠️');
+      
+      toggleLoader(true, "কনভার্ট হচ্ছে...");
       const reader = new FileReader();
       reader.onload = e => {
         const img = new Image();
@@ -606,6 +718,8 @@
           canvas.toBlob(blob => {
             const url = URL.createObjectURL(blob);
             document.getElementById('convert-result').innerHTML = `<a href="${url}" download="converted.${format.split('/')[1]}" class="btn-primary inline-block">ডাউনলোড</a>`;
+            toggleLoader(false);
+            showToast('কনভার্ট সফল হয়েছে!', '🔄');
           }, format, 0.92);
         };
         img.src = e.target.result;
@@ -616,8 +730,9 @@
     function createNidPdf() {
       const frontFile = document.getElementById('nid-front').files[0];
       const backFile = document.getElementById('nid-back').files[0];
-      if (!frontFile) return alert('কমপক্ষে সামনের পিঠের ছবি দিন');
+      if (!frontFile) return showToast('কমপক্ষে সামনের পিঠের ছবি দিন', '⚠️');
 
+      toggleLoader(true, "NID PDF তৈরি হচ্ছে...");
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
@@ -634,22 +749,37 @@
         doc.addImage(frontImg, 'JPEG', 15, 20, 85.6, 53.98);
         if (backImg) doc.addImage(backImg, 'JPEG', 15, 80, 85.6, 53.98);
         doc.save('nid-card.pdf');
-        document.getElementById('nid-result').innerHTML = `<p class="text-green-600 font-semibold">NID PDF ডাউনলোড হয়েছে!</p>`;
+        toggleLoader(false);
+        document.getElementById('nid-result').innerHTML = `<p class="text-green-600 dark:text-green-400 font-semibold">NID PDF ডাউনলোড হয়েছে!</p>`;
+        showToast('NID PDF তৈরি হয়েছে!', '🪪');
       });
     }
 
-    function createPdf(type) {
-      const file = document.getElementById('passport-input').files[0];
-      if (!file) return alert('ছবি সিলেক্ট করুন');
-      const reader = new FileReader();
-      reader.onload = e => {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF('p', 'mm', 'a4');
-        doc.addImage(e.target.result, 'JPEG', 10, 10, 190, 270);
-        doc.save('passport-doc.pdf');
-        document.getElementById('passport-result').innerHTML = `<p class="text-green-600 font-semibold">পাসপোর্ট PDF তৈরি হয়েছে!</p>`;
-      };
-      reader.readAsDataURL(file);
+    // Passport PDF - Supports Multiple Images / Pages
+    function createPassportPdf() {
+      const files = document.getElementById('passport-input').files;
+      if (!files || files.length === 0) return showToast('কমপক্ষে একটি ছবি সিলেক্ট করুন', '⚠️');
+      
+      toggleLoader(true, "মাল্টি-পেজ PDF তৈরি হচ্ছে...");
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF('p', 'mm', 'a4');
+
+      const readFile = (file) => new Promise(resolve => {
+        const reader = new FileReader();
+        reader.onload = e => resolve(e.target.result);
+        reader.readAsDataURL(file);
+      });
+
+      Promise.all(Array.from(files).map(readFile)).then(images => {
+        images.forEach((img, index) => {
+          if (index > 0) doc.addPage();
+          doc.addImage(img, 'JPEG', 10, 10, 190, 270);
+        });
+        doc.save('passport-documents.pdf');
+        toggleLoader(false);
+        document.getElementById('passport-result').innerHTML = `<p class="text-green-600 dark:text-green-400 font-semibold">পাসপোর্ট PDF তৈরি হয়েছে (${images.length} পেজ)!</p>`;
+        showToast('পাসপোর্ট PDF তৈরি সফল!', '🛂');
+      });
     }
   </script>
 </body>
