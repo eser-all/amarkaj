@@ -29,7 +29,7 @@
   <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.js"></script>
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
   
-  <!-- MediaPipe Selfie Segmentation for True AI BG Removal -->
+  <!-- MediaPipe Selfie Segmentation -->
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js" crossorigin="anonymous"></script>
 
@@ -40,6 +40,7 @@
   <style>
     body {
       font-family: 'Kalpurush', sans-serif, system-ui;
+      user-select: none; /* টেক্সট/ছবি সিলেক্ট করা বন্ধ */
     }
     .tool-card {
       @apply bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer text-center border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center gap-2;
@@ -91,7 +92,34 @@
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 min-h-screen transition-colors duration-200 flex flex-col justify-between">
 
-  <div>
+  <!-- ==================== FIREBASE LOGIN OVERLAY ==================== -->
+  <div id="auth-modal" class="fixed inset-0 bg-gray-900/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-gray-800 w-full max-w-md rounded-3xl p-6 md:p-8 shadow-2xl border border-gray-100 dark:border-gray-700">
+      <div class="text-center mb-6">
+        <span class="text-4xl inline-block mb-2">⚡</span>
+        <h2 class="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Amarkaj সিকিউর লগইন</h2>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">অ্যাক্সেস করতে অনুমোদনপ্রাপ্ত অ্যাকাউন্ট দিয়ে প্রবেশ করুন</p>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold mb-1 text-gray-700 dark:text-gray-300">ইমেইল ঠিকানা</label>
+          <input type="email" id="auth-email" placeholder="example@domain.com" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold mb-1 text-gray-700 dark:text-gray-300">পাসওয়ার্ড</label>
+          <input type="password" id="auth-password" placeholder="••••••••" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+
+        <button id="login-btn" onclick="handleLogin()" class="btn-primary w-full py-3 text-base shadow-indigo-200">লগইন করুন</button>
+      </div>
+
+      <p id="auth-error" class="text-xs text-red-500 text-center mt-4 hidden font-semibold"></p>
+    </div>
+  </div>
+
+  <!-- Main App View -->
+  <div id="app-content" class="hidden">
     <!-- Toast Notification -->
     <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 bg-gray-900 text-white text-sm px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2 opacity-0">
       <span id="toast-icon">ℹ️</span>
@@ -112,10 +140,11 @@
           <h1 class="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Amarkaj</h1>
         </div>
         <div class="flex items-center gap-3">
+          <span id="user-display" class="text-xs font-semibold text-gray-500 dark:text-gray-300 hidden md:inline-block"></span>
+          <button onclick="handleLogout()" class="text-xs bg-red-100 text-red-600 hover:bg-red-200 px-3 py-1.5 rounded-lg font-bold transition">লগআউট</button>
           <button onclick="toggleDarkMode()" class="p-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-200 hover:opacity-80 transition" title="থিম পরিবর্তন">
             🌙
           </button>
-          <span class="text-xs font-semibold px-2.5 py-1 bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 rounded-full border border-indigo-200 dark:border-indigo-800">Advanced AI Suite</span>
         </div>
       </div>
     </header>
@@ -183,10 +212,9 @@
           <button onclick="hideTool()" class="text-gray-400 hover:text-red-500 text-2xl font-bold transition">✕</button>
         </div>
 
-        <!-- ==================== 1. AI PHOTO EDIT & BG CHANGE ==================== -->
+        <!-- 1. AI PHOTO EDIT & BG CHANGE -->
         <div id="panel-ai" class="tool-panel">
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">স্বয়ংক্রিয় বা কাস্টম কালারে ব্যাকগ্রাউন্ড পরিবর্তন, ফিল্টার প্রসেসিং ও A4 পেপারে মাল্টি-কপি প্রিন্ট করুন।</p>
-          
           <input type="file" id="ai-input" accept="image/*" class="mb-4 block w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
           
           <div id="ai-controls" class="hidden space-y-4">
@@ -273,7 +301,7 @@
           </div>
         </div>
 
-        <!-- ==================== 2. DOCUMENT EDITOR ==================== -->
+        <!-- 2. DOCUMENT EDITOR -->
         <div id="panel-doceditor" class="tool-panel">
           <div class="bg-indigo-50 dark:bg-indigo-950/50 p-4 rounded-2xl border border-indigo-100 dark:border-indigo-800/50 mb-4">
             <p class="text-sm text-indigo-900 dark:text-indigo-200 font-medium">🖨️ স্ক্যানড বা গ্যালোরি ডকুমেন্টের ভুল লেখা মুছুন, টেক্সট যুক্ত করুন এবং সরাসরি PDF বা Word ফাইলে সেভ করুন।</p>
@@ -336,7 +364,7 @@
           </div>
         </div>
 
-        <!-- ==================== 3. PDF MERGER PANEL ==================== -->
+        <!-- 3. PDF MERGER PANEL -->
         <div id="panel-pdfmerge" class="tool-panel">
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">একাধিক PDF ফাইল সিলেক্ট করে একসাথে জুড়ে নতুন একটি PDF বানিয়ে ডাউনলোড করুন।</p>
           <input type="file" id="pdf-merge-input" accept="application/pdf" multiple class="mb-4 block w-full text-sm">
@@ -344,7 +372,7 @@
           <button onclick="mergePdfFiles()" class="btn-primary">📚 PDF মার্জ করুন ও ডাউনলোড করুন</button>
         </div>
 
-        <!-- ==================== 4. PASSPORT GRID PANEL ==================== -->
+        <!-- 4. PASSPORT GRID PANEL -->
         <div id="panel-ppgrid" class="tool-panel">
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">পাসপোর্ট সাইজের ছবি আপলোড করে A4 পেজে বিভিন্ন কপিতে সাজিয়ে ডাউনলোড করুন।</p>
           <input type="file" id="pp-input" accept="image/*" class="mb-4 block w-full text-sm">
@@ -374,7 +402,7 @@
           </div>
         </div>
 
-        <!-- ==================== 5. LIVE SCANNER PANEL ==================== -->
+        <!-- 5. LIVE SCANNER PANEL -->
         <div id="panel-scanner" class="tool-panel">
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">ক্যামেরা দিয়ে সরাসরি ডকুমেন্ট স্ক্যান করুন।</p>
           <div class="flex flex-wrap gap-3 mb-4">
@@ -397,7 +425,7 @@
           </div>
         </div>
 
-        <!-- ==================== 6. COMPRESS PANEL ==================== -->
+        <!-- 6. COMPRESS PANEL -->
         <div id="panel-compress" class="tool-panel">
           <input type="file" id="compress-input" accept="image/*" class="mb-4 block w-full text-sm">
           <div class="mb-4">
@@ -408,7 +436,7 @@
           <div id="compress-result" class="mt-6"></div>
         </div>
 
-        <!-- ==================== 7. CONVERT PANEL ==================== -->
+        <!-- 7. CONVERT PANEL -->
         <div id="panel-convert" class="tool-panel">
           <input type="file" id="convert-input" accept="image/*" class="mb-4 block w-full text-sm">
           <select id="convert-format" class="border dark:border-gray-700 rounded-xl px-4 py-2.5 mb-4 w-full bg-white dark:bg-gray-700">
@@ -420,7 +448,7 @@
           <div id="convert-result" class="mt-6"></div>
         </div>
 
-        <!-- ==================== 8. NID PANEL ==================== -->
+        <!-- 8. NID PANEL -->
         <div id="panel-nid" class="tool-panel">
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">NID কার্ডের সামনের এবং পেছনের অংশ আপলোড করুন:</p>
           <input type="file" id="nid-front" accept="image/*" class="mb-2 block w-full text-sm">
@@ -438,7 +466,120 @@
     <p class="text-gray-600 dark:text-gray-400">© Amarkaj Tools • Developed by <span class="rainbow-text text-base ml-1">Antu</span></p>
   </footer>
 
+  <!-- Firebase Modular SDK Scripts -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCzmfEg39TV0cxGkSKivO7lYsier3KH9AY",
+      authDomain: "amarkaj-c7d5f.firebaseapp.com",
+      projectId: "amarkaj-c7d5f",
+      storageBucket: "amarkaj-c7d5f.firebasestorage.app",
+      messagingSenderId: "183473425547",
+      appId: "1:183473425547:web:f713861eeaac48b978188e",
+      measurementId: "G-HXVW2W079G"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    window.handleLogin = async function() {
+      const email = document.getElementById('auth-email').value;
+      const password = document.getElementById('auth-password').value;
+      const errorEl = document.getElementById('auth-error');
+      
+      if (!email || !password) {
+        errorEl.textContent = "ইমেইল এবং পাসওয়ার্ড সঠিকভাবে দিন।";
+        errorEl.classList.remove('hidden');
+        return;
+      }
+
+      toggleLoader(true, "যাচাই করা হচ্ছে...");
+      errorEl.classList.add('hidden');
+
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        const userDocRef = doc(db, "users", user.uid);
+        const userDoc = await getDoc(userDocRef);
+
+        if (userDoc.exists() && userDoc.data().approved === true) {
+          showToast('লগইন সফল হয়েছে!', '✅');
+        } else {
+          await signOut(auth);
+          errorEl.textContent = "আপনার অ্যাকাউন্টটি অনুমোদিত নয়! এডমিনের সাথে যোগাযোগ করুন।";
+          errorEl.classList.remove('hidden');
+        }
+      } catch (error) {
+        errorEl.textContent = "লগইন ব্যর্থ হয়েছে: " + error.message;
+        errorEl.classList.remove('hidden');
+      } finally {
+        toggleLoader(false);
+      }
+    };
+
+    window.handleLogout = function() {
+      signOut(auth).then(() => {
+        showToast('লগআউট করা হয়েছে', 'ℹ️');
+      });
+    };
+
+    onAuthStateChanged(auth, async (user) => {
+      const modal = document.getElementById('auth-modal');
+      const content = document.getElementById('app-content');
+      const userDisplay = document.getElementById('user-display');
+
+      if (user) {
+        const userDocRef = doc(db, "users", user.uid);
+        const userDoc = await getDoc(userDocRef);
+
+        if (userDoc.exists() && userDoc.data().approved === true) {
+          modal.classList.add('hidden');
+          content.classList.remove('hidden');
+          userDisplay.textContent = "স্বাগতম, " + (user.email || '');
+        } else {
+          await signOut(auth);
+          modal.classList.remove('hidden');
+          content.classList.add('hidden');
+        }
+      } else {
+        modal.classList.remove('hidden');
+        content.classList.add('hidden');
+      }
+    });
+  </script>
+
   <script>
+    // ========== SECURITY & DATA PROTECTION SCRIPT ==========
+    
+    // ১. রাইট-ক্লিক মেনু ডিসেবল
+    document.addEventListener('contextmenu', event => event.preventDefault());
+
+    // ২. F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U ডিসেবল
+    document.onkeydown = function (e) {
+      if (
+        e.keyCode === 123 || // F12
+        (e.ctrlKey && e.shiftKey && e.keyCode === 73) || // Ctrl+Shift+I
+        (e.ctrlKey && e.shiftKey && e.keyCode === 74) || // Ctrl+Shift+J
+        (e.ctrlKey && e.keyCode === 85) || // Ctrl+U
+        (e.ctrlKey && e.keyCode === 83) // Ctrl+S (Save Page As)
+      ) {
+        return false;
+      }
+    };
+
+    // ৩. ডাটা লস প্রতিরোধ (Unsaved Changes Warning)
+    window.addEventListener('beforeunload', function (e) {
+      // যদি ইউজার এডিটিং এর কাজ করতে থাকে
+      const message = "আপনার আনসেভ করা ফাইল মুছে যেতে পারে। আপনি কি নিশ্চিত বের হতে চান?";
+      e.returnValue = message;
+      return message;
+    });
+
     // ========== UI Helpers & Toast ==========
     function showToast(message, icon = 'ℹ️') {
       const toast = document.getElementById('toast');
@@ -495,7 +636,6 @@
     let baseLoadedImage = null; 
     let selfieSegmentation = null;
 
-    // Initialize MediaPipe AI Segmentation Model
     function initMediaPipe() {
       if (!selfieSegmentation) {
         selfieSegmentation = new SelfieSegmentation({
@@ -568,11 +708,9 @@
         canvas.height = baseLoadedImage.naturalHeight || baseLoadedImage.height;
         const ctx = canvas.getContext('2d');
 
-        // Draw Background Color
         ctx.fillStyle = color;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Mask Composite to draw Subject only
         ctx.globalCompositeOperation = 'destination-out';
         ctx.drawImage(maskCanvas, 0, 0, canvas.width, canvas.height);
 
