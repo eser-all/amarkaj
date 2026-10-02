@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Amarkaj - প্রফেশনাল AI টুলস সুইট</title>
 
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -20,20 +19,16 @@
     }
   </script>
 
-  <!-- Kalpurush Bangla Font -->
   <link href="https://fonts.maateen.me/kalpurush/font.css" rel="stylesheet" />
 
-  <!-- External Libraries -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.js"></script>
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
   
-  <!-- MediaPipe -->
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js" crossorigin="anonymous"></script>
 
-  <!-- Cropper.js -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
@@ -79,39 +74,27 @@
       100% { background-position: 200% center; }
     }
 
-    /* ===== CV Styles ===== */
+    /* ===== CV Base Styles ===== */
     .cv-preview {
       width: 210mm;
       min-height: 297mm;
       background: white;
       box-shadow: 0 10px 40px rgba(0,0,0,0.12);
       margin: 0 auto;
-      display: flex;
       font-family: Arial, Helvetica, sans-serif;
       color: #1f2937;
       font-size: 13px;
       line-height: 1.45;
-    }
-    .cv-left {
-      width: 34%;
-      background: #f3f4f6;
-      padding: 26px 18px;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-    .cv-right {
-      width: 66%;
-      padding: 28px 24px;
+      overflow: hidden;
     }
     .cv-photo {
-      width: 130px;
-      height: 130px;
+      width: 120px;
+      height: 120px;
       border-radius: 50%;
       object-fit: cover;
       border: 4px solid #fff;
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      margin: 0 auto 8px;
+      margin: 0 auto 10px;
       display: block;
       background: #e5e7eb;
     }
@@ -120,28 +103,35 @@
       color: white;
       padding: 5px 14px;
       border-radius: 20px;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
       letter-spacing: 0.4px;
       display: inline-block;
       margin-bottom: 8px;
     }
     .cv-name {
-      font-size: 28px;
+      font-size: 26px;
       font-weight: 800;
-      margin-bottom: 16px;
+      margin-bottom: 6px;
       color: #111827;
       line-height: 1.2;
     }
-    .cv-right h3 {
-      font-size: 15px;
-      font-weight: 700;
-      border-bottom: 2px solid #1f2937;
-      padding-bottom: 4px;
-      margin-bottom: 10px;
-      margin-top: 18px;
+    .template-card {
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+      font-size: 12px;
     }
-    .cv-right h3:first-child { margin-top: 0; }
+    .template-card:hover, .template-card.active {
+      border-color: #6366f1;
+      background: #eef2ff;
+    }
+    .template-card.active {
+      box-shadow: 0 0 0 2px #6366f1;
+    }
   </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 min-h-screen transition-colors duration-200 flex flex-col justify-between">
@@ -203,7 +193,7 @@
     <section class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white py-12 relative overflow-hidden">
       <div class="max-w-4xl mx-auto px-4 text-center relative z-10">
         <h2 class="text-3xl md:text-5xl font-extrabold mb-3 leading-tight">স্মার্ট এডিটিং ও প্রফেশনাল ফাইল ম্যানেজার</h2>
-        <p class="text-base md:text-lg opacity-90 font-light">AI ফটো • A4 গ্রিড • ডকুমেন্ট এডিটর • <strong>AI CV মেকার</strong> • PDF মার্জার • Canon স্ক্যানার সাপোর্ট</p>
+        <p class="text-base md:text-lg opacity-90 font-light">AI ফটো • A4 গ্রিড • ডকুমেন্ট এডিটর • <strong>AI CV মেকার (৬টি টেমপ্লেট)</strong> • PDF মার্জার • Canon স্ক্যানার</p>
       </div>
     </section>
 
@@ -502,11 +492,42 @@
           </div>
         </div>
 
-        <!-- 6. CV / RESUME MAKER -->
+        <!-- 6. CV / RESUME MAKER (UPGRADED) -->
         <div id="panel-cv" class="tool-panel">
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
-            ছবির মতো প্রফেশনাল দুই-কলাম CV তৈরি করুন। সব তথ্য পূরণ করে <strong>Generate CV</strong> বাটনে ক্লিক করুন।
+            ৬টি প্রফেশনাল টেমপ্লেট থেকে পছন্দ করুন। AI Suggest দিয়ে টেক্সট অটো জেনারেট করুন।
           </p>
+
+          <!-- Template Selector -->
+          <div class="mb-5">
+            <h4 class="font-bold text-sm mb-3 text-indigo-700 dark:text-indigo-300">🎨 টেমপ্লেট সিলেক্ট করুন:</h4>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-3" id="template-selector">
+              <div class="template-card active" data-template="modern" onclick="selectTemplate('modern')">
+                <div class="text-2xl mb-1">🟦</div>
+                <div class="font-semibold">Modern Two-Column</div>
+              </div>
+              <div class="template-card" data-template="sidebar" onclick="selectTemplate('sidebar')">
+                <div class="text-2xl mb-1">🟩</div>
+                <div class="font-semibold">Professional Sidebar</div>
+              </div>
+              <div class="template-card" data-template="executive" onclick="selectTemplate('executive')">
+                <div class="text-2xl mb-1">🟪</div>
+                <div class="font-semibold">Executive Modern</div>
+              </div>
+              <div class="template-card" data-template="classic" onclick="selectTemplate('classic')">
+                <div class="text-2xl mb-1">⬛</div>
+                <div class="font-semibold">Classic One-Column</div>
+              </div>
+              <div class="template-card" data-template="corporate" onclick="selectTemplate('corporate')">
+                <div class="text-2xl mb-1">🟫</div>
+                <div class="font-semibold">Clean Corporate</div>
+              </div>
+              <div class="template-card" data-template="bangla" onclick="selectTemplate('bangla')">
+                <div class="text-2xl mb-1">🇧🇩</div>
+                <div class="font-semibold">বাংলা জীবন বৃত্তান্ত</div>
+              </div>
+            </div>
+          </div>
 
           <div class="grid lg:grid-cols-2 gap-6">
             <!-- Form -->
@@ -514,79 +535,59 @@
               <div class="bg-indigo-50 dark:bg-gray-700/50 p-4 rounded-2xl border border-indigo-100 dark:border-gray-600">
                 <h4 class="font-bold text-sm mb-3 text-indigo-700 dark:text-indigo-300">📷 ছবি ও ব্যক্তিগত তথ্য</h4>
                 <input type="file" id="cv-photo" accept="image/*" class="mb-3 text-sm w-full">
-                <input type="text" id="cv-name" placeholder="পূর্ণ নাম (যেমন: Md. Emon Khan)" class="w-full mb-2 px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm">
+                <input type="text" id="cv-name" placeholder="পূর্ণ নাম" class="w-full mb-2 px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm">
                 <input type="text" id="cv-phone" placeholder="ফোন (+88 01XXXXXXXXX)" class="w-full mb-2 px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm">
                 <input type="email" id="cv-email" placeholder="ইমেইল" class="w-full mb-2 px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm">
                 <textarea id="cv-address" placeholder="ঠিকানা" rows="2" class="w-full px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm"></textarea>
               </div>
 
               <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-2xl">
-                <h4 class="font-bold text-sm mb-2">🎓 Education</h4>
-                <textarea id="cv-education" rows="5" class="w-full px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm" placeholder="Bachelor of Arts in Tourism and Hospitality Management.
-International University Of Business Agriculture And Technology, Uttara Dhaka.
-2021 - 2025
-CGPA :3.20 out of 4.00
+                <h4 class="font-bold text-sm mb-2">🎯 Career Objective / সারাংশ</h4>
+                <textarea id="cv-objective" rows="3" class="w-full px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm" placeholder="একজন দক্ষ পেশাজীবী হিসেবে..."></textarea>
+              </div>
 
-H.S.C
-Milestone College Uttara. Dhaka
-2018 - 2020
-Business Studies
-GPA 4.00 out of 5.00"></textarea>
+              <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-2xl">
+                <h4 class="font-bold text-sm mb-2">🎓 Education</h4>
+                <textarea id="cv-education" rows="5" class="w-full px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm" placeholder="Bachelor of Arts...&#10;University Name&#10;2021 - 2025&#10;CGPA: 3.20"></textarea>
               </div>
 
               <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-2xl">
                 <h4 class="font-bold text-sm mb-2">💡 Skills (প্রতি লাইনে একটি)</h4>
-                <textarea id="cv-skills" rows="4" class="w-full px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm" placeholder="Business Development & Sales
-Client Relationship Management
-Customer Service & Communication
-Negotiation & Persuasion
-Problem-Solving & Conflict Resolution
-Teamwork & Cross-Functional Coordination"></textarea>
+                <textarea id="cv-skills" rows="4" class="w-full px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm" placeholder="Communication&#10;Teamwork&#10;Problem Solving"></textarea>
               </div>
 
               <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-2xl">
                 <h4 class="font-bold text-sm mb-2">💼 Work Experience</h4>
-                <textarea id="cv-experience" rows="9" class="w-full px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm" placeholder="Executive Sales and Marketing
-Hotel Grand Vistana
-House:11, Road:06, Sector: 01, Uttara, Dhaka
-Feb: 2026 - Present
-• Develop and maintain strong client relationships while identifying new business opportunities through prospecting, networking, and effective follow-up.
-• Handle client inquiries, prepare quotations and proposals, negotiate requirements, and support the sales process from initial contact to successful conversion.
-
-Internship
-Hotel Hansa | Uttara, Dhaka
-March: 2025
-Completed a three-month internship in Front Office Operations..."></textarea>
+                <textarea id="cv-experience" rows="8" class="w-full px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm" placeholder="Job Title&#10;Company Name&#10;Duration&#10;• Responsibility 1&#10;• Responsibility 2"></textarea>
               </div>
 
               <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-2xl">
-                <h4 class="font-bold text-sm mb-2">🌟 Additional Activities</h4>
-                <textarea id="cv-activities" rows="3" class="w-full px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm" placeholder="• Former Member, Rotaract Club of IUBAT
-• Former Member, Shikdermollik Blood Donation Foundation"></textarea>
+                <h4 class="font-bold text-sm mb-2">🌐 Languages</h4>
+                <textarea id="cv-languages" rows="2" class="w-full px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm" placeholder="Bangla (Native)&#10;English (Fluent)"></textarea>
+              </div>
+
+              <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-2xl">
+                <h4 class="font-bold text-sm mb-2">🌟 Additional / Activities</h4>
+                <textarea id="cv-activities" rows="3" class="w-full px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm" placeholder="• Member of Club&#10;• Volunteer work"></textarea>
               </div>
 
               <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-2xl">
                 <h4 class="font-bold text-sm mb-2">📞 References</h4>
-                <textarea id="cv-references" rows="5" class="w-full px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm" placeholder="Mr. Shafiqul Islam
-Assistant Professor
-International University Of Business Agriculture And Technology
-Phone: +88 01822000938
-Email: shafiqul.cthm@iubat.com
-
-Md. Rubel Howlader
-Manager- Sales & Marketing
-Grand Vistana.
-Phone: +88 01722131414
-Email: sales2@grandvistana.com"></textarea>
+                <textarea id="cv-references" rows="4" class="w-full px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm" placeholder="Name&#10;Designation&#10;Phone / Email"></textarea>
               </div>
 
-              <button onclick="generateCV()" class="btn-primary w-full py-3 text-base">✨ Generate Professional CV</button>
+              <div class="flex flex-col gap-3">
+                <button onclick="aiSuggestCV()" class="btn-secondary w-full py-3 text-base bg-purple-100 text-purple-700 hover:bg-purple-200">
+                  ✨ AI Suggest / অটো ফিল করুন
+                </button>
+                <button onclick="generateCV()" class="btn-primary w-full py-3 text-base">🚀 Generate Professional CV</button>
+              </div>
             </div>
 
             <!-- Preview -->
             <div class="overflow-auto max-h-[75vh] bg-gray-100 dark:bg-gray-900 p-3 rounded-2xl">
               <div id="cv-preview-container" class="hidden">
-                <div id="cv-preview" class="cv-preview scale-[0.68] origin-top mx-auto"></div>
+                <div id="cv-preview" class="cv-preview scale-[0.65] origin-top mx-auto"></div>
                 <div class="flex flex-wrap gap-3 mt-4 justify-center sticky bottom-0 bg-gray-100 dark:bg-gray-900 py-3">
                   <button onclick="printCV()" class="btn-primary bg-emerald-600 hover:bg-emerald-700">🖨️ প্রিন্ট / Save as PDF</button>
                   <button onclick="downloadCVImage()" class="btn-secondary">⬇️ ছবি হিসেবে ডাউনলোড</button>
@@ -594,22 +595,21 @@ Email: sales2@grandvistana.com"></textarea>
               </div>
               <div id="cv-placeholder" class="text-center text-gray-400 py-24">
                 <div class="text-6xl mb-4">📋</div>
-                <p class="text-sm">বাম পাশের ফর্ম পূরণ করে<br><strong>Generate Professional CV</strong> বাটনে ক্লিক করুন</p>
+                <p class="text-sm">টেমপ্লেট সিলেক্ট করে ফর্ম পূরণ করুন<br>অথবা <strong>AI Suggest</strong> চাপুন</p>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- 7. SCANNER (Canon + Live Camera) -->
+        <!-- 7. SCANNER -->
         <div id="panel-scanner" class="tool-panel">
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
             ক্যামেরা দিয়ে সরাসরি ডকুমেন্ট স্ক্যান করুন অথবা <strong>Canon / অন্যান্য স্ক্যানার</strong> দিয়ে স্ক্যান করা ছবি ইম্পোর্ট করুন।
           </p>
           
-          <!-- Canon / Scanner Import -->
           <div class="bg-indigo-50 dark:bg-indigo-950/40 p-4 rounded-2xl border border-indigo-100 dark:border-indigo-800 mb-5">
             <h4 class="font-bold text-sm text-indigo-700 dark:text-indigo-300 mb-2">📁 Canon / অন্যান্য স্ক্যানার থেকে ছবি ইম্পোর্ট</h4>
-            <p class="text-xs text-gray-600 dark:text-gray-400 mb-3">স্ক্যানার সফটওয়্যার দিয়ে ছবি সেভ করে নিচে আপলোড করুন (JPG, PNG, TIFF ইত্যাদি সাপোর্টেড)</p>
+            <p class="text-xs text-gray-600 dark:text-gray-400 mb-3">স্ক্যানার সফটওয়্যার দিয়ে ছবি সেভ করে নিচে আপলোড করুন</p>
             <input type="file" id="scanner-import-input" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
           </div>
 
@@ -840,7 +840,7 @@ Email: sales2@grandvistana.com"></textarea>
         pdfmerge: 'একাধিক PDF / ছবি / ডকুমেন্ট মার্জার',
         ppgrid: 'A4 পেপারে পাসপোর্ট ফটো গ্রিড মেকার',
         stampgrid: 'A4 পেপারে বাংলাদেশী স্ট্যাম্প সাইজ গ্রিড',
-        cv: 'AI CV / Resume মেকার',
+        cv: 'AI CV / Resume মেকার (৬টি টেমপ্লেট)',
         compress: 'স্মার্ট ইমেজ কম্প্রেস',
         convert: 'ইমেজ কনভার্ট & কাস্টম রিসাইজ',
         nid: 'NID কার্ড → PDF'
@@ -1676,11 +1676,10 @@ Email: sales2@grandvistana.com"></textarea>
       fileDownload.click();
     }
 
-    // ========== CAMERA + CANON IMPORT ==========
+    // ========== CAMERA + CANON ==========
     let videoStream = null;
     let currentFacingMode = 'environment';
 
-    // Canon / Scanner Import
     document.getElementById('scanner-import-input').addEventListener('change', function(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -1860,8 +1859,10 @@ Email: sales2@grandvistana.com"></textarea>
       setTimeout(() => { win.print(); win.close(); }, 500);
     }
 
-    // ========== CV GENERATOR ==========
+    // ========== CV GENERATOR (MULTI TEMPLATE + AI) ==========
     let cvPhotoData = null;
+    let currentTemplate = 'modern';
+
     document.getElementById('cv-photo').addEventListener('change', function(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -1872,63 +1873,263 @@ Email: sales2@grandvistana.com"></textarea>
       reader.readAsDataURL(file);
     });
 
+    function selectTemplate(tpl) {
+      currentTemplate = tpl;
+      document.querySelectorAll('.template-card').forEach(c => c.classList.remove('active'));
+      document.querySelector(`[data-template="${tpl}"]`).classList.add('active');
+      showToast('টেমপ্লেট সিলেক্ট করা হয়েছে: ' + tpl, '🎨');
+    }
+
+    function aiSuggestCV() {
+      const name = document.getElementById('cv-name').value.trim() || 'Your Name';
+      document.getElementById('cv-objective').value = `A highly motivated and results-driven professional seeking to leverage skills and experience in a challenging role. Committed to continuous learning, teamwork, and delivering excellence with integrity and dedication.`;
+      document.getElementById('cv-skills').value = `Communication & Interpersonal Skills
+Teamwork & Collaboration
+Problem Solving & Critical Thinking
+Time Management
+Customer Service
+Microsoft Office / Computer Literacy
+Adaptability & Quick Learning`;
+      document.getElementById('cv-education').value = `Bachelor of Business Administration (BBA)
+University Name, Dhaka
+2020 - 2024
+CGPA: 3.50 out of 4.00
+
+Higher Secondary Certificate (HSC)
+College Name, Dhaka
+2018 - 2020
+GPA: 4.80 out of 5.00`;
+      document.getElementById('cv-experience').value = `Sales Executive
+Company Name Ltd.
+Jan 2024 - Present
+• Developed and maintained strong client relationships
+• Achieved monthly sales targets consistently
+• Prepared quotations and handled customer inquiries
+
+Intern
+ABC Organization
+Jun 2023 - Dec 2023
+• Assisted in daily operations and reporting
+• Supported team in project coordination`;
+      document.getElementById('cv-languages').value = `Bangla - Native
+English - Fluent (Speaking, Reading, Writing)`;
+      document.getElementById('cv-activities').value = `• Active member of University Debate Club
+• Volunteer at local community service programs
+• Participated in leadership training workshops`;
+      document.getElementById('cv-references').value = `Available upon request`;
+      showToast('AI Suggest সম্পন্ন! প্রয়োজন অনুযায়ী এডিট করুন', '✨');
+    }
+
     function generateCV() {
       const name = document.getElementById('cv-name').value.trim() || 'Your Name';
       const phone = document.getElementById('cv-phone').value.trim();
       const email = document.getElementById('cv-email').value.trim();
       const address = document.getElementById('cv-address').value.trim();
+      const objective = document.getElementById('cv-objective').value.trim();
       const education = document.getElementById('cv-education').value.trim();
       const skills = document.getElementById('cv-skills').value.trim();
       const experience = document.getElementById('cv-experience').value.trim();
+      const languages = document.getElementById('cv-languages').value.trim();
       const activities = document.getElementById('cv-activities').value.trim();
       const references = document.getElementById('cv-references').value.trim();
 
       const photoHtml = cvPhotoData 
         ? `<img src="${cvPhotoData}" class="cv-photo" alt="Photo">` 
-        : `<div class="cv-photo flex items-center justify-center text-4xl text-gray-400">👤</div>`;
+        : `<div class="cv-photo flex items-center justify-center text-4xl text-gray-400 bg-gray-200">👤</div>`;
 
-      const skillsList = skills.split('\n').filter(s => s.trim()).map(s => `<li class="mb-1">• ${s.trim()}</li>`).join('') || '<li>—</li>';
+      const skillsList = skills.split('\n').filter(s => s.trim()).map(s => `<li style="margin-bottom:4px;">• ${s.trim()}</li>`).join('') || '<li>—</li>';
       const eduHtml = education.replace(/\n/g, '<br>') || '—';
       const expHtml = experience.replace(/\n/g, '<br>') || '—';
       const actHtml = activities.replace(/\n/g, '<br>') || '—';
       const refHtml = references.replace(/\n/g, '<br>') || '—';
+      const langHtml = languages.replace(/\n/g, '<br>') || '—';
+      const objHtml = objective || '—';
 
-      const html = `
-        <div class="cv-left">
-          ${photoHtml}
-          <div>
-            <div class="cv-section-title">CONTACT</div>
-            <div class="text-sm space-y-1.5 mt-2 leading-snug">
-              ${phone ? `<div>📞 ${phone}</div>` : ''}
-              ${email ? `<div>✉️ ${email}</div>` : ''}
-              ${address ? `<div>📍 ${address.replace(/\n/g,'<br>')}</div>` : ''}
+      let html = '';
+
+      if (currentTemplate === 'modern') {
+        html = `
+          <div style="display:flex; min-height:297mm;">
+            <div style="width:34%; background:#f3f4f6; padding:24px 16px;">
+              ${photoHtml}
+              <div style="margin-top:16px;">
+                <div class="cv-section-title">CONTACT</div>
+                <div style="font-size:12px; line-height:1.6;">
+                  ${phone ? `<div>📞 ${phone}</div>` : ''}
+                  ${email ? `<div>✉️ ${email}</div>` : ''}
+                  ${address ? `<div>📍 ${address.replace(/\n/g,'<br>')}</div>` : ''}
+                </div>
+              </div>
+              <div style="margin-top:18px;">
+                <div class="cv-section-title">SKILLS</div>
+                <ul style="list-style:none; padding:0; font-size:12px;">${skillsList}</ul>
+              </div>
+              <div style="margin-top:18px;">
+                <div class="cv-section-title">LANGUAGES</div>
+                <div style="font-size:12px;">${langHtml}</div>
+              </div>
             </div>
-          </div>
-          <div>
-            <div class="cv-section-title">EDUCATION</div>
-            <div class="text-sm leading-relaxed mt-2">${eduHtml}</div>
-          </div>
-          <div>
-            <div class="cv-section-title">SKILLS</div>
-            <ul class="mt-2 text-sm list-none pl-0">${skillsList}</ul>
-          </div>
-        </div>
-        <div class="cv-right">
-          <div class="cv-name">${name}</div>
-          <div>
-            <h3>WORK EXPERIENCE</h3>
-            <div class="text-sm leading-relaxed whitespace-pre-line">${expHtml}</div>
-          </div>
-          <div>
-            <h3>ADDITIONAL ACTIVITIES</h3>
-            <div class="text-sm">${actHtml}</div>
-          </div>
-          <div>
-            <h3>REFERENCES</h3>
-            <div class="text-sm">${refHtml}</div>
-          </div>
-        </div>
-      `;
+            <div style="width:66%; padding:28px 24px;">
+              <div class="cv-name">${name}</div>
+              <div style="margin-top:12px;">
+                <h3 style="font-size:14px; font-weight:700; border-bottom:2px solid #1f2937; padding-bottom:4px; margin-bottom:8px;">CAREER OBJECTIVE</h3>
+                <div style="font-size:12.5px;">${objHtml}</div>
+              </div>
+              <div style="margin-top:16px;">
+                <h3 style="font-size:14px; font-weight:700; border-bottom:2px solid #1f2937; padding-bottom:4px; margin-bottom:8px;">WORK EXPERIENCE</h3>
+                <div style="font-size:12.5px; white-space:pre-line;">${expHtml}</div>
+              </div>
+              <div style="margin-top:16px;">
+                <h3 style="font-size:14px; font-weight:700; border-bottom:2px solid #1f2937; padding-bottom:4px; margin-bottom:8px;">EDUCATION</h3>
+                <div style="font-size:12.5px;">${eduHtml}</div>
+              </div>
+              <div style="margin-top:16px;">
+                <h3 style="font-size:14px; font-weight:700; border-bottom:2px solid #1f2937; padding-bottom:4px; margin-bottom:8px;">ADDITIONAL</h3>
+                <div style="font-size:12.5px;">${actHtml}</div>
+              </div>
+              <div style="margin-top:16px;">
+                <h3 style="font-size:14px; font-weight:700; border-bottom:2px solid #1f2937; padding-bottom:4px; margin-bottom:8px;">REFERENCES</h3>
+                <div style="font-size:12.5px;">${refHtml}</div>
+              </div>
+            </div>
+          </div>`;
+      } else if (currentTemplate === 'sidebar') {
+        html = `
+          <div style="display:flex; min-height:297mm;">
+            <div style="width:32%; background:#0f766e; color:white; padding:24px 16px;">
+              ${photoHtml}
+              <h2 style="font-size:20px; font-weight:800; text-align:center; margin:10px 0 16px;">${name}</h2>
+              <div style="font-size:12px; line-height:1.7;">
+                ${phone ? `<div>📞 ${phone}</div>` : ''}
+                ${email ? `<div>✉️ ${email}</div>` : ''}
+                ${address ? `<div>📍 ${address.replace(/\n/g,'<br>')}</div>` : ''}
+              </div>
+              <div style="margin-top:20px;">
+                <div style="font-weight:700; font-size:13px; border-bottom:1px solid rgba(255,255,255,0.3); padding-bottom:4px; margin-bottom:8px;">SKILLS</div>
+                <ul style="list-style:none; padding:0; font-size:12px;">${skillsList}</ul>
+              </div>
+              <div style="margin-top:16px;">
+                <div style="font-weight:700; font-size:13px; border-bottom:1px solid rgba(255,255,255,0.3); padding-bottom:4px; margin-bottom:8px;">LANGUAGES</div>
+                <div style="font-size:12px;">${langHtml}</div>
+              </div>
+            </div>
+            <div style="width:68%; padding:28px 24px;">
+              <h3 style="font-size:15px; font-weight:700; color:#0f766e; margin-bottom:8px;">OBJECTIVE</h3>
+              <div style="font-size:12.5px; margin-bottom:16px;">${objHtml}</div>
+              <h3 style="font-size:15px; font-weight:700; color:#0f766e; margin-bottom:8px;">EXPERIENCE</h3>
+              <div style="font-size:12.5px; white-space:pre-line; margin-bottom:16px;">${expHtml}</div>
+              <h3 style="font-size:15px; font-weight:700; color:#0f766e; margin-bottom:8px;">EDUCATION</h3>
+              <div style="font-size:12.5px; margin-bottom:16px;">${eduHtml}</div>
+              <h3 style="font-size:15px; font-weight:700; color:#0f766e; margin-bottom:8px;">ACTIVITIES</h3>
+              <div style="font-size:12.5px;">${actHtml}</div>
+            </div>
+          </div>`;
+      } else if (currentTemplate === 'executive') {
+        html = `
+          <div style="padding:32px;">
+            <div style="display:flex; align-items:center; gap:20px; border-bottom:3px solid #4f46e5; padding-bottom:16px; margin-bottom:20px;">
+              ${photoHtml}
+              <div>
+                <div class="cv-name" style="margin:0;">${name}</div>
+                <div style="font-size:13px; color:#4b5563; margin-top:4px;">
+                  ${phone || ''} ${email ? ' | ' + email : ''} ${address ? ' | ' + address.split('\\n')[0] : ''}
+                </div>
+              </div>
+            </div>
+            <h3 style="font-size:14px; font-weight:700; color:#4f46e5; margin-bottom:6px;">EXECUTIVE SUMMARY</h3>
+            <div style="font-size:12.5px; margin-bottom:16px;">${objHtml}</div>
+            <h3 style="font-size:14px; font-weight:700; color:#4f46e5; margin-bottom:6px;">WORK EXPERIENCE</h3>
+            <div style="font-size:12.5px; white-space:pre-line; margin-bottom:16px;">${expHtml}</div>
+            <h3 style="font-size:14px; font-weight:700; color:#4f46e5; margin-bottom:6px;">EDUCATION</h3>
+            <div style="font-size:12.5px; margin-bottom:16px;">${eduHtml}</div>
+            <div style="display:flex; gap:30px;">
+              <div style="flex:1;">
+                <h3 style="font-size:14px; font-weight:700; color:#4f46e5; margin-bottom:6px;">SKILLS</h3>
+                <ul style="list-style:none; padding:0; font-size:12.5px;">${skillsList}</ul>
+              </div>
+              <div style="flex:1;">
+                <h3 style="font-size:14px; font-weight:700; color:#4f46e5; margin-bottom:6px;">LANGUAGES</h3>
+                <div style="font-size:12.5px;">${langHtml}</div>
+              </div>
+            </div>
+          </div>`;
+      } else if (currentTemplate === 'classic') {
+        html = `
+          <div style="padding:36px 40px;">
+            <div style="text-align:center; border-bottom:2px solid #111; padding-bottom:12px; margin-bottom:20px;">
+              <div style="font-size:28px; font-weight:800;">${name}</div>
+              <div style="font-size:13px; margin-top:6px;">
+                ${phone || ''} ${email ? ' • ' + email : ''} ${address ? ' • ' + address.split('\\n')[0] : ''}
+              </div>
+            </div>
+            \( {photoHtml ? `<div style="text-align:center; margin-bottom:16px;"> \){photoHtml}</div>` : ''}
+            <h3 style="font-size:14px; font-weight:700; background:#e5e7eb; padding:4px 10px; margin:16px 0 8px;">CAREER GOAL</h3>
+            <div style="font-size:12.5px;">${objHtml}</div>
+            <h3 style="font-size:14px; font-weight:700; background:#e5e7eb; padding:4px 10px; margin:16px 0 8px;">WORK EXPERIENCE</h3>
+            <div style="font-size:12.5px; white-space:pre-line;">${expHtml}</div>
+            <h3 style="font-size:14px; font-weight:700; background:#e5e7eb; padding:4px 10px; margin:16px 0 8px;">EDUCATION</h3>
+            <div style="font-size:12.5px;">${eduHtml}</div>
+            <h3 style="font-size:14px; font-weight:700; background:#e5e7eb; padding:4px 10px; margin:16px 0 8px;">SKILLS</h3>
+            <ul style="list-style:none; padding:0; font-size:12.5px;">${skillsList}</ul>
+            <h3 style="font-size:14px; font-weight:700; background:#e5e7eb; padding:4px 10px; margin:16px 0 8px;">LANGUAGES</h3>
+            <div style="font-size:12.5px;">${langHtml}</div>
+          </div>`;
+      } else if (currentTemplate === 'corporate') {
+        html = `
+          <div style="display:flex; min-height:297mm;">
+            <div style="width:30%; background:#1e3a5f; color:white; padding:24px 14px;">
+              ${photoHtml}
+              <h2 style="font-size:18px; font-weight:800; text-align:center; margin:8px 0 14px;">${name}</h2>
+              <div style="font-size:11.5px; line-height:1.7;">
+                \( {phone ? `<div> \){phone}</div>` : ''}
+                \( {email ? `<div> \){email}</div>` : ''}
+                \( {address ? `<div> \){address.replace(/\n/g,'<br>')}</div>` : ''}
+              </div>
+              <div style="margin-top:18px; font-size:12px;">
+                <div style="font-weight:700; margin-bottom:6px;">CORE COMPETENCIES</div>
+                <ul style="list-style:none; padding:0;">${skillsList}</ul>
+              </div>
+            </div>
+            <div style="width:70%; padding:26px 22px;">
+              <h3 style="font-size:14px; font-weight:700; color:#1e3a5f; border-bottom:2px solid #1e3a5f; padding-bottom:3px; margin-bottom:8px;">PROFESSIONAL SUMMARY</h3>
+              <div style="font-size:12.5px; margin-bottom:14px;">${objHtml}</div>
+              <h3 style="font-size:14px; font-weight:700; color:#1e3a5f; border-bottom:2px solid #1e3a5f; padding-bottom:3px; margin-bottom:8px;">WORK EXPERIENCE</h3>
+              <div style="font-size:12.5px; white-space:pre-line; margin-bottom:14px;">${expHtml}</div>
+              <h3 style="font-size:14px; font-weight:700; color:#1e3a5f; border-bottom:2px solid #1e3a5f; padding-bottom:3px; margin-bottom:8px;">EDUCATION</h3>
+              <div style="font-size:12.5px; margin-bottom:14px;">${eduHtml}</div>
+              <h3 style="font-size:14px; font-weight:700; color:#1e3a5f; border-bottom:2px solid #1e3a5f; padding-bottom:3px; margin-bottom:8px;">LANGUAGES & ACTIVITIES</h3>
+              <div style="font-size:12.5px;">\( {langHtml}<br> \){actHtml}</div>
+            </div>
+          </div>`;
+      } else if (currentTemplate === 'bangla') {
+        html = `
+          <div style="padding:40px 50px; font-family:'Kalpurush', Arial, sans-serif;">
+            <div style="text-align:center; margin-bottom:24px;">
+              <div style="font-size:26px; font-weight:800; letter-spacing:2px;">জীবন বৃত্তান্ত</div>
+            </div>
+            <div style="display:flex; gap:30px; margin-bottom:20px;">
+              <div style="flex:1; font-size:14px; line-height:2;">
+                <div><strong>নাম</strong> : ${name}</div>
+                <div><strong>মোবাইল</strong> : ${phone || '....................'}</div>
+                <div><strong>ইমেইল</strong> : ${email || '....................'}</div>
+                <div><strong>ঠিকানা</strong> : ${address || '....................'}</div>
+              </div>
+              <div>${photoHtml}</div>
+            </div>
+            <div style="font-size:14px; line-height:1.8;">
+              <div style="font-weight:700; background:#e5e7eb; padding:4px 10px; margin:12px 0 6px;">কর্মজীবনের লক্ষ্য</div>
+              <div>${objHtml}</div>
+              <div style="font-weight:700; background:#e5e7eb; padding:4px 10px; margin:12px 0 6px;">শিক্ষাগত যোগ্যতা</div>
+              <div>${eduHtml}</div>
+              <div style="font-weight:700; background:#e5e7eb; padding:4px 10px; margin:12px 0 6px;">কর্ম অভিজ্ঞতা</div>
+              <div style="white-space:pre-line;">${expHtml}</div>
+              <div style="font-weight:700; background:#e5e7eb; padding:4px 10px; margin:12px 0 6px;">দক্ষতা</div>
+              <ul style="list-style:none; padding:0;">${skillsList}</ul>
+              <div style="font-weight:700; background:#e5e7eb; padding:4px 10px; margin:12px 0 6px;">ভাষা</div>
+              <div>${langHtml}</div>
+            </div>
+          </div>`;
+      }
 
       document.getElementById('cv-preview').innerHTML = html;
       document.getElementById('cv-preview-container').classList.remove('hidden');
@@ -1948,18 +2149,11 @@ Email: sales2@grandvistana.com"></textarea>
           <style>
             * { box-sizing: border-box; margin: 0; padding: 0; }
             body { font-family: Arial, Helvetica, sans-serif; }
-            .cv-preview { width: 210mm; min-height: 297mm; display: flex; color: #1f2937; font-size: 13px; line-height: 1.45; }
-            .cv-left { width: 34%; background: #f3f4f6; padding: 26px 18px; display: flex; flex-direction: column; gap: 18px; }
-            .cv-right { width: 66%; padding: 28px 24px; }
-            .cv-photo { width: 130px; height: 130px; border-radius: 50%; object-fit: cover; border: 4px solid #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin: 0 auto 8px; display: block; background: #e5e7eb; }
-            .cv-section-title { background: #374151; color: white; padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; display: inline-block; margin-bottom: 8px; }
-            .cv-name { font-size: 28px; font-weight: 800; margin-bottom: 16px; color: #111827; }
-            .cv-right h3 { font-size: 15px; font-weight: 700; border-bottom: 2px solid #1f2937; padding-bottom: 4px; margin-bottom: 10px; margin-top: 18px; }
-            .cv-right h3:first-of-type { margin-top: 0; }
-            @media print {
-              body { margin: 0; }
-              .cv-preview { box-shadow: none; }
-            }
+            .cv-preview { width: 210mm; min-height: 297mm; }
+            .cv-photo { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin: 0 auto 10px; display: block; background: #e5e7eb; }
+            .cv-section-title { background: #374151; color: white; padding: 5px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-block; margin-bottom: 8px; }
+            .cv-name { font-size: 26px; font-weight: 800; color: #111827; }
+            @media print { body { margin: 0; } .cv-preview { box-shadow: none; } }
           </style>
         </head>
         <body>
