@@ -97,7 +97,7 @@
       <div class="text-center mb-6">
         <span class="text-4xl inline-block mb-2">⚡</span>
         <h2 class="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Amarkaj সিকিউর লগইন</h2>
-        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">অ্যাক্সেস করতে অনুমোদনপ্রাপ্ত অ্যাকাউন্ট দিয়ে প্রবেশ করুন</p>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">অ্যাক্সেস করতে ইমেইল ও পাসওয়ার্ড দিয়ে প্রবেশ করুন</p>
       </div>
 
       <div class="space-y-4">
@@ -110,7 +110,10 @@
           <input type="password" id="auth-password" placeholder="••••••••" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
         </div>
 
-        <button id="login-btn" onclick="handleLogin()" class="btn-primary w-full py-3 text-base shadow-indigo-200">লগইন করুন</button>
+        <div class="flex gap-2">
+          <button id="login-btn" onclick="handleLogin()" class="btn-primary flex-1 py-3 text-base shadow-indigo-200">লগইন</button>
+          <button id="signup-btn" onclick="handleSignUp()" class="btn-secondary flex-1 py-3 text-base">রেজিস্টার</button>
+        </div>
       </div>
 
       <p id="auth-error" class="text-xs text-red-500 text-center mt-4 hidden font-semibold"></p>
@@ -469,8 +472,7 @@
   <!-- Firebase Modular SDK Scripts -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCzmfEg39TV0cxGkSKivO7lYsier3KH9AY",
@@ -485,11 +487,10 @@
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db = getFirestore(app);
 
-    // Global login handler
+    // Login Handler
     window.handleLogin = async function() {
-      const email = document.getElementById('auth-email').value;
+      const email = document.getElementById('auth-email').value.trim();
       const password = document.getElementById('auth-password').value;
       const errorEl = document.getElementById('auth-error');
       
@@ -503,55 +504,84 @@
       errorEl.classList.add('hidden');
 
       try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
-
-        // Check user permission in Firestore
-        const userDocRef = doc(db, "users", user.uid);
-        const userDoc = await getDoc(userDocRef);
-
-        if (userDoc.exists() && userDoc.data().approved === true) {
-          showToast('লগইন সফল হয়েছে!', '✅');
-        } else {
-          await signOut(auth);
-          errorEl.textContent = "আপনার অ্যাকাউন্টটি অনুমোদিত নয়! এডমিনের সাথে যোগাযোগ করুন।";
-          errorEl.classList.remove('hidden');
-        }
+        await signInWithEmailAndPassword(auth, email, password);
+        showToast('লগইন সফল হয়েছে!', '✅');
       } catch (error) {
-        errorEl.textContent = "লগইন ব্যর্থ হয়েছে: " + error.message;
+        errorEl.textContent = "লগইন ব্যর্থ হয়েছে: " + getReadableAuthError(error.code);
         errorEl.classList.remove('hidden');
       } finally {
         toggleLoader(false);
       }
     };
 
-    // Global logout handler
+    // Registration/SignUp Handler
+    window.handleSignUp = async function() {
+      const email = document.getElementById('auth-email').value.trim();
+      const password = document.getElementById('auth-password').value;
+      const errorEl = document.getElementById('auth-error');
+
+      if (!email || !password) {
+        errorEl.textContent = "ইমেইল এবং পাসওয়ার্ড সঠিকভাবে দিন।";
+        errorEl.classList.remove('hidden');
+        return;
+      }
+
+      if(password.length < 6) {
+        errorEl.textContent = "পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।";
+        errorEl.classList.remove('hidden');
+        return;
+      }
+
+      toggleLoader(true, "নতুন অ্যাকাউন্ট তৈরি হচ্ছে...");
+      errorEl.classList.add('hidden');
+
+      try {
+        await createUserWithEmailAndPassword(auth, email, password);
+        showToast('অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে!', '🎉');
+      } catch (error) {
+        errorEl.textContent = "রেজিস্ট্রেশন ব্যর্থ: " + getReadableAuthError(error.code);
+        errorEl.classList.remove('hidden');
+      } finally {
+        toggleLoader(false);
+      }
+    };
+
+    // Logout Handler
     window.handleLogout = function() {
       signOut(auth).then(() => {
         showToast('লগআউট করা হয়েছে', 'ℹ️');
       });
     };
 
-    // Listen for Auth State Changes
-    onAuthStateChanged(auth, async (user) => {
+    // Bengali Error Codes
+    function getReadableAuthError(code) {
+      switch (code) {
+        case 'auth/user-not-found':
+        case 'auth/invalid-credential':
+          return 'ইমেইল বা পাসওয়ার্ড ভুল হয়েছে।';
+        case 'auth/wrong-password':
+          return 'পাসওয়ার্ড ভুল হয়েছে।';
+        case 'auth/email-already-in-use':
+          return 'এই ইমেইল দিয়ে আগেই অ্যাকাউন্ট করা রয়েছে।';
+        case 'auth/invalid-email':
+          return 'সঠিক ইমেইল ঠিকানা দিন।';
+        case 'auth/weak-password':
+          return 'পাসওয়ার্ড আরও শক্ত দিন (কমপক্ষে ৬ ডিজিট)।';
+        default:
+          return 'সমস্যা হয়েছে, পরে চেষ্টা করুন।';
+      }
+    }
+
+    // Auth State Changed Observer
+    onAuthStateChanged(auth, (user) => {
       const modal = document.getElementById('auth-modal');
       const content = document.getElementById('app-content');
       const userDisplay = document.getElementById('user-display');
 
       if (user) {
-        // Double check permission
-        const userDocRef = doc(db, "users", user.uid);
-        const userDoc = await getDoc(userDocRef);
-
-        if (userDoc.exists() && userDoc.data().approved === true) {
-          modal.classList.add('hidden');
-          content.classList.remove('hidden');
-          userDisplay.textContent = "স্বাগতম, " + (user.email || '');
-        } else {
-          await signOut(auth);
-          modal.classList.remove('hidden');
-          content.classList.add('hidden');
-        }
+        modal.classList.add('hidden');
+        content.classList.remove('hidden');
+        userDisplay.textContent = "স্বাগতম, " + (user.email || '');
       } else {
         modal.classList.remove('hidden');
         content.classList.add('hidden');
@@ -676,7 +706,7 @@
 
     async function applyBgColor() {
       const img = document.getElementById('ai-image');
-      if (!baseLoadedImage) return showToast('একটি ছবি লোড করুন', '⚠️');
+      if (!baseLoadedImage) return showToast('একটি ছবি লোড করুন', '⚠️️');
       
       toggleLoader(true, "AI দিয়ে সাবজেক্ট চিনে ব্যাকগ্রাউন্ড চেঞ্জ করা হচ্ছে...");
       const color = document.getElementById('ai-bg-color').value;
@@ -1229,7 +1259,7 @@
 
       document.getElementById('pp-preview-container').classList.remove('hidden');
       document.getElementById('pp-print-btn').classList.remove('hidden');
-      showToast('গ্রিড তৈরি হয়েছে!', '🖼️');
+      showToast('গ্রিড তৈরি হয়েছে!', '🖼️️');
     }
 
     function downloadPPPdf() {
