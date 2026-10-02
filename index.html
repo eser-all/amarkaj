@@ -279,26 +279,64 @@
               <a id="ai-download" class="btn-primary bg-green-600 hover:bg-green-700">⬇️ সিঙ্গেল ছবি ডাউনলোড</a>
             </div>
 
-            <div class="bg-indigo-50/50 dark:bg-gray-700/30 p-4 rounded-2xl border border-indigo-100 dark:border-gray-600 mt-4">
-              <h4 class="font-bold text-sm text-indigo-700 dark:text-indigo-300 mb-2">🖨️ A4 পেজে পাসপোর্ট সাইজ সাজান:</h4>
-              <div class="flex flex-wrap gap-3 items-center">
-                <select id="ai-grid-count" class="border dark:border-gray-700 rounded-xl px-4 py-2 text-sm bg-white dark:bg-gray-700">
-                  <option value="2">২ কপি</option>
-                  <option value="4">৪ কপি</option>
-                  <option value="6">৬ কপি</option>
-                  <option value="8">৮ কপি</option>
-                  <option value="12">১২ কপি</option>
-                  <option value="16" selected>১৬ কপি</option>
-                  <option value="20">২০ কপি</option>
-                </select>
-                <button onclick="generateAiA4Grid()" class="btn-primary">গ্রিড প্রিভিউ দেখুন</button>
+            <!-- ==================== NEW BORDER & MULTI-IMAGE GRID SECTION ==================== -->
+            <div class="bg-indigo-50/50 dark:bg-gray-700/30 p-4 rounded-2xl border border-indigo-100 dark:border-gray-600 mt-4 space-y-4">
+              
+              <!-- ১. বর্ডার সেটিংস -->
+              <div class="border-b dark:border-gray-600 pb-3">
+                <h4 class="font-bold text-sm text-indigo-700 dark:text-indigo-300 mb-2">🖼️ ছবির বর্ডার সেটিংস:</h4>
+                <div class="flex flex-wrap items-center gap-4 text-xs font-semibold">
+                  <label class="flex items-center gap-1 cursor-pointer">
+                    <input type="checkbox" id="ai-border-enable" checked onchange="updateAiGridPreview()" class="w-4 h-4 text-indigo-600 rounded">
+                    বর্ডার যুক্ত করুন
+                  </label>
+                  <div class="flex items-center gap-1">
+                    <span>সাইজ:</span>
+                    <input type="number" id="ai-border-width" value="3" min="1" max="15" onchange="updateAiGridPreview()" class="w-12 px-1 py-0.5 border rounded text-center dark:bg-gray-700"> px
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <span>রং:</span>
+                    <input type="color" id="ai-border-color" value="#cccccc" onchange="updateAiGridPreview()" class="w-6 h-6 rounded cursor-pointer border-0">
+                  </div>
+                </div>
+              </div>
+
+              <!-- ২. একাধিক ছবি ও প্লাস আইকন কন্ট্রোল -->
+              <div>
+                <h4 class="font-bold text-sm text-indigo-700 dark:text-indigo-300 mb-2">🖨️ A4 পেজে মাল্টিপল ছবির পাসপোর্ট গ্রিড:</h4>
+                
+                <!-- লুকানো ফাইল ইনপুট (+) বাটনের জন্য -->
+                <input type="file" id="ai-add-more-input" accept="image/*" class="hidden" onchange="handleAddMoreImage(event)">
+
+                <div class="flex flex-wrap items-center gap-3">
+                  <!-- প্লাস বাটন -->
+                  <button onclick="document.getElementById('ai-add-more-input').click()" class="btn-primary bg-emerald-600 hover:bg-emerald-700 text-base py-2 px-4 flex items-center gap-1" title="নতুন ছবি যোগ করুন">
+                    <span>➕</span> ছবি যোগ করুন
+                  </button>
+
+                  <button onclick="addCurrentEditedImage()" class="btn-secondary text-xs" title="বর্তমান এডিট করা ছবিটি যুক্ত করুন">
+                    ➕ এডিটেড ছবি যোগ করুন
+                  </button>
+
+                  <button onclick="clearAiGridList()" class="btn-danger py-2 px-3 text-xs">🗑️ সব মুছুন</button>
+                </div>
+
+                <!-- ছবির প্রিভিউ আইকন লিস্ট (বাম থেকে ডানে সাজানোর জন্য) -->
+                <div id="ai-added-photos-list" class="flex flex-wrap gap-2 mt-3 p-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 min-h-[50px] items-center">
+                  <span class="text-xs text-gray-400 pl-2">এখনো কোনো ছবি যোগ করা হয়নি।</span>
+                </div>
+              </div>
+
+              <!-- ৩. প্রিন্ট ও ডাউনলোড অ্যাকশন -->
+              <div class="flex flex-wrap gap-3 items-center pt-2">
                 <button onclick="downloadAiA4Pdf()" id="ai-pdf-btn" class="btn-primary bg-purple-600 hover:bg-purple-700 hidden">📄 A4 PDF ডাউনলোড</button>
                 <button onclick="printAiA4Grid()" id="ai-print-btn" class="btn-secondary hidden">🖨️ সরাসরি প্রিন্ট</button>
               </div>
               
-              <div id="ai-grid-preview" class="mt-4 hidden border dark:border-gray-700 p-2 bg-gray-200 dark:bg-gray-900 rounded-xl max-h-[300px] overflow-y-auto">
+              <div id="ai-grid-preview" class="mt-4 hidden border dark:border-gray-700 p-2 bg-gray-200 dark:bg-gray-900 rounded-xl max-h-[350px] overflow-y-auto">
                 <canvas id="ai-a4-canvas" class="mx-auto bg-white shadow rounded-lg max-w-full"></canvas>
               </div>
+
             </div>
 
           </div>
@@ -646,6 +684,9 @@
     let baseLoadedImage = null; 
     let selfieSegmentation = null;
 
+    // AI Grid photos array (একাধিক ছবি সংরক্ষণ করার তালিকা)
+    let aiGridPhotos = [];
+
     // Initialize MediaPipe AI Segmentation Model
     function initMediaPipe() {
       if (!selfieSegmentation) {
@@ -675,6 +716,14 @@
           dlBtn.download = 'edited-photo.png';
 
           if(cropper) { cropper.destroy(); cropper = null; }
+          
+          // স্বয়ংক্রিয়ভাবে প্রথম ছবিটিও তালিকায় যুক্ত করবে
+          if (aiGridPhotos.length === 0) {
+            aiGridPhotos.push(originalAiImageSrc);
+            renderAiAddedPhotosList();
+            updateAiGridPreview();
+          }
+
           showToast('ছবি সফলভাবে লোড হয়েছে', '✅');
         };
         baseLoadedImage.src = originalAiImageSrc;
@@ -706,7 +755,7 @@
 
     async function applyBgColor() {
       const img = document.getElementById('ai-image');
-      if (!baseLoadedImage) return showToast('একটি ছবি লোড করুন', '⚠️️');
+      if (!baseLoadedImage) return showToast('একটি ছবি লোড করুন', '⚠️');
       
       toggleLoader(true, "AI দিয়ে সাবজেক্ট চিনে ব্যাকগ্রাউন্ড চেঞ্জ করা হচ্ছে...");
       const color = document.getElementById('ai-bg-color').value;
@@ -736,6 +785,14 @@
         const dlBtn = document.getElementById('ai-download');
         dlBtn.href = newUrl;
         toggleLoader(false);
+
+        // প্রথম ছবি আপডেট থাকলে গ্রিডে অটো রিফ্লেক্ট হবে
+        if (aiGridPhotos.length > 0) {
+          aiGridPhotos[0] = newUrl;
+          renderAiAddedPhotosList();
+          updateAiGridPreview();
+        }
+
         showToast('ব্যাকগ্রাউন্ড সফলভাবে পরিবর্তন করা হয়েছে!', '🎨');
       } catch(e) {
         toggleLoader(false);
@@ -776,7 +833,14 @@
             const dlBtn = document.getElementById('ai-download');
             dlBtn.href = newUrl;
             toggleLoader(false);
-            showToast('কাস্টম ব্যাকগ্রাউন্ড যোগ করা হয়েছে!', '🖼️');
+
+            if (aiGridPhotos.length > 0) {
+              aiGridPhotos[0] = newUrl;
+              renderAiAddedPhotosList();
+              updateAiGridPreview();
+            }
+
+            showToast('কাস্টম ব্যাকগ্রাউন্ড যোগ করা হয়েছে!', '🖼️️');
           } catch(e) {
             toggleLoader(false);
             showToast('ত্রুটি ঘটেছে', '❌');
@@ -822,6 +886,13 @@
         const dlBtn = document.getElementById('ai-download');
         dlBtn.href = croppedUrl;
         dlBtn.download = 'cropped-photo.png';
+
+        if (aiGridPhotos.length > 0) {
+          aiGridPhotos[0] = croppedUrl;
+          renderAiAddedPhotosList();
+          updateAiGridPreview();
+        }
+
         showToast('ছবি ক্রপ করা হয়েছে!', '✅');
       };
       baseLoadedImage.src = croppedUrl;
@@ -838,61 +909,145 @@
           document.getElementById('filter-contrast').value = 100;
           document.getElementById('filter-blur').value = 0;
           document.getElementById('filter-saturate').value = 100;
+
+          if (aiGridPhotos.length > 0) {
+            aiGridPhotos[0] = originalAiImageSrc;
+            renderAiAddedPhotosList();
+            updateAiGridPreview();
+          }
+
           showToast('মূল ছবিতে রিসেট করা হয়েছে', '🔄');
         };
         baseLoadedImage.src = originalAiImageSrc;
       }
     }
 
-    function generateAiA4Grid() {
-      const imgElem = document.getElementById('ai-image');
-      if (!imgElem.src) return showToast('একটি ছবি লোড করুন', '⚠️');
+    // ==================== MULTI-IMAGE & BORDER LOGIC ====================
+    
+    // প্লাস (+) বাটনে ক্লিক করে নতুন ছবি যুক্ত করার হ্যান্ডলার
+    function handleAddMoreImage(event) {
+      const file = event.target.files[0];
+      if (!file) return;
 
-      const count = parseInt(document.getElementById('ai-grid-count').value);
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        aiGridPhotos.push(evt.target.result);
+        renderAiAddedPhotosList();
+        updateAiGridPreview();
+        showToast('নতুন ছবি যোগ করা হয়েছে!', '➕');
+        event.target.value = ''; // Reset input
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // বর্তমান এডিটেড ছবিটি আবার যোগ করা
+    function addCurrentEditedImage() {
+      const imgElem = document.getElementById('ai-image');
+      if (!imgElem || !imgElem.src) return showToast('কোনো এডিটেড ছবি নেই', '⚠️️');
+      
+      aiGridPhotos.push(imgElem.src);
+      renderAiAddedPhotosList();
+      updateAiGridPreview();
+      showToast('এডিটেড ছবি যুক্ত করা হলো', '➕');
+    }
+
+    // নির্দিষ্ট ছবি রিমুভ করা
+    function removeAiGridPhoto(index) {
+      aiGridPhotos.splice(index, 1);
+      renderAiAddedPhotosList();
+      updateAiGridPreview();
+      showToast('ছবি মুছে ফেলা হয়েছে', '🗑️');
+    }
+
+    // সব ছবি একসাথে মুছে ফেলা
+    function clearAiGridList() {
+      aiGridPhotos = [];
+      renderAiAddedPhotosList();
+      updateAiGridPreview();
+      showToast('সব ছবি মোছা হয়েছে', '🧹');
+    }
+
+    // যুক্ত হওয়া ছবিগুলোর থাম্বনেইল প্রদর্শন (বাম থেকে ডানে)
+    function renderAiAddedPhotosList() {
+      const container = document.getElementById('ai-added-photos-list');
+      if (aiGridPhotos.length === 0) {
+        container.innerHTML = `<span class="text-xs text-gray-400 pl-2">এখনো কোনো ছবি যোগ করা হয়নি। প্লাস (+) এ ক্লিক করে ছবি যোগ করুন।</span>`;
+        return;
+      }
+
+      container.innerHTML = aiGridPhotos.map((src, idx) => `
+        <div class="relative group w-12 h-14 rounded border border-indigo-300 dark:border-indigo-600 overflow-hidden shadow-sm bg-gray-100 flex-shrink-0">
+          <img src="${src}" class="w-full h-full object-cover">
+          <span class="absolute top-0 left-0 bg-indigo-600 text-white text-[9px] px-1 font-bold rounded-br">${idx + 1}</span>
+          <button onclick="removeAiGridPhoto(${idx})" class="absolute bottom-0 right-0 bg-red-600 text-white w-4 h-4 text-[10px] flex items-center justify-center rounded-tl opacity-90 hover:opacity-100" title="রিমুভ করুন">✕</button>
+        </div>
+      `).join('');
+    }
+
+    // A4 Canvas আপডেট এবং রেন্ডারিং (বাম থেকে ডানে সিরিয়ালে সাজানো)
+    function updateAiGridPreview() {
       const canvas = document.getElementById('ai-a4-canvas');
       const ctx = canvas.getContext('2d');
+
+      if (aiGridPhotos.length === 0) {
+        document.getElementById('ai-grid-preview').classList.add('hidden');
+        document.getElementById('ai-pdf-btn').classList.add('hidden');
+        document.getElementById('ai-print-btn').classList.add('hidden');
+        return;
+      }
 
       const a4Width = 1240;
       const a4Height = 1754;
       canvas.width = a4Width;
       canvas.height = a4Height;
 
+      // পেপার ব্যাকগ্রাউন্ড
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, a4Width, a4Height);
 
-      let photoWidth = 210;
-      let photoHeight = 260;
-      let gap = 30;
-      let startX = 60;
-      let startY = 80;
-      let cols = 5;
+      // ছবি ও মার্জিনের সাইজ
+      const photoWidth = 210;
+      const photoHeight = 260;
+      const gapX = 30;
+      const gapY = 30;
+      const startX = 60;
+      const startY = 80;
+      const cols = 5; // প্রতি লাইনে ৫টি করে ছবি বসবে (বাম থেকে ডানে)
 
-      if (count > 16) {
-        photoWidth = 190;
-        photoHeight = 245;
-        gap = 25;
-        startX = 80;
-        startY = 60;
-      }
+      // বর্ডার সম্পর্কিত সেটআপ
+      const enableBorder = document.getElementById('ai-border-enable').checked;
+      const borderWidth = parseInt(document.getElementById('ai-border-width').value) || 3;
+      const borderColor = document.getElementById('ai-border-color').value || '#cccccc';
 
-      const img = new Image();
-      img.onload = function() {
-        for (let i = 0; i < count; i++) {
+      let loadedCount = 0;
+
+      aiGridPhotos.forEach((src, i) => {
+        const img = new Image();
+        img.onload = function() {
           const row = Math.floor(i / cols);
           const col = i % cols;
-          const x = startX + col * (photoWidth + gap);
-          const y = startY + row * (photoHeight + gap);
+          const x = startX + col * (photoWidth + gapX);
+          const y = startY + row * (photoHeight + gapY);
 
-          ctx.strokeStyle = '#dddddd';
-          ctx.strokeRect(x, y, photoWidth, photoHeight);
+          // ছবি আঁকা
           ctx.drawImage(img, x, y, photoWidth, photoHeight);
-        }
-        document.getElementById('ai-grid-preview').classList.remove('hidden');
-        document.getElementById('ai-pdf-btn').classList.remove('hidden');
-        document.getElementById('ai-print-btn').classList.remove('hidden');
-        showToast('A4 গ্রিড তৈরি করা হয়েছে', '🖼️');
-      };
-      img.src = imgElem.src;
+
+          // কাস্টম বর্ডার স্ট্রোক দেওয়া (যদি টিক দেওয়া থাকে)
+          if (enableBorder) {
+            ctx.lineWidth = borderWidth;
+            ctx.strokeStyle = borderColor;
+            ctx.strokeRect(x, y, photoWidth, photoHeight);
+          }
+
+          loadedCount++;
+          if (loadedCount === aiGridPhotos.length) {
+            document.getElementById('ai-grid-preview').classList.remove('hidden');
+            document.getElementById('ai-pdf-btn').classList.remove('hidden');
+            document.getElementById('ai-print-btn').classList.remove('hidden');
+          }
+        };
+        img.src = src;
+      });
     }
 
     function downloadAiA4Pdf() {
@@ -901,7 +1056,7 @@
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF('p', 'mm', 'a4');
       pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
-      pdf.save('edited-a4-photos.pdf');
+      pdf.save('amarkaj-a4-photos.pdf');
     }
 
     function printAiA4Grid() {
@@ -1187,7 +1342,7 @@
         document.getElementById('snap-btn').classList.remove('hidden');
         showToast('ক্যামেরা চালু হয়েছে', '📷');
       } catch (err) {
-        showToast('ক্যামেরা পারমিশন পাওয়া যায়নি', '⚠️');
+        showToast('ক্যামেরা পারমিশন পাওয়া যায়নি', '⚠️️');
       }
     }
 
@@ -1259,7 +1414,7 @@
 
       document.getElementById('pp-preview-container').classList.remove('hidden');
       document.getElementById('pp-print-btn').classList.remove('hidden');
-      showToast('গ্রিড তৈরি হয়েছে!', '🖼️️');
+      showToast('গ্রিড তৈরি হয়েছে!', '🖼️');
     }
 
     function downloadPPPdf() {
