@@ -124,7 +124,7 @@
   <div id="app-content" class="hidden">
     <!-- Toast Notification -->
     <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 bg-gray-900 text-white text-sm px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2 opacity-0">
-      <span id="toast-icon">ℹ️</span>
+      <span id="toast-icon">ℹ️️</span>
       <span id="toast-msg">বার্তা</span>
     </div>
 
@@ -196,7 +196,7 @@
 
         <div class="tool-card" onclick="showTool('convert')">
           <div class="text-4xl">🔄</div>
-          <h4 class="font-semibold text-sm md:text-base">ইমেজ ফরম্যাট কনভার্ট</h4>
+          <h4 class="font-semibold text-sm md:text-base">ইমেজ কনভার্ট & রিসাইজ</h4>
         </div>
 
         <div class="tool-card" onclick="showTool('nid')">
@@ -279,7 +279,7 @@
               <a id="ai-download" class="btn-primary bg-green-600 hover:bg-green-700">⬇️ সিঙ্গেল ছবি ডাউনলোড</a>
             </div>
 
-            <!-- ==================== NEW BORDER & MULTI-IMAGE GRID SECTION ==================== -->
+            <!-- BORDER & MULTI-IMAGE GRID SECTION -->
             <div class="bg-indigo-50/50 dark:bg-gray-700/30 p-4 rounded-2xl border border-indigo-100 dark:border-gray-600 mt-4 space-y-4">
               
               <!-- ১. বর্ডার সেটিংস -->
@@ -305,11 +305,9 @@
               <div>
                 <h4 class="font-bold text-sm text-indigo-700 dark:text-indigo-300 mb-2">🖨️ A4 পেজে মাল্টিপল ছবির পাসপোর্ট গ্রিড:</h4>
                 
-                <!-- লুকানো ফাইল ইনপুট (+) বাটনের জন্য -->
                 <input type="file" id="ai-add-more-input" accept="image/*" class="hidden" onchange="handleAddMoreImage(event)">
 
                 <div class="flex flex-wrap items-center gap-3">
-                  <!-- প্লাস বাটন -->
                   <button onclick="document.getElementById('ai-add-more-input').click()" class="btn-primary bg-emerald-600 hover:bg-emerald-700 text-base py-2 px-4 flex items-center gap-1" title="নতুন ছবি যোগ করুন">
                     <span>➕</span> ছবি যোগ করুন
                   </button>
@@ -321,7 +319,6 @@
                   <button onclick="clearAiGridList()" class="btn-danger py-2 px-3 text-xs">🗑️ সব মুছুন</button>
                 </div>
 
-                <!-- ছবির প্রিভিউ আইকন লিস্ট (বাম থেকে ডানে সাজানোর জন্য) -->
                 <div id="ai-added-photos-list" class="flex flex-wrap gap-2 mt-3 p-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 min-h-[50px] items-center">
                   <span class="text-xs text-gray-400 pl-2">এখনো কোনো ছবি যোগ করা হয়নি।</span>
                 </div>
@@ -477,15 +474,68 @@
           <div id="compress-result" class="mt-6"></div>
         </div>
 
-        <!-- ==================== 7. CONVERT PANEL ==================== -->
+        <!-- ==================== 7. CONVERT & RESIZE PANEL (ADVANCED UPGRADE) ==================== -->
         <div id="panel-convert" class="tool-panel">
+          <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">ইমেজ ফরম্যাট কনভার্ট করুন এবং কাস্টম ডাইমেনশন (Width, Height, px, Size) পরিবর্তন করুন।</p>
+          
           <input type="file" id="convert-input" accept="image/*" class="mb-4 block w-full text-sm">
-          <select id="convert-format" class="border dark:border-gray-700 rounded-xl px-4 py-2.5 mb-4 w-full bg-white dark:bg-gray-700">
-            <option value="image/png">PNG</option>
-            <option value="image/jpeg">JPG</option>
-            <option value="image/webp">WebP</option>
-          </select>
-          <button onclick="convertImage()" class="btn-primary">কনভার্ট করুন</button>
+
+          <div id="convert-preview-info" class="hidden mb-4 p-3 bg-indigo-50 dark:bg-gray-700 rounded-xl text-xs space-y-1">
+            <p><strong>মূল সাইজ:</strong> <span id="orig-dimensions">-</span></p>
+            <p><strong>মূল ফাইল সাইজ:</strong> <span id="orig-filesize">-</span></p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <!-- Target Format -->
+            <div>
+              <label class="block text-xs font-semibold mb-1">টার্গেট ফরম্যাট:</label>
+              <select id="convert-format" class="border dark:border-gray-700 rounded-xl px-4 py-2.5 w-full bg-white dark:bg-gray-700 text-sm">
+                <option value="image/png">PNG</option>
+                <option value="image/jpeg" selected>JPG / JPEG</option>
+                <option value="image/webp">WebP</option>
+              </select>
+            </div>
+
+            <!-- Dimension Unit -->
+            <div>
+              <label class="block text-xs font-semibold mb-1">পরিমাপের একক (Unit):</label>
+              <select id="resize-unit" onchange="handleUnitChange()" class="border dark:border-gray-700 rounded-xl px-4 py-2.5 w-full bg-white dark:bg-gray-700 text-sm">
+                <option value="px" selected>Pixels (px)</option>
+                <option value="in">Inches (in)</option>
+                <option value="cm">Centimeters (cm)</option>
+                <option value="mm">Millimeters (mm)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Dimension Inputs -->
+          <div class="grid grid-cols-2 gap-4 mb-3">
+            <div>
+              <label class="block text-xs font-semibold mb-1">প্রস্থ (Width):</label>
+              <input type="number" id="resize-width" placeholder="Width" oninput="onWidthChange()" class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold mb-1">উচ্চতা (Height):</label>
+              <input type="number" id="resize-height" placeholder="Height" oninput="onHeightChange()" class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm">
+            </div>
+          </div>
+
+          <!-- Aspect Ratio & Max File Size Options -->
+          <div class="flex flex-wrap items-center justify-between gap-4 mb-6 text-xs bg-gray-50 dark:bg-gray-800 p-3 rounded-xl border dark:border-gray-700">
+            <label class="flex items-center gap-2 cursor-pointer font-semibold">
+              <input type="checkbox" id="aspect-ratio-lock" checked class="w-4 h-4 text-indigo-600 rounded">
+              Maintain Aspect Ratio (অনুপাত ঠিক রাখুন)
+            </label>
+
+            <div class="flex items-center gap-2">
+              <label class="font-semibold">টার্গেট ফাইল সাইজ (ঐচ্ছিক):</label>
+              <input type="number" id="target-file-size" placeholder="e.g. 100" class="w-20 px-2 py-1 rounded border text-center dark:bg-gray-700">
+              <span>KB</span>
+            </div>
+          </div>
+
+          <button onclick="convertAndResizeImage()" class="btn-primary w-full py-3">🔄 কনভার্ট ও রিসাইজ করুন</button>
+          
           <div id="convert-result" class="mt-6"></div>
         </div>
 
@@ -660,7 +710,7 @@
         pdfmerge: 'একাধিক PDF ফাইল মার্জার',
         ppgrid: 'A4 পেপারে পাসপোর্ট ফটো গ্রিড মেকার',
         compress: 'স্মার্ট ইমেজ কম্প্রেস',
-        convert: 'ইমেজ ফরম্যাট কনভার্ট',
+        convert: 'ইমেজ কনভার্ট & কাস্টম রিসাইজ',
         nid: 'NID কার্ড → PDF'
       };
 
@@ -684,10 +734,8 @@
     let baseLoadedImage = null; 
     let selfieSegmentation = null;
 
-    // AI Grid photos array (একাধিক ছবি সংরক্ষণ করার তালিকা)
     let aiGridPhotos = [];
 
-    // Initialize MediaPipe AI Segmentation Model
     function initMediaPipe() {
       if (!selfieSegmentation) {
         selfieSegmentation = new SelfieSegmentation({
@@ -717,7 +765,6 @@
 
           if(cropper) { cropper.destroy(); cropper = null; }
           
-          // স্বয়ংক্রিয়ভাবে প্রথম ছবিটিও তালিকায় যুক্ত করবে
           if (aiGridPhotos.length === 0) {
             aiGridPhotos.push(originalAiImageSrc);
             renderAiAddedPhotosList();
@@ -768,11 +815,9 @@
         canvas.height = baseLoadedImage.naturalHeight || baseLoadedImage.height;
         const ctx = canvas.getContext('2d');
 
-        // Draw Background Color
         ctx.fillStyle = color;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Mask Composite to draw Subject only
         ctx.globalCompositeOperation = 'destination-out';
         ctx.drawImage(maskCanvas, 0, 0, canvas.width, canvas.height);
 
@@ -786,7 +831,6 @@
         dlBtn.href = newUrl;
         toggleLoader(false);
 
-        // প্রথম ছবি আপডেট থাকলে গ্রিডে অটো রিফ্লেক্ট হবে
         if (aiGridPhotos.length > 0) {
           aiGridPhotos[0] = newUrl;
           renderAiAddedPhotosList();
@@ -840,7 +884,7 @@
               updateAiGridPreview();
             }
 
-            showToast('কাস্টম ব্যাকগ্রাউন্ড যোগ করা হয়েছে!', '🖼️️');
+            showToast('কাস্টম ব্যাকগ্রাউন্ড যোগ করা হয়েছে!', '🖼');
           } catch(e) {
             toggleLoader(false);
             showToast('ত্রুটি ঘটেছে', '❌');
@@ -922,9 +966,7 @@
       }
     }
 
-    // ==================== MULTI-IMAGE & BORDER LOGIC ====================
-    
-    // প্লাস (+) বাটনে ক্লিক করে নতুন ছবি যুক্ত করার হ্যান্ডলার
+    // MULTI-IMAGE & BORDER LOGIC
     function handleAddMoreImage(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -935,15 +977,14 @@
         renderAiAddedPhotosList();
         updateAiGridPreview();
         showToast('নতুন ছবি যোগ করা হয়েছে!', '➕');
-        event.target.value = ''; // Reset input
+        event.target.value = '';
       };
       reader.readAsDataURL(file);
     }
 
-    // বর্তমান এডিটেড ছবিটি আবার যোগ করা
     function addCurrentEditedImage() {
       const imgElem = document.getElementById('ai-image');
-      if (!imgElem || !imgElem.src) return showToast('কোনো এডিটেড ছবি নেই', '⚠️️');
+      if (!imgElem || !imgElem.src) return showToast('কোনো এডিটেড ছবি নেই', '⚠');
       
       aiGridPhotos.push(imgElem.src);
       renderAiAddedPhotosList();
@@ -951,7 +992,6 @@
       showToast('এডিটেড ছবি যুক্ত করা হলো', '➕');
     }
 
-    // নির্দিষ্ট ছবি রিমুভ করা
     function removeAiGridPhoto(index) {
       aiGridPhotos.splice(index, 1);
       renderAiAddedPhotosList();
@@ -959,7 +999,6 @@
       showToast('ছবি মুছে ফেলা হয়েছে', '🗑️');
     }
 
-    // সব ছবি একসাথে মুছে ফেলা
     function clearAiGridList() {
       aiGridPhotos = [];
       renderAiAddedPhotosList();
@@ -967,7 +1006,6 @@
       showToast('সব ছবি মোছা হয়েছে', '🧹');
     }
 
-    // যুক্ত হওয়া ছবিগুলোর থাম্বনেইল প্রদর্শন (বাম থেকে ডানে)
     function renderAiAddedPhotosList() {
       const container = document.getElementById('ai-added-photos-list');
       if (aiGridPhotos.length === 0) {
@@ -984,7 +1022,6 @@
       `).join('');
     }
 
-    // A4 Canvas আপডেট এবং রেন্ডারিং (বাম থেকে ডানে সিরিয়ালে সাজানো)
     function updateAiGridPreview() {
       const canvas = document.getElementById('ai-a4-canvas');
       const ctx = canvas.getContext('2d');
@@ -1001,20 +1038,17 @@
       canvas.width = a4Width;
       canvas.height = a4Height;
 
-      // পেপার ব্যাকগ্রাউন্ড
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, a4Width, a4Height);
 
-      // ছবি ও মার্জিনের সাইজ
       const photoWidth = 210;
       const photoHeight = 260;
       const gapX = 30;
       const gapY = 30;
       const startX = 60;
       const startY = 80;
-      const cols = 5; // প্রতি লাইনে ৫টি করে ছবি বসবে (বাম থেকে ডানে)
+      const cols = 5;
 
-      // বর্ডার সম্পর্কিত সেটআপ
       const enableBorder = document.getElementById('ai-border-enable').checked;
       const borderWidth = parseInt(document.getElementById('ai-border-width').value) || 3;
       const borderColor = document.getElementById('ai-border-color').value || '#cccccc';
@@ -1029,10 +1063,8 @@
           const x = startX + col * (photoWidth + gapX);
           const y = startY + row * (photoHeight + gapY);
 
-          // ছবি আঁকা
           ctx.drawImage(img, x, y, photoWidth, photoHeight);
 
-          // কাস্টম বর্ডার স্ট্রোক দেওয়া (যদি টিক দেওয়া থাকে)
           if (enableBorder) {
             ctx.lineWidth = borderWidth;
             ctx.strokeStyle = borderColor;
@@ -1074,7 +1106,7 @@
       const listContainer = document.getElementById('pdf-file-list');
       listContainer.innerHTML = '';
       
-      files.forEach((file, index) => {
+      files.forEach((file) => {
         const item = document.createElement('div');
         item.className = 'flex justify-between items-center bg-gray-100 dark:bg-gray-700 p-2 rounded-lg';
         item.innerHTML = `<span>📄 ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)</span>`;
@@ -1342,7 +1374,7 @@
         document.getElementById('snap-btn').classList.remove('hidden');
         showToast('ক্যামেরা চালু হয়েছে', '📷');
       } catch (err) {
-        showToast('ক্যামেরা পারমিশন পাওয়া যায়নি', '⚠️️');
+        showToast('ক্যামেরা পারমিশন পাওয়া যায়নি', '⚠');
       }
     }
 
@@ -1414,7 +1446,7 @@
 
       document.getElementById('pp-preview-container').classList.remove('hidden');
       document.getElementById('pp-print-btn').classList.remove('hidden');
-      showToast('গ্রিড তৈরি হয়েছে!', '🖼️');
+      showToast('গ্রিড তৈরি হয়েছে!', '🖼️️');
     }
 
     function downloadPPPdf() {
@@ -1452,31 +1484,140 @@
       }
     }
 
-    function convertImage() {
-      const file = document.getElementById('convert-input').files[0];
-      const format = document.getElementById('convert-format').value;
-      if (!file) return showToast('ছবি সিলেক্ট করুন', '⚠️');
-      
-      toggleLoader(true, "কনভার্ট হচ্ছে...");
+    // ========== ADVANCED CONVERT & RESIZE LOGIC ==========
+    let loadedConvertImage = null;
+    let convertOriginalAspectRatio = 1;
+    const DPI = 96; // Standard Web DPI
+
+    document.getElementById('convert-input').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      document.getElementById('orig-filesize').textContent = (file.size / 1024).toFixed(1) + ' KB';
+
       const reader = new FileReader();
-      reader.onload = e => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          canvas.width = img.width; canvas.height = img.height;
-          canvas.getContext('2d').drawImage(img, 0, 0);
-          canvas.toBlob(blob => {
-            const url = URL.createObjectURL(blob);
-            document.getElementById('convert-result').innerHTML = `<a href="${url}" download="converted.${format.split('/')[1]}" class="btn-primary inline-block">ডাউনলোড</a>`;
-            toggleLoader(false);
-            showToast('কনভার্ট সম্পন্ন!', '🔄');
-          }, format, 0.95);
+      reader.onload = function(evt) {
+        loadedConvertImage = new Image();
+        loadedConvertImage.onload = function() {
+          convertOriginalAspectRatio = loadedConvertImage.width / loadedConvertImage.height;
+          document.getElementById('orig-dimensions').textContent = `${loadedConvertImage.width} x ${loadedConvertImage.height} px`;
+          document.getElementById('convert-preview-info').classList.remove('hidden');
+
+          // Default set to pixels
+          document.getElementById('resize-unit').value = 'px';
+          document.getElementById('resize-width').value = loadedConvertImage.width;
+          document.getElementById('resize-height').value = loadedConvertImage.height;
         };
-        img.src = e.target.result;
+        loadedConvertImage.src = evt.target.result;
       };
       reader.readAsDataURL(file);
+    });
+
+    // Units Conversion Helpers (to/from PX)
+    function unitToPx(val, unit) {
+      if (unit === 'in') return val * DPI;
+      if (unit === 'cm') return (val / 2.54) * DPI;
+      if (unit === 'mm') return (val / 25.4) * DPI;
+      return val; // px
     }
 
+    function pxToUnit(px, unit) {
+      if (unit === 'in') return (px / DPI).toFixed(2);
+      if (unit === 'cm') return ((px / DPI) * 2.54).toFixed(2);
+      if (unit === 'mm') return ((px / DPI) * 25.4).toFixed(1);
+      return Math.round(px); // px
+    }
+
+    function handleUnitChange() {
+      if (!loadedConvertImage) return;
+      const unit = document.getElementById('resize-unit').value;
+      document.getElementById('resize-width').value = pxToUnit(loadedConvertImage.width, unit);
+      document.getElementById('resize-height').value = pxToUnit(loadedConvertImage.height, unit);
+    }
+
+    function onWidthChange() {
+      if (!document.getElementById('aspect-ratio-lock').checked || !convertOriginalAspectRatio) return;
+      const w = parseFloat(document.getElementById('resize-width').value);
+      if (!isNaN(w) && w > 0) {
+        document.getElementById('resize-height').value = (w / convertOriginalAspectRatio).toFixed(2);
+      }
+    }
+
+    function onHeightChange() {
+      if (!document.getElementById('aspect-ratio-lock').checked || !convertOriginalAspectRatio) return;
+      const h = parseFloat(document.getElementById('resize-height').value);
+      if (!isNaN(h) && h > 0) {
+        document.getElementById('resize-width').value = (h * convertOriginalAspectRatio).toFixed(2);
+      }
+    }
+
+    async function convertAndResizeImage() {
+      const fileInput = document.getElementById('convert-input');
+      if (!fileInput.files[0] || !loadedConvertImage) return showToast('একটি ছবি সিলেক্ট করুন', '⚠️');
+
+      const format = document.getElementById('convert-format').value;
+      const unit = document.getElementById('resize-unit').value;
+      let targetWidth = parseFloat(document.getElementById('resize-width').value);
+      let targetHeight = parseFloat(document.getElementById('resize-height').value);
+      const targetSizeKB = parseFloat(document.getElementById('target-file-size').value);
+
+      if (!targetWidth || !targetHeight || targetWidth <= 0 || targetHeight <= 0) {
+        return showToast('সঠিক Width এবং Height দিন', '⚠️');
+      }
+
+      toggleLoader(true, "কনভার্ট ও রিসাইজ প্রসেস হচ্ছে...");
+
+      // Convert dimensions to Pixels for Canvas Rendering
+      const pxWidth = Math.round(unitToPx(targetWidth, unit));
+      const pxHeight = Math.round(unitToPx(targetHeight, unit));
+
+      const canvas = document.createElement('canvas');
+      canvas.width = pxWidth;
+      canvas.height = pxHeight;
+      const ctx = canvas.getContext('2d');
+
+      // Fill background white for JPG conversion if transparent
+      if (format === 'image/jpeg') {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, pxWidth, pxHeight);
+      }
+
+      ctx.drawImage(loadedConvertImage, 0, 0, pxWidth, pxHeight);
+
+      let quality = 0.92;
+
+      // Quality adjustment for target File Size limit
+      const getBlobWithQuality = (q) => new Promise(res => canvas.toBlob(res, format, q));
+
+      let blob = await getBlobWithQuality(quality);
+
+      if (targetSizeKB && !isNaN(targetSizeKB) && targetSizeKB > 0 && format !== 'image/png') {
+        let attempts = 0;
+        while ((blob.size / 1024) > targetSizeKB && quality > 0.10 && attempts < 10) {
+          quality -= 0.08;
+          blob = await getBlobWithQuality(quality);
+          attempts++;
+        }
+      }
+
+      const url = URL.createObjectURL(blob);
+      const ext = format.split('/')[1];
+      const finalSizeKB = (blob.size / 1024).toFixed(1);
+
+      document.getElementById('convert-result').innerHTML = `
+        <div class="p-4 bg-gray-100 dark:bg-gray-700 rounded-2xl text-center space-y-2">
+          <p class="text-sm font-semibold text-green-600 dark:text-green-400">✅ প্রসেসিং সফল হয়েছে!</p>
+          <p class="text-xs text-gray-600 dark:text-gray-300">নতুন রেজুলেশন: <strong>${pxWidth} x ${pxHeight} px</strong></p>
+          <p class="text-xs text-gray-600 dark:text-gray-300">নতুন ফাইল সাইজ: <strong>${finalSizeKB} KB</strong></p>
+          <a href="${url}" download="resized_image.${ext}" class="btn-primary inline-block py-2.5 px-6 mt-2">⬇️ ডাউনলোড (${ext.toUpperCase()})</a>
+        </div>
+      `;
+
+      toggleLoader(false);
+      showToast('কনভার্ট ও রিসাইজ সম্পন্ন!', '🎉');
+    }
+
+    // NID PDF Creator
     function createNidPdf() {
       const frontFile = document.getElementById('nid-front').files[0];
       const backFile = document.getElementById('nid-back').files[0];
