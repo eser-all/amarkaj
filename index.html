@@ -176,7 +176,7 @@
 
         <div class="tool-card" onclick="showTool('pdfmerge')">
           <div class="text-4xl">📚</div>
-          <h4 class="font-semibold text-sm md:text-base">একাধিক PDF মার্জার</h4>
+          <h4 class="font-semibold text-sm md:text-base">একাধিক PDF / ছবি মার্জার</h4>
         </div>
 
         <div class="tool-card" onclick="showTool('ppgrid')">
@@ -402,12 +402,26 @@
           </div>
         </div>
 
-        <!-- ==================== 3. PDF MERGER PANEL ==================== -->
+        <!-- ==================== 3. PDF / IMAGE / DOCUMENT MERGER PANEL ==================== -->
         <div id="panel-pdfmerge" class="tool-panel">
-          <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">একাধিক PDF ফাইল সিলেক্ট করে একসাথে জুড়ে নতুন একটি PDF বানিয়ে ডাউনলোড করুন।</p>
-          <input type="file" id="pdf-merge-input" accept="application/pdf" multiple class="mb-4 block w-full text-sm">
-          <div id="pdf-file-list" class="space-y-2 mb-4 text-sm font-medium"></div>
-          <button onclick="mergePdfFiles()" class="btn-primary">📚 PDF মার্জ করুন ও ডাউনলোড করুন</button>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+            একাধিক <strong>PDF</strong>, <strong>ছবি</strong> (JPG, PNG, WebP ইত্যাদি) বা স্ক্যানড ডকুমেন্ট সিলেক্ট করে একসাথে জুড়ে নতুন একটি PDF বানিয়ে ডাউনলোড করুন।
+            <br><span class="text-xs text-indigo-600 dark:text-indigo-400">✔ PDF + ছবি মিশ্রণ সাপোর্ট করা হয়। ছবিগুলো স্বয়ংক্রিয়ভাবে A4 পেজে কনভার্ট হয়ে যায়।</span>
+          </p>
+          
+          <input type="file" id="pdf-merge-input" 
+                 accept="application/pdf,image/*,.jpg,.jpeg,.png,.webp,.gif,.bmp,.tiff" 
+                 multiple 
+                 class="mb-4 block w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+          
+          <div id="pdf-file-list" class="space-y-2 mb-4 text-sm font-medium max-h-60 overflow-y-auto"></div>
+          
+          <div class="flex flex-wrap gap-3 items-center">
+            <button onclick="mergePdfFiles()" class="btn-primary">📚 সব ফাইল মার্জ করে PDF ডাউনলোড</button>
+            <button onclick="clearMergeList()" class="btn-danger text-xs py-2">🗑️ লিস্ট মুছুন</button>
+          </div>
+          
+          <p class="text-xs text-gray-400 mt-3">টিপস: প্রথমে PDF ফাইল, তারপর ছবি বা যেকোনো ক্রমে সিলেক্ট করতে পারেন। ছবিগুলো স্বয়ংক্রিয়ভাবে পূর্ণ পেজ আকারে যোগ হবে।</p>
         </div>
 
         <!-- ==================== 4. PASSPORT GRID PANEL ==================== -->
@@ -707,7 +721,7 @@
         scanner: 'লাইভ এইচডি স্ক্যানার',
         ai: 'AI ফটো এডিট ও ব্যাকগ্রাউন্ড চেঞ্জার',
         doceditor: 'স্মার্ট ডকুমেন্ট এডিটর & OCR',
-        pdfmerge: 'একাধিক PDF ফাইল মার্জার',
+        pdfmerge: 'একাধিক PDF / ছবি / ডকুমেন্ট মার্জার',
         ppgrid: 'A4 পেপারে পাসপোর্ট ফটো গ্রিড মেকার',
         compress: 'স্মার্ট ইমেজ কম্প্রেস',
         convert: 'ইমেজ কনভার্ট & কাস্টম রিসাইজ',
@@ -904,7 +918,7 @@
       const blur = document.getElementById('filter-blur').value;
       const sat = document.getElementById('filter-saturate').value;
 
-      img.style.filter = `brightness(${b}%) contrast(${c}%) blur(${blur}px) saturate(${sat}%)`;
+      img.style.filter = `brightness(\( {b}%) contrast( \){c}%) blur(\( {blur}px) saturate( \){sat}%)`;
     }
 
     function enableCrop() {
@@ -1100,34 +1114,154 @@
       setTimeout(() => { win.print(); win.close(); }, 500);
     }
 
-    // ========== PDF MERGER FUNCTIONALITY ==========
+    // ========== ADVANCED PDF + IMAGE + DOCUMENT MERGER ==========
+    let mergeFileList = []; // keep selected files for re-render
+
     document.getElementById('pdf-merge-input').addEventListener('change', function(e) {
       const files = Array.from(e.target.files);
+      // Append new files to existing list
+      mergeFileList = mergeFileList.concat(files);
+      renderMergeFileList();
+      // reset input so same file can be selected again if needed
+      e.target.value = '';
+    });
+
+    function renderMergeFileList() {
       const listContainer = document.getElementById('pdf-file-list');
       listContainer.innerHTML = '';
       
-      files.forEach((file) => {
+      if (mergeFileList.length === 0) {
+        listContainer.innerHTML = '<p class="text-xs text-gray-400">কোনো ফাইল সিলেক্ট করা হয়নি।</p>';
+        return;
+      }
+
+      mergeFileList.forEach((file, idx) => {
+        const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+        const isImage = file.type.startsWith('image/') || /\.(jpe?g|png|webp|gif|bmp|tiff?)$/i.test(file.name);
+        const icon = isPdf ? '📄' : (isImage ? '🖼️' : '📎');
+        const typeLabel = isPdf ? 'PDF' : (isImage ? 'ছবি' : 'ফাইল');
+
         const item = document.createElement('div');
-        item.className = 'flex justify-between items-center bg-gray-100 dark:bg-gray-700 p-2 rounded-lg';
-        item.innerHTML = `<span>📄 ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)</span>`;
+        item.className = 'flex justify-between items-center bg-gray-100 dark:bg-gray-700 p-2.5 rounded-xl gap-2';
+        item.innerHTML = `
+          <div class="flex items-center gap-2 flex-1 min-w-0">
+            <span class="text-lg">${icon}</span>
+            <div class="min-w-0">
+              <p class="truncate text-sm font-medium">${file.name}</p>
+              <p class="text-xs text-gray-500">${typeLabel} • ${(file.size / 1024 / 1024).toFixed(2)} MB</p>
+            </div>
+          </div>
+          <button onclick="removeMergeFile(${idx})" class="text-red-500 hover:text-red-700 text-sm font-bold px-2 py-1 rounded">✕</button>
+        `;
         listContainer.appendChild(item);
       });
-    });
+    }
+
+    function removeMergeFile(index) {
+      mergeFileList.splice(index, 1);
+      renderMergeFileList();
+      showToast('ফাইল সরানো হয়েছে', '🗑️');
+    }
+
+    function clearMergeList() {
+      mergeFileList = [];
+      document.getElementById('pdf-merge-input').value = '';
+      renderMergeFileList();
+      showToast('সব ফাইল মুছে ফেলা হয়েছে', '🧹');
+    }
+
+    // Helper: Convert an image File to a PDF page (embedded as JPEG)
+    async function addImageAsPdfPage(mergedPdf, imageFile) {
+      const arrayBuffer = await imageFile.arrayBuffer();
+      let imageEmbed;
+
+      // Detect type and embed accordingly
+      if (imageFile.type === 'image/png' || imageFile.name.toLowerCase().endsWith('.png')) {
+        imageEmbed = await mergedPdf.embedPng(arrayBuffer);
+      } else {
+        // Default to JPEG (works for jpg, jpeg, webp converted via canvas if needed)
+        // For safety, convert non-JPEG to JPEG via canvas first
+        if (imageFile.type !== 'image/jpeg' && !imageFile.name.toLowerCase().match(/\.(jpe?g)$/)) {
+          // Convert via canvas to JPEG
+          const blobUrl = URL.createObjectURL(imageFile);
+          const img = await new Promise((resolve, reject) => {
+            const i = new Image();
+            i.onload = () => resolve(i);
+            i.onerror = reject;
+            i.src = blobUrl;
+          });
+          const canvas = document.createElement('canvas');
+          canvas.width = img.naturalWidth;
+          canvas.height = img.naturalHeight;
+          const ctx = canvas.getContext('2d');
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(img, 0, 0);
+          URL.revokeObjectURL(blobUrl);
+
+          const jpegBlob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.92));
+          const jpegBuffer = await jpegBlob.arrayBuffer();
+          imageEmbed = await mergedPdf.embedJpg(jpegBuffer);
+        } else {
+          imageEmbed = await mergedPdf.embedJpg(arrayBuffer);
+        }
+      }
+
+      // Create A4 page (595 x 842 points)
+      const page = mergedPdf.addPage([595.28, 841.89]); // A4 in points
+      const { width, height } = page.getSize();
+
+      // Scale image to fit page while keeping aspect ratio
+      const imgWidth = imageEmbed.width;
+      const imgHeight = imageEmbed.height;
+      const scale = Math.min(width / imgWidth, height / imgHeight) * 0.95; // 95% to leave small margin
+      const drawWidth = imgWidth * scale;
+      const drawHeight = imgHeight * scale;
+      const x = (width - drawWidth) / 2;
+      const y = (height - drawHeight) / 2;
+
+      page.drawImage(imageEmbed, {
+        x: x,
+        y: y,
+        width: drawWidth,
+        height: drawHeight
+      });
+    }
 
     async function mergePdfFiles() {
-      const files = document.getElementById('pdf-merge-input').files;
-      if (!files || files.length < 2) return showToast('কমপক্ষে ২টি PDF ফাইল সিলেক্ট করুন', '⚠️');
+      if (!mergeFileList || mergeFileList.length === 0) {
+        return showToast('কমপক্ষে ১টি ফাইল সিলেক্ট করুন', '⚠️');
+      }
 
-      toggleLoader(true, "PDF ফাইলগুলো একত্রিত করা হচ্ছে...");
+      toggleLoader(true, "ফাইলগুলো PDF-এ রূপান্তর ও মার্জ করা হচ্ছে...");
 
       try {
         const mergedPdf = await PDFLib.PDFDocument.create();
 
-        for (let i = 0; i < files.length; i++) {
-          const fileBytes = await files[i].arrayBuffer();
-          const pdfDoc = await PDFLib.PDFDocument.load(fileBytes);
-          const copiedPages = await mergedPdf.copyPages(pdfDoc, pdfDoc.getPageIndices());
-          copiedPages.forEach((page) => mergedPdf.addPage(page));
+        for (let i = 0; i < mergeFileList.length; i++) {
+          const file = mergeFileList[i];
+          const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+          const isImage = file.type.startsWith('image/') || /\.(jpe?g|png|webp|gif|bmp|tiff?)$/i.test(file.name);
+
+          if (isPdf) {
+            // Load existing PDF and copy all pages
+            const fileBytes = await file.arrayBuffer();
+            const pdfDoc = await PDFLib.PDFDocument.load(fileBytes, { ignoreEncryption: true });
+            const copiedPages = await mergedPdf.copyPages(pdfDoc, pdfDoc.getPageIndices());
+            copiedPages.forEach((page) => mergedPdf.addPage(page));
+          } else if (isImage) {
+            // Convert image to a single PDF page
+            await addImageAsPdfPage(mergedPdf, file);
+          } else {
+            // Unsupported file type – skip with warning
+            console.warn('Unsupported file skipped:', file.name);
+            showToast(`স্কিপ করা হয়েছে: ${file.name} (সাপোর্টেড নয়)`, '⚠️');
+          }
+        }
+
+        if (mergedPdf.getPageCount() === 0) {
+          toggleLoader(false);
+          return showToast('কোনো বৈধ PDF বা ছবি পাওয়া যায়নি', '❌');
         }
 
         const mergedPdfBytes = await mergedPdf.save();
@@ -1136,14 +1270,18 @@
 
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'merged_document.pdf';
+        a.download = 'merged_document_amarkaj.pdf';
         a.click();
 
+        // Cleanup
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+
         toggleLoader(false);
-        showToast('PDF ফাইল সফলভাবে মার্জ হয়েছে!', '📚');
+        showToast(`সফল! মোট ${mergedPdf.getPageCount()} পেজের PDF তৈরি হয়েছে`, '📚');
       } catch (err) {
+        console.error(err);
         toggleLoader(false);
-        showToast('PDF মার্জ করতে সমস্যা হয়েছে', '❌');
+        showToast('মার্জ করতে সমস্যা হয়েছে: ' + (err.message || 'অজানা ত্রুটি'), '❌');
       }
     }
 
@@ -1350,7 +1488,7 @@
       const text = document.getElementById('doc-editor-text').value || "সম্পাদিত ডকুমেন্ট।";
       const imgData = docCanvas.toDataURL('image/png');
       
-      const sourceHTML = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'></head><body><div style="text-align:center;"><img src="${imgData}" style="max-width:100%;"/></div><br/><p style="font-family:'Kalpurush', sans-serif;">${text.replace(/\n/g, "<br>")}</p></body></html>`;
+      const sourceHTML = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'></head><body><div style="text-align:center;"><img src="\( {imgData}" style="max-width:100%;"/></div><br/><p style="font-family:'Kalpurush', sans-serif;"> \){text.replace(/\n/g, "<br>")}</p></body></html>`;
       const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
       
       const fileDownload = document.createElement("a");
@@ -1475,7 +1613,7 @@
       try {
         const compressed = await imageCompression(file, { maxSizeMB: 1, initialQuality: quality });
         const url = URL.createObjectURL(compressed);
-        document.getElementById('compress-result').innerHTML = `<p class="text-sm font-semibold mb-2">নতুন সাইজ: ${(compressed.size/1024).toFixed(1)} KB</p><a href="${url}" download="compressed.jpg" class="btn-primary inline-block">ডাউনলোড</a>`;
+        document.getElementById('compress-result').innerHTML = `<p class="text-sm font-semibold mb-2">নতুন সাইজ: \( {(compressed.size/1024).toFixed(1)} KB</p><a href=" \){url}" download="compressed.jpg" class="btn-primary inline-block">ডাউনলোড</a>`;
         toggleLoader(false);
         showToast('কম্প্রেস সফল!', '📦');
       } catch (err) {
@@ -1612,7 +1750,7 @@
             <p><strong>নতুন ফাইল সাইজ:</strong> ${finalSizeKB} KB</p>
             <p><strong>ফরম্যাট:</strong> ${ext.toUpperCase()}</p>
           </div>
-          <a href="${url}" download="resized_image.${ext}" class="btn-primary bg-emerald-600 hover:bg-emerald-700 inline-block px-6 py-2.5">
+          <a href="\( {url}" download="resized_image. \){ext}" class="btn-primary bg-emerald-600 hover:bg-emerald-700 inline-block px-6 py-2.5">
             ⬇️ নতুন ছবি ডাউনলোড করুন
           </a>
         </div>
