@@ -73,8 +73,6 @@
       0% { background-position: 0% center; }
       100% { background-position: 200% center; }
     }
-
-    /* ===== CV Base Styles ===== */
     .cv-preview {
       width: 210mm;
       min-height: 297mm;
@@ -136,677 +134,545 @@
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 min-h-screen transition-colors duration-200 flex flex-col justify-between">
 
-  <!-- FIREBASE LOGIN OVERLAY -->
-  <div id="auth-modal" class="fixed inset-0 bg-gray-900/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-gray-800 w-full max-w-md rounded-3xl p-6 md:p-8 shadow-2xl border border-gray-100 dark:border-gray-700">
-      <div class="text-center mb-6">
-        <span class="text-4xl inline-block mb-2">⚡</span>
-        <h2 class="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Amarkaj সিকিউর লগইন</h2>
-        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">অ্যাক্সেস করতে ইমেইল ও পাসওয়ার্ড দিয়ে প্রবেশ করুন</p>
-      </div>
-      <div class="space-y-4">
-        <div>
-          <label class="block text-xs font-semibold mb-1 text-gray-700 dark:text-gray-300">ইমেইল ঠিকানা</label>
-          <input type="email" id="auth-email" placeholder="example@domain.com" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold mb-1 text-gray-700 dark:text-gray-300">পাসওয়ার্ড</label>
-          <input type="password" id="auth-password" placeholder="••••••••" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-        </div>
-        <div class="flex gap-2">
-          <button id="login-btn" onclick="handleLogin()" class="btn-primary flex-1 py-3 text-base shadow-indigo-200">লগইন</button>
-          <button id="signup-btn" onclick="handleSignUp()" class="btn-secondary flex-1 py-3 text-base">রেজিস্টার</button>
-        </div>
-      </div>
-      <p id="auth-error" class="text-xs text-red-500 text-center mt-4 hidden font-semibold"></p>
-    </div>
+  <!-- Toast -->
+  <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 bg-gray-900 text-white text-sm px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2 opacity-0">
+    <span id="toast-icon">ℹ</span>
+    <span id="toast-msg">বার্তা</span>
   </div>
 
-  <!-- Main App -->
-  <div id="app-content" class="hidden">
-    <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 bg-gray-900 text-white text-sm px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2 opacity-0">
-      <span id="toast-icon">ℹ</span>
-      <span id="toast-msg">বার্তা</span>
+  <!-- Loader -->
+  <div id="global-loader" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex flex-col items-center justify-center text-white">
+    <div class="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin mb-3"></div>
+    <p id="loader-text" class="text-sm font-medium">স্মার্ট প্রসেসিং হচ্ছে...</p>
+  </div>
+
+  <!-- Header -->
+  <header class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md shadow-sm sticky top-0 z-40 transition-colors">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center gap-2 cursor-pointer" onclick="hideTool()">
+        <span class="text-2xl">⚡</span>
+        <h1 class="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Amarkaj</h1>
+      </div>
+      <div class="flex items-center gap-3">
+        <button onclick="toggleDarkMode()" class="p-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-200 hover:opacity-80 transition" title="থিম পরিবর্তন">🌙</button>
+      </div>
     </div>
+  </header>
 
-    <div id="global-loader" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex flex-col items-center justify-center text-white">
-      <div class="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin mb-3"></div>
-      <p id="loader-text" class="text-sm font-medium">স্মার্ট প্রসেসিং হচ্ছে...</p>
+  <!-- Hero -->
+  <section class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white py-12 relative overflow-hidden">
+    <div class="max-w-4xl mx-auto px-4 text-center relative z-10">
+      <h2 class="text-3xl md:text-5xl font-extrabold mb-3 leading-tight">স্মার্ট এডিটিং ও প্রফেশনাল ফাইল ম্যানেজার</h2>
+      <p class="text-base md:text-lg opacity-90 font-light">AI ফটো • A4 গ্রিড • ডকুমেন্ট এডিটর • <strong>AI CV মেকার (৬টি টেমপ্লেট)</strong> • PDF মার্জার • Canon স্ক্যানার</p>
     </div>
+  </section>
 
-    <!-- Header -->
-    <header class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md shadow-sm sticky top-0 z-40 transition-colors">
-      <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
-        <div class="flex items-center gap-2 cursor-pointer" onclick="hideTool()">
-          <span class="text-2xl">⚡</span>
-          <h1 class="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Amarkaj</h1>
-        </div>
-        <div class="flex items-center gap-3">
-          <span id="user-display" class="text-xs font-semibold text-gray-500 dark:text-gray-300 hidden md:inline-block"></span>
-          <button onclick="handleLogout()" class="text-xs bg-red-100 text-red-600 hover:bg-red-200 px-3 py-1.5 rounded-lg font-bold transition">লগআউট</button>
-          <button onclick="toggleDarkMode()" class="p-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-200 hover:opacity-80 transition" title="থিম পরিবর্তন">🌙</button>
-        </div>
+  <!-- Tools Grid -->
+  <section class="max-w-6xl mx-auto px-4 py-10">
+    <h3 class="text-xl font-bold text-center mb-8 text-gray-700 dark:text-gray-200">আপনার প্রয়োজনীয় টুলটি নির্বাচন করুন</h3>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+      <div class="tool-card" onclick="showTool('ai')">
+        <div class="text-4xl">🤖</div>
+        <h4 class="font-semibold text-sm md:text-base">AI ফটো এডিট ও ব্যাকগ্রাউন্ড</h4>
       </div>
-    </header>
-
-    <!-- Hero -->
-    <section class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white py-12 relative overflow-hidden">
-      <div class="max-w-4xl mx-auto px-4 text-center relative z-10">
-        <h2 class="text-3xl md:text-5xl font-extrabold mb-3 leading-tight">স্মার্ট এডিটিং ও প্রফেশনাল ফাইল ম্যানেজার</h2>
-        <p class="text-base md:text-lg opacity-90 font-light">AI ফটো • A4 গ্রিড • ডকুমেন্ট এডিটর • <strong>AI CV মেকার (৬টি টেমপ্লেট)</strong> • PDF মার্জার • Canon স্ক্যানার</p>
+      <div class="tool-card" onclick="showTool('doceditor')">
+        <div class="text-4xl">📄</div>
+        <h4 class="font-semibold text-sm md:text-base">স্মার্ট ডকুমেন্ট এডিটর & OCR</h4>
       </div>
-    </section>
-
-    <!-- Tools Grid -->
-    <section class="max-w-6xl mx-auto px-4 py-10">
-      <h3 class="text-xl font-bold text-center mb-8 text-gray-700 dark:text-gray-200">আপনার প্রয়োজনীয় টুলটি নির্বাচন করুন</h3>
-
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-        <div class="tool-card" onclick="showTool('ai')">
-          <div class="text-4xl">🤖</div>
-          <h4 class="font-semibold text-sm md:text-base">AI ফটো এডিট ও ব্যাকগ্রাউন্ড</h4>
-        </div>
-        <div class="tool-card" onclick="showTool('doceditor')">
-          <div class="text-4xl">📄</div>
-          <h4 class="font-semibold text-sm md:text-base">স্মার্ট ডকুমেন্ট এডিটর & OCR</h4>
-        </div>
-        <div class="tool-card" onclick="showTool('pdfmerge')">
-          <div class="text-4xl">📚</div>
-          <h4 class="font-semibold text-sm md:text-base">একাধিক PDF / ছবি মার্জার</h4>
-        </div>
-        <div class="tool-card" onclick="showTool('ppgrid')">
-          <div class="text-4xl">🖼️</div>
-          <h4 class="font-semibold text-sm md:text-base">পাসপোর্ট ছবি গ্রিড (A4)</h4>
-        </div>
-        <div class="tool-card" onclick="showTool('stampgrid')">
-          <div class="text-4xl">🧾</div>
-          <h4 class="font-semibold text-sm md:text-base">বাংলাদেশী স্ট্যাম্প সাইজ গ্রিড</h4>
-        </div>
-        <div class="tool-card" onclick="showTool('cv')">
-          <div class="text-4xl">📋</div>
-          <h4 class="font-semibold text-sm md:text-base">AI CV / Resume মেকার</h4>
-        </div>
-        <div class="tool-card" onclick="showTool('scanner')">
-          <div class="text-4xl">📷</div>
-          <h4 class="font-semibold text-sm md:text-base">লাইভ এইচডি স্ক্যানার + Canon</h4>
-        </div>
-        <div class="tool-card" onclick="showTool('compress')">
-          <div class="text-4xl">📦</div>
-          <h4 class="font-semibold text-sm md:text-base">স্মার্ট ইমেজ কম্প্রেস</h4>
-        </div>
-        <div class="tool-card" onclick="showTool('convert')">
-          <div class="text-4xl">🔄</div>
-          <h4 class="font-semibold text-sm md:text-base">ইমেজ কনভার্ট & রিসাইজ</h4>
-        </div>
-        <div class="tool-card" onclick="showTool('nid')">
-          <div class="text-4xl">🪪</div>
-          <h4 class="font-semibold text-sm md:text-base">NID → PDF মেকার</h4>
-        </div>
+      <div class="tool-card" onclick="showTool('pdfmerge')">
+        <div class="text-4xl">📚</div>
+        <h4 class="font-semibold text-sm md:text-base">একাধিক PDF / ছবি মার্জার</h4>
       </div>
-    </section>
+      <div class="tool-card" onclick="showTool('ppgrid')">
+        <div class="text-4xl">🖼️</div>
+        <h4 class="font-semibold text-sm md:text-base">পাসপোর্ট ছবি গ্রিড (A4)</h4>
+      </div>
+      <div class="tool-card" onclick="showTool('stampgrid')">
+        <div class="text-4xl">🧾</div>
+        <h4 class="font-semibold text-sm md:text-base">বাংলাদেশী স্ট্যাম্প সাইজ গ্রিড</h4>
+      </div>
+      <div class="tool-card" onclick="showTool('cv')">
+        <div class="text-4xl">📋</div>
+        <h4 class="font-semibold text-sm md:text-base">AI CV / Resume মেকার</h4>
+      </div>
+      <div class="tool-card" onclick="showTool('scanner')">
+        <div class="text-4xl">📷</div>
+        <h4 class="font-semibold text-sm md:text-base">লাইভ এইচডি স্ক্যানার + Canon</h4>
+      </div>
+      <div class="tool-card" onclick="showTool('compress')">
+        <div class="text-4xl">📦</div>
+        <h4 class="font-semibold text-sm md:text-base">স্মার্ট ইমেজ কম্প্রেস</h4>
+      </div>
+      <div class="tool-card" onclick="showTool('convert')">
+        <div class="text-4xl">🔄</div>
+        <h4 class="font-semibold text-sm md:text-base">ইমেজ কনভার্ট & রিসাইজ</h4>
+      </div>
+      <div class="tool-card" onclick="showTool('nid')">
+        <div class="text-4xl">🪪</div>
+        <h4 class="font-semibold text-sm md:text-base">NID → PDF মেকার</h4>
+      </div>
+    </div>
+  </section>
 
-    <!-- Workspace -->
-    <section id="workspace" class="max-w-5xl mx-auto px-4 pb-20 hidden">
-      <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-6 md:p-8 border border-gray-100 dark:border-gray-700">
-        <div class="flex justify-between items-center mb-6 border-b dark:border-gray-700 pb-4">
-          <h3 id="tool-title" class="text-xl font-bold text-indigo-600 dark:text-indigo-400"></h3>
-          <button onclick="hideTool()" class="text-gray-400 hover:text-red-500 text-2xl font-bold transition">✕</button>
-        </div>
+  <!-- Workspace -->
+  <section id="workspace" class="max-w-5xl mx-auto px-4 pb-20 hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-6 md:p-8 border border-gray-100 dark:border-gray-700">
+      <div class="flex justify-between items-center mb-6 border-b dark:border-gray-700 pb-4">
+        <h3 id="tool-title" class="text-xl font-bold text-indigo-600 dark:text-indigo-400"></h3>
+        <button onclick="hideTool()" class="text-gray-400 hover:text-red-500 text-2xl font-bold transition">✕</button>
+      </div>
 
-        <!-- 1. AI PHOTO -->
-        <div id="panel-ai" class="tool-panel">
-          <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">স্বয়ংক্রিয় বা কাস্টম কালারে ব্যাকগ্রাউন্ড পরিবর্তন, ফিল্টার ও A4 মাল্টি-কপি প্রিন্ট।</p>
-          <input type="file" id="ai-input" accept="image/*" class="mb-4 block w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
-          <div id="ai-controls" class="hidden space-y-4">
-            <div class="bg-indigo-50/70 dark:bg-gray-700/50 p-4 rounded-2xl border border-indigo-100 dark:border-gray-600">
-              <h4 class="font-bold text-sm text-indigo-700 dark:text-indigo-300 mb-3">✨ AI ব্যাকগ্রাউন্ড এডিটর:</h4>
-              <div class="flex flex-wrap gap-3 items-center">
-                <div class="flex items-center gap-2">
-                  <label class="text-xs font-semibold">রং বেছে নিন:</label>
-                  <input type="color" id="ai-bg-color" value="#3b82f6" class="w-8 h-8 rounded cursor-pointer border-0">
-                  <button onclick="applyBgColor()" class="btn-primary py-1.5 px-3 text-xs">ব্যাকগ্রাউন্ড পরিবর্তন</button>
+      <!-- 1. AI PHOTO -->
+      <div id="panel-ai" class="tool-panel">
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">স্বয়ংক্রিয় বা কাস্টম কালারে ব্যাকগ্রাউন্ড পরিবর্তন, ফিল্টার ও A4 মাল্টি-কপি প্রিন্ট।</p>
+        <input type="file" id="ai-input" accept="image/*" class="mb-4 block w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+        <div id="ai-controls" class="hidden space-y-4">
+          <div class="bg-indigo-50/70 dark:bg-gray-700/50 p-4 rounded-2xl border border-indigo-100 dark:border-gray-600">
+            <h4 class="font-bold text-sm text-indigo-700 dark:text-indigo-300 mb-3">✨ AI ব্যাকগ্রাউন্ড এডিটর:</h4>
+            <div class="flex flex-wrap gap-3 items-center">
+              <div class="flex items-center gap-2">
+                <label class="text-xs font-semibold">রং বেছে নিন:</label>
+                <input type="color" id="ai-bg-color" value="#3b82f6" class="w-8 h-8 rounded cursor-pointer border-0">
+                <button onclick="applyBgColor()" class="btn-primary py-1.5 px-3 text-xs">ব্যাকগ্রাউন্ড পরিবর্তন</button>
+              </div>
+              <div class="flex items-center gap-1">
+                <span class="text-xs font-semibold mr-1">দ্রুত কালার:</span>
+                <button onclick="quickBg('#ffffff')" class="w-6 h-6 rounded-full bg-white border border-gray-400 shadow" title="সাদা"></button>
+                <button onclick="quickBg('#3b82f6')" class="w-6 h-6 rounded-full bg-blue-500 shadow" title="পাসপোর্ট ব্লু"></button>
+                <button onclick="quickBg('#e0f2fe')" class="w-6 h-6 rounded-full bg-sky-100 border shadow" title="হালকা নীল"></button>
+                <button onclick="quickBg('#ef4444')" class="w-6 h-6 rounded-full bg-red-500 shadow" title="লাল"></button>
+              </div>
+              <div class="flex items-center gap-2 border-l border-gray-300 dark:border-gray-600 pl-3">
+                <input type="file" id="ai-bg-image-file" accept="image/*" class="text-xs text-gray-500 w-36">
+                <button onclick="applyBgImage()" class="btn-secondary py-1.5 px-3 text-xs">ছবি বসান</button>
+              </div>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 bg-gray-50 dark:bg-gray-700/50 p-4 rounded-2xl">
+            <div>
+              <label class="block text-xs font-semibold mb-1">উজ্জ্বলতা</label>
+              <input type="range" id="filter-brightness" min="50" max="150" value="100" oninput="applyFilters()" class="w-full accent-indigo-600">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold mb-1">কনট্রাস্ট</label>
+              <input type="range" id="filter-contrast" min="50" max="150" value="100" oninput="applyFilters()" class="w-full accent-indigo-600">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold mb-1">স্মুথনেস</label>
+              <input type="range" id="filter-blur" min="0" max="4" step="0.5" value="0" oninput="applyFilters()" class="w-full accent-indigo-600">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold mb-1">স্যাচুরেশন</label>
+              <input type="range" id="filter-saturate" min="0" max="200" value="100" oninput="applyFilters()" class="w-full accent-indigo-600">
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="enableCrop()" class="btn-secondary">✂️ ক্রপ টুল</button>
+            <button onclick="cropImage()" class="btn-primary bg-green-600 hover:bg-green-700">ক্রপ কনফার্ম</button>
+            <button onclick="aiReset()" class="btn-danger">অরিজিনাল ছবিতে রিসেট</button>
+          </div>
+          <div class="max-h-[350px] overflow-hidden rounded-2xl border dark:border-gray-700 bg-gray-100 dark:bg-gray-900 flex items-center justify-center p-2">
+            <img id="ai-image" class="max-w-full max-h-[330px] object-contain" />
+          </div>
+          <div class="flex flex-wrap gap-3 items-center justify-between border-t dark:border-gray-700 pt-4">
+            <a id="ai-download" class="btn-primary bg-green-600 hover:bg-green-700">⬇️ সিঙ্গেল ছবি ডাউনলোড</a>
+          </div>
+          <div class="bg-indigo-50/50 dark:bg-gray-700/30 p-4 rounded-2xl border border-indigo-100 dark:border-gray-600 mt-4 space-y-4">
+            <div class="border-b dark:border-gray-600 pb-3">
+              <h4 class="font-bold text-sm text-indigo-700 dark:text-indigo-300 mb-2">🖼️ ছবির বর্ডার সেটিংস:</h4>
+              <div class="flex flex-wrap items-center gap-4 text-xs font-semibold">
+                <label class="flex items-center gap-1 cursor-pointer">
+                  <input type="checkbox" id="ai-border-enable" checked onchange="updateAiGridPreview()" class="w-4 h-4 text-indigo-600 rounded"> বর্ডার যুক্ত করুন
+                </label>
+                <div class="flex items-center gap-1">
+                  <span>সাইজ:</span>
+                  <input type="number" id="ai-border-width" value="3" min="1" max="15" onchange="updateAiGridPreview()" class="w-12 px-1 py-0.5 border rounded text-center dark:bg-gray-700"> px
                 </div>
                 <div class="flex items-center gap-1">
-                  <span class="text-xs font-semibold mr-1">দ্রুত কালার:</span>
-                  <button onclick="quickBg('#ffffff')" class="w-6 h-6 rounded-full bg-white border border-gray-400 shadow" title="সাদা"></button>
-                  <button onclick="quickBg('#3b82f6')" class="w-6 h-6 rounded-full bg-blue-500 shadow" title="পাসপোর্ট ব্লু"></button>
-                  <button onclick="quickBg('#e0f2fe')" class="w-6 h-6 rounded-full bg-sky-100 border shadow" title="হালকা নীল"></button>
-                  <button onclick="quickBg('#ef4444')" class="w-6 h-6 rounded-full bg-red-500 shadow" title="লাল"></button>
-                </div>
-                <div class="flex items-center gap-2 border-l border-gray-300 dark:border-gray-600 pl-3">
-                  <input type="file" id="ai-bg-image-file" accept="image/*" class="text-xs text-gray-500 w-36">
-                  <button onclick="applyBgImage()" class="btn-secondary py-1.5 px-3 text-xs">ছবি বসান</button>
+                  <span>রং:</span>
+                  <input type="color" id="ai-border-color" value="#cccccc" onchange="updateAiGridPreview()" class="w-6 h-6 rounded cursor-pointer border-0">
                 </div>
               </div>
-            </div>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 bg-gray-50 dark:bg-gray-700/50 p-4 rounded-2xl">
-              <div>
-                <label class="block text-xs font-semibold mb-1">উজ্জ্বলতা</label>
-                <input type="range" id="filter-brightness" min="50" max="150" value="100" oninput="applyFilters()" class="w-full accent-indigo-600">
-              </div>
-              <div>
-                <label class="block text-xs font-semibold mb-1">কনট্রাস্ট</label>
-                <input type="range" id="filter-contrast" min="50" max="150" value="100" oninput="applyFilters()" class="w-full accent-indigo-600">
-              </div>
-              <div>
-                <label class="block text-xs font-semibold mb-1">স্মুথনেস</label>
-                <input type="range" id="filter-blur" min="0" max="4" step="0.5" value="0" oninput="applyFilters()" class="w-full accent-indigo-600">
-              </div>
-              <div>
-                <label class="block text-xs font-semibold mb-1">স্যাচুরেশন</label>
-                <input type="range" id="filter-saturate" min="0" max="200" value="100" oninput="applyFilters()" class="w-full accent-indigo-600">
-              </div>
-            </div>
-            <div class="flex flex-wrap gap-2">
-              <button onclick="enableCrop()" class="btn-secondary">✂️ ক্রপ টুল</button>
-              <button onclick="cropImage()" class="btn-primary bg-green-600 hover:bg-green-700">ক্রপ কনফার্ম</button>
-              <button onclick="aiReset()" class="btn-danger">অরিজিনাল ছবিতে রিসেট</button>
-            </div>
-            <div class="max-h-[350px] overflow-hidden rounded-2xl border dark:border-gray-700 bg-gray-100 dark:bg-gray-900 flex items-center justify-center p-2">
-              <img id="ai-image" class="max-w-full max-h-[330px] object-contain" />
-            </div>
-            <div class="flex flex-wrap gap-3 items-center justify-between border-t dark:border-gray-700 pt-4">
-              <a id="ai-download" class="btn-primary bg-green-600 hover:bg-green-700">⬇️ সিঙ্গেল ছবি ডাউনলোড</a>
-            </div>
-            <div class="bg-indigo-50/50 dark:bg-gray-700/30 p-4 rounded-2xl border border-indigo-100 dark:border-gray-600 mt-4 space-y-4">
-              <div class="border-b dark:border-gray-600 pb-3">
-                <h4 class="font-bold text-sm text-indigo-700 dark:text-indigo-300 mb-2">🖼️ ছবির বর্ডার সেটিংস:</h4>
-                <div class="flex flex-wrap items-center gap-4 text-xs font-semibold">
-                  <label class="flex items-center gap-1 cursor-pointer">
-                    <input type="checkbox" id="ai-border-enable" checked onchange="updateAiGridPreview()" class="w-4 h-4 text-indigo-600 rounded"> বর্ডার যুক্ত করুন
-                  </label>
-                  <div class="flex items-center gap-1">
-                    <span>সাইজ:</span>
-                    <input type="number" id="ai-border-width" value="3" min="1" max="15" onchange="updateAiGridPreview()" class="w-12 px-1 py-0.5 border rounded text-center dark:bg-gray-700"> px
-                  </div>
-                  <div class="flex items-center gap-1">
-                    <span>রং:</span>
-                    <input type="color" id="ai-border-color" value="#cccccc" onchange="updateAiGridPreview()" class="w-6 h-6 rounded cursor-pointer border-0">
-                  </div>
-                </div>
-              </div>
-              <div>
-                <h4 class="font-bold text-sm text-indigo-700 dark:text-indigo-300 mb-2">🖨️ A4 পেজে মাল্টিপল ছবির পাসপোর্ট গ্রিড:</h4>
-                <input type="file" id="ai-add-more-input" accept="image/*" class="hidden" onchange="handleAddMoreImage(event)">
-                <div class="flex flex-wrap items-center gap-3">
-                  <button onclick="document.getElementById('ai-add-more-input').click()" class="btn-primary bg-emerald-600 hover:bg-emerald-700 text-base py-2 px-4 flex items-center gap-1">➕ ছবি যোগ করুন</button>
-                  <button onclick="addCurrentEditedImage()" class="btn-secondary text-xs">➕ এডিটেড ছবি যোগ করুন</button>
-                  <button onclick="clearAiGridList()" class="btn-danger py-2 px-3 text-xs">🗑️ সব মুছুন</button>
-                </div>
-                <div id="ai-added-photos-list" class="flex flex-wrap gap-2 mt-3 p-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 min-h-[50px] items-center">
-                  <span class="text-xs text-gray-400 pl-2">এখনো কোনো ছবি যোগ করা হয়নি।</span>
-                </div>
-              </div>
-              <div class="flex flex-wrap gap-3 items-center pt-2">
-                <button onclick="downloadAiA4Pdf()" id="ai-pdf-btn" class="btn-primary bg-purple-600 hover:bg-purple-700 hidden">📄 A4 PDF ডাউনলোড</button>
-                <button onclick="printAiA4Grid()" id="ai-print-btn" class="btn-secondary hidden">🖨️ সরাসরি প্রিন্ট</button>
-              </div>
-              <div id="ai-grid-preview" class="mt-4 hidden border dark:border-gray-700 p-2 bg-gray-200 dark:bg-gray-900 rounded-xl max-h-[350px] overflow-y-auto">
-                <canvas id="ai-a4-canvas" class="mx-auto bg-white shadow rounded-lg max-w-full"></canvas>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 2. DOCUMENT EDITOR -->
-        <div id="panel-doceditor" class="tool-panel">
-          <div class="bg-indigo-50 dark:bg-indigo-950/50 p-4 rounded-2xl border border-indigo-100 dark:border-indigo-800/50 mb-4">
-            <p class="text-sm text-indigo-900 dark:text-indigo-200 font-medium">
-              🖨️ স্ক্যানড বা গ্যালোরি ডকুমেন্টের ভুল লেখা মুছুন, টেক্সট যুক্ত করুন এবং সরাসরি PDF বা Word ফাইলে সেভ করুন।
-              <br><span class="text-xs">নতুন: টেক্সট লেখার পর ড্র্যাগ করে সরান, রিসাইজ করুন, ঘোরান এবং এডিট করুন।</span>
-            </p>
-          </div>
-          <div class="mb-4 flex flex-wrap gap-3 items-center">
-            <input type="file" id="doc-input" accept="image/*" class="block text-sm">
-            <button onclick="fitToA4Standard()" class="btn-secondary text-xs">📐 A4 সাইজ ফিট</button>
-            <button onclick="rotateDocCanvas()" class="btn-secondary text-xs">🔄 ঘোরান (90°)</button>
-          </div>
-          <div id="doc-editor-tools" class="hidden space-y-4">
-            <div class="flex flex-wrap gap-2 p-3 bg-gray-100 dark:bg-gray-700 rounded-2xl items-center text-xs md:text-sm">
-              <button onclick="setDocTool('erase-brush')" id="tool-erase-btn" class="btn-primary py-1.5 px-3">🖌️ ব্রাশ ইরেজার</button>
-              <button onclick="setDocTool('erase-box')" id="tool-box-btn" class="btn-secondary py-1.5 px-3">🔳 বক্স ইরেজার</button>
-              <button onclick="setDocTool('text')" id="tool-text-btn" class="btn-secondary py-1.5 px-3">✏️ টেক্সট লিখুন</button>
-              <button onclick="setDocTool('select')" id="tool-select-btn" class="btn-secondary py-1.5 px-3">🖱️ সিলেক্ট / মুভ</button>
-              <div class="flex items-center gap-1">
-                <label class="text-xs font-semibold">ব্যাকগ্রাউন্ড কালার:</label>
-                <input type="color" id="doc-erase-color" value="#ffffff" class="w-7 h-7 rounded border cursor-pointer">
-              </div>
-              <div class="flex items-center gap-1 border-l pl-2 border-gray-300 dark:border-gray-600">
-                <label class="text-xs font-semibold">ফন্ট সাইজ:</label>
-                <input type="number" id="doc-font-size" value="22" min="10" max="120" class="w-14 p-1 rounded border text-center font-bold dark:bg-gray-800">
-              </div>
-              <div class="flex items-center gap-1">
-                <label class="text-xs font-semibold">ফন্ট স্টাইল:</label>
-                <select id="doc-font-family" class="p-1 rounded border dark:bg-gray-800 text-xs">
-                  <option value="'Kalpurush', sans-serif">কালপুরুষ (বাংলা)</option>
-                  <option value="Arial, sans-serif">Arial</option>
-                  <option value="'Times New Roman', serif">Times</option>
-                  <option value="'Courier New', monospace">Courier</option>
-                </select>
-              </div>
-              <div class="flex items-center gap-1">
-                <label class="text-xs font-semibold">টেক্সট কালার:</label>
-                <input type="color" id="doc-text-color" value="#000000" class="w-7 h-7 rounded border cursor-pointer">
-              </div>
-              <button onclick="resetDocCanvas()" class="btn-danger py-1.5 px-3 ml-auto">🔄 রিসেট</button>
-            </div>
-            <div id="selected-text-controls" class="hidden flex flex-wrap gap-3 p-3 bg-indigo-50 dark:bg-indigo-900/30 rounded-2xl items-center text-xs border border-indigo-200 dark:border-indigo-700">
-              <span class="font-bold text-indigo-700 dark:text-indigo-300">নির্বাচিত টেক্সট:</span>
-              <button onclick="editSelectedText()" class="btn-secondary py-1 px-3">✏️ এডিট টেক্সট</button>
-              <div class="flex items-center gap-1">
-                <label>সাইজ:</label>
-                <input type="number" id="selected-font-size" min="8" max="150" class="w-14 p-1 rounded border text-center dark:bg-gray-800" onchange="updateSelectedTextSize()">
-              </div>
-              <div class="flex items-center gap-1">
-                <label>রোটেশন:</label>
-                <input type="range" id="selected-rotation" min="-180" max="180" value="0" class="w-24 accent-indigo-600" oninput="updateSelectedTextRotation()">
-                <span id="rotation-value">0°</span>
-              </div>
-              <button onclick="deleteSelectedText()" class="btn-danger py-1 px-3">🗑️ মুছুন</button>
-              <button onclick="deselectText()" class="btn-secondary py-1 px-3">বাতিল</button>
-            </div>
-            <div class="border dark:border-gray-700 rounded-2xl overflow-auto bg-gray-300 dark:bg-gray-900 max-h-[500px] flex justify-center p-3 relative">
-              <canvas id="doc-canvas" class="bg-white shadow-2xl cursor-crosshair rounded max-w-full"></canvas>
-            </div>
-            <div class="border-t dark:border-gray-700 pt-4">
-              <button onclick="processScanToText()" class="btn-secondary mb-2 w-full md:w-auto">🔍 বাংলা ও ইংরেজি টেক্সট আলাদা করুন (OCR)</button>
-              <textarea id="doc-editor-text" placeholder="এক্সট্র্যাক্ট হওয়া টেক্সট..." class="w-full h-32 p-3 border dark:border-gray-700 dark:bg-gray-900 rounded-xl text-sm mb-3 hidden"></textarea>
-            </div>
-            <div class="flex flex-wrap gap-3 border-t dark:border-gray-700 pt-4">
-              <button onclick="printDocCanvas()" class="btn-primary bg-emerald-600 hover:bg-emerald-700">🖨️ A4 প্রিন্ট</button>
-              <button onclick="downloadDocPdf()" class="btn-primary bg-red-600 hover:bg-red-700">📄 PDF ডাউনলোড</button>
-              <button onclick="downloadDocWord()" class="btn-primary bg-blue-600 hover:bg-blue-700">📝 Word (.doc) সেভ</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- 3. PDF MERGER -->
-        <div id="panel-pdfmerge" class="tool-panel">
-          <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
-            একাধিক <strong>PDF</strong>, <strong>ছবি</strong> বা স্ক্যানড ডকুমেন্ট সিলেক্ট করে একসাথে জুড়ে নতুন একটি PDF বানিয়ে ডাউনলোড করুন।
-            <br><span class="text-xs text-indigo-600 dark:text-indigo-400">✔ PDF + ছবি মিশ্রণ সাপোর্ট করা হয়।</span>
-          </p>
-          <input type="file" id="pdf-merge-input" accept="application/pdf,image/*,.jpg,.jpeg,.png,.webp,.gif,.bmp,.tiff" multiple class="mb-4 block w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
-          <div id="pdf-file-list" class="space-y-2 mb-4 text-sm font-medium max-h-60 overflow-y-auto"></div>
-          <div class="flex flex-wrap gap-3 items-center">
-            <button onclick="mergePdfFiles()" class="btn-primary">📚 সব ফাইল মার্জ করে PDF ডাউনলোড</button>
-            <button onclick="clearMergeList()" class="btn-danger text-xs py-2">🗑️ লিস্ট মুছুন</button>
-          </div>
-        </div>
-
-        <!-- 4. PASSPORT GRID -->
-        <div id="panel-ppgrid" class="tool-panel">
-          <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">পাসপোর্ট সাইজের ছবি আপলোড করে A4 পেজে বিভিন্ন কপিতে সাজিয়ে ডাউনলোড করুন।</p>
-          <input type="file" id="pp-input" accept="image/*" class="mb-4 block w-full text-sm">
-          <div class="mb-4">
-            <label class="block text-sm font-semibold mb-1">কপি সংখ্যা:</label>
-            <select id="pp-count" class="border dark:border-gray-700 rounded-xl px-4 py-2.5 w-full bg-white dark:bg-gray-700">
-              <option value="2">২ কপি</option>
-              <option value="4">৪ কপি</option>
-              <option value="8">৮ কপি</option>
-              <option value="12">১২ কপি</option>
-              <option value="16" selected>১৬ কপি</option>
-              <option value="20">২০ কপি</option>
-            </select>
-          </div>
-          <div class="flex gap-3">
-            <button onclick="generatePPGrid()" class="btn-primary">গ্রিড তৈরি করুন</button>
-            <button onclick="printPPGrid()" id="pp-print-btn" class="btn-secondary hidden">🖨️ প্রিন্ট করুন</button>
-          </div>
-          <div id="pp-preview-container" class="mt-6 hidden">
-            <div class="border dark:border-gray-700 p-2 bg-gray-200 dark:bg-gray-900 rounded-2xl max-h-[400px] overflow-y-auto">
-              <canvas id="pp-canvas" class="mx-auto bg-white shadow-md rounded-lg max-w-full"></canvas>
-            </div>
-            <button onclick="downloadPPPdf()" class="btn-primary w-full mt-4 py-3">📄 A4 PDF ডাউনলোড</button>
-          </div>
-        </div>
-
-        <!-- 5. STAMP GRID -->
-        <div id="panel-stampgrid" class="tool-panel">
-          <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
-            বাংলাদেশী স্ট্যাম্প সাইজ (প্রায় ২.৫ সেমি × ৩.০ সেমি) ছবি আপলোড করে A4 পেজে অনেক কপিতে সাজিয়ে ডাউনলোড করুন।
-          </p>
-          <input type="file" id="stamp-input" accept="image/*" class="mb-4 block w-full text-sm">
-          <div class="mb-4">
-            <label class="block text-sm font-semibold mb-1">কপি সংখ্যা:</label>
-            <select id="stamp-count" class="border dark:border-gray-700 rounded-xl px-4 py-2.5 w-full bg-white dark:bg-gray-700">
-              <option value="8">৮ কপি</option>
-              <option value="12">১২ কপি</option>
-              <option value="16">১৬ কপি</option>
-              <option value="20">২০ কপি</option>
-              <option value="24" selected>২৪ কপি</option>
-              <option value="30">৩০ কপি</option>
-              <option value="36">৩৬ কপি</option>
-              <option value="42">৪২ কপি</option>
-            </select>
-          </div>
-          <div class="flex gap-3">
-            <button onclick="generateStampGrid()" class="btn-primary">গ্রিড তৈরি করুন</button>
-            <button onclick="printStampGrid()" id="stamp-print-btn" class="btn-secondary hidden">🖨️ প্রিন্ট করুন</button>
-          </div>
-          <div id="stamp-preview-container" class="mt-6 hidden">
-            <div class="border dark:border-gray-700 p-2 bg-gray-200 dark:bg-gray-900 rounded-2xl max-h-[400px] overflow-y-auto">
-              <canvas id="stamp-canvas" class="mx-auto bg-white shadow-md rounded-lg max-w-full"></canvas>
-            </div>
-            <button onclick="downloadStampPdf()" class="btn-primary w-full mt-4 py-3">📄 A4 PDF ডাউনলোড</button>
-          </div>
-        </div>
-
-        <!-- 6. CV / RESUME MAKER (UPGRADED) -->
-        <div id="panel-cv" class="tool-panel">
-          <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
-            ৬টি প্রফেশনাল টেমপ্লেট থেকে পছন্দ করুন। AI Suggest দিয়ে টেক্সট অটো জেনারেট করুন।
-          </p>
-
-          <!-- Template Selector -->
-          <div class="mb-5">
-            <h4 class="font-bold text-sm mb-3 text-indigo-700 dark:text-indigo-300">🎨 টেমপ্লেট সিলেক্ট করুন:</h4>
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-3" id="template-selector">
-              <div class="template-card active" data-template="modern" onclick="selectTemplate('modern')">
-                <div class="text-2xl mb-1">🟦</div>
-                <div class="font-semibold">Modern Two-Column</div>
-              </div>
-              <div class="template-card" data-template="sidebar" onclick="selectTemplate('sidebar')">
-                <div class="text-2xl mb-1">🟩</div>
-                <div class="font-semibold">Professional Sidebar</div>
-              </div>
-              <div class="template-card" data-template="executive" onclick="selectTemplate('executive')">
-                <div class="text-2xl mb-1">🟪</div>
-                <div class="font-semibold">Executive Modern</div>
-              </div>
-              <div class="template-card" data-template="classic" onclick="selectTemplate('classic')">
-                <div class="text-2xl mb-1">⬛</div>
-                <div class="font-semibold">Classic One-Column</div>
-              </div>
-              <div class="template-card" data-template="corporate" onclick="selectTemplate('corporate')">
-                <div class="text-2xl mb-1">🟫</div>
-                <div class="font-semibold">Clean Corporate</div>
-              </div>
-              <div class="template-card" data-template="bangla" onclick="selectTemplate('bangla')">
-                <div class="text-2xl mb-1">🇧🇩</div>
-                <div class="font-semibold">বাংলা জীবন বৃত্তান্ত</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="grid lg:grid-cols-2 gap-6">
-            <!-- Form -->
-            <div class="space-y-4 max-h-[75vh] overflow-y-auto pr-1">
-              <div class="bg-indigo-50 dark:bg-gray-700/50 p-4 rounded-2xl border border-indigo-100 dark:border-gray-600">
-                <h4 class="font-bold text-sm mb-3 text-indigo-700 dark:text-indigo-300">📷 ছবি ও ব্যক্তিগত তথ্য</h4>
-                <input type="file" id="cv-photo" accept="image/*" class="mb-3 text-sm w-full">
-                <input type="text" id="cv-name" placeholder="পূর্ণ নাম" class="w-full mb-2 px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm">
-                <input type="text" id="cv-phone" placeholder="ফোন (+88 01XXXXXXXXX)" class="w-full mb-2 px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm">
-                <input type="email" id="cv-email" placeholder="ইমেইল" class="w-full mb-2 px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm">
-                <textarea id="cv-address" placeholder="ঠিকানা" rows="2" class="w-full px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm"></textarea>
-              </div>
-
-              <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-2xl">
-                <h4 class="font-bold text-sm mb-2">🎯 Career Objective / সারাংশ</h4>
-                <textarea id="cv-objective" rows="3" class="w-full px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm" placeholder="একজন দক্ষ পেশাজীবী হিসেবে..."></textarea>
-              </div>
-
-              <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-2xl">
-                <h4 class="font-bold text-sm mb-2">🎓 Education</h4>
-                <textarea id="cv-education" rows="5" class="w-full px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm" placeholder="Bachelor of Arts...&#10;University Name&#10;2021 - 2025&#10;CGPA: 3.20"></textarea>
-              </div>
-
-              <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-2xl">
-                <h4 class="font-bold text-sm mb-2">💡 Skills (প্রতি লাইনে একটি)</h4>
-                <textarea id="cv-skills" rows="4" class="w-full px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm" placeholder="Communication&#10;Teamwork&#10;Problem Solving"></textarea>
-              </div>
-
-              <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-2xl">
-                <h4 class="font-bold text-sm mb-2">💼 Work Experience</h4>
-                <textarea id="cv-experience" rows="8" class="w-full px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm" placeholder="Job Title&#10;Company Name&#10;Duration&#10;• Responsibility 1&#10;• Responsibility 2"></textarea>
-              </div>
-
-              <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-2xl">
-                <h4 class="font-bold text-sm mb-2">🌐 Languages</h4>
-                <textarea id="cv-languages" rows="2" class="w-full px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm" placeholder="Bangla (Native)&#10;English (Fluent)"></textarea>
-              </div>
-
-              <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-2xl">
-                <h4 class="font-bold text-sm mb-2">🌟 Additional / Activities</h4>
-                <textarea id="cv-activities" rows="3" class="w-full px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm" placeholder="• Member of Club&#10;• Volunteer work"></textarea>
-              </div>
-
-              <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-2xl">
-                <h4 class="font-bold text-sm mb-2">📞 References</h4>
-                <textarea id="cv-references" rows="4" class="w-full px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm" placeholder="Name&#10;Designation&#10;Phone / Email"></textarea>
-              </div>
-
-              <div class="flex flex-col gap-3">
-                <button onclick="aiSuggestCV()" class="btn-secondary w-full py-3 text-base bg-purple-100 text-purple-700 hover:bg-purple-200">
-                  ✨ AI Suggest / অটো ফিল করুন
-                </button>
-                <button onclick="generateCV()" class="btn-primary w-full py-3 text-base">🚀 Generate Professional CV</button>
-              </div>
-            </div>
-
-            <!-- Preview -->
-            <div class="overflow-auto max-h-[75vh] bg-gray-100 dark:bg-gray-900 p-3 rounded-2xl">
-              <div id="cv-preview-container" class="hidden">
-                <div id="cv-preview" class="cv-preview scale-[0.65] origin-top mx-auto"></div>
-                <div class="flex flex-wrap gap-3 mt-4 justify-center sticky bottom-0 bg-gray-100 dark:bg-gray-900 py-3">
-                  <button onclick="printCV()" class="btn-primary bg-emerald-600 hover:bg-emerald-700">🖨️ প্রিন্ট / Save as PDF</button>
-                  <button onclick="downloadCVImage()" class="btn-secondary">⬇️ ছবি হিসেবে ডাউনলোড</button>
-                </div>
-              </div>
-              <div id="cv-placeholder" class="text-center text-gray-400 py-24">
-                <div class="text-6xl mb-4">📋</div>
-                <p class="text-sm">টেমপ্লেট সিলেক্ট করে ফর্ম পূরণ করুন<br>অথবা <strong>AI Suggest</strong> চাপুন</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 7. SCANNER -->
-        <div id="panel-scanner" class="tool-panel">
-          <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
-            ক্যামেরা দিয়ে সরাসরি ডকুমেন্ট স্ক্যান করুন অথবা <strong>Canon / অন্যান্য স্ক্যানার</strong> দিয়ে স্ক্যান করা ছবি ইম্পোর্ট করুন।
-          </p>
-          
-          <div class="bg-indigo-50 dark:bg-indigo-950/40 p-4 rounded-2xl border border-indigo-100 dark:border-indigo-800 mb-5">
-            <h4 class="font-bold text-sm text-indigo-700 dark:text-indigo-300 mb-2">📁 Canon / অন্যান্য স্ক্যানার থেকে ছবি ইম্পোর্ট</h4>
-            <p class="text-xs text-gray-600 dark:text-gray-400 mb-3">স্ক্যানার সফটওয়্যার দিয়ে ছবি সেভ করে নিচে আপলোড করুন</p>
-            <input type="file" id="scanner-import-input" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
-          </div>
-
-          <div class="flex flex-wrap gap-3 mb-4">
-            <button onclick="startCamera()" class="btn-primary">📷 ক্যামেরা চালু</button>
-            <button onclick="switchCamera()" class="btn-secondary">🔄 ক্যামেরা স্যুইচ</button>
-            <button onclick="stopCamera()" class="btn-danger">ক্যামেরা বন্ধ</button>
-          </div>
-          <div class="relative bg-black rounded-2xl overflow-hidden mb-4 min-h-[250px] flex items-center justify-center">
-            <video id="scanner-video" autoplay playsinline class="w-full hidden"></video>
-            <canvas id="scanner-canvas" class="hidden"></canvas>
-            <span id="camera-placeholder" class="text-white text-sm opacity-70">ক্যামেরা অফ রয়েছে</span>
-          </div>
-          <button id="snap-btn" onclick="takeSnapshot()" class="btn-primary w-full hidden py-3">📸 ক্যাপচার করুন</button>
-          <div id="scanned-result-container" class="mt-6 hidden border-t dark:border-gray-700 pt-4">
-            <img id="scanned-img" class="max-h-80 mx-auto rounded-lg border dark:border-gray-700 mb-4 shadow" />
-            <a id="scanned-download" class="btn-primary">ডাউনলোড করুন</a>
-          </div>
-        </div>
-
-        <!-- 8. COMPRESS -->
-        <div id="panel-compress" class="tool-panel">
-          <input type="file" id="compress-input" accept="image/*" class="mb-4 block w-full text-sm">
-          <div class="mb-4">
-            <label class="block text-sm mb-1">কোয়ালিটি: <span id="quality-value">80%</span></label>
-            <input type="range" id="quality" min="0.1" max="1" step="0.05" value="0.8" class="w-full accent-indigo-600">
-          </div>
-          <button onclick="compressImage()" class="btn-primary">কম্প্রেস করুন</button>
-          <div id="compress-result" class="mt-6"></div>
-        </div>
-
-        <!-- 9. CONVERT -->
-        <div id="panel-convert" class="tool-panel">
-          <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">ইমেজ ফরম্যাট কনভার্ট করুন এবং কাস্টম ডাইমেনশন পরিবর্তন করুন।</p>
-          <input type="file" id="convert-input" accept="image/*" class="mb-4 block w-full text-sm">
-          <div id="convert-preview-info" class="hidden mb-4 p-3 bg-indigo-50 dark:bg-gray-700 rounded-xl text-xs space-y-1">
-            <p><strong>মূল সাইজ:</strong> <span id="orig-dimensions">-</span></p>
-            <p><strong>মূল ফাইল সাইজ:</strong> <span id="orig-filesize">-</span></p>
-          </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <label class="block text-xs font-semibold mb-1">টার্গেট ফরম্যাট:</label>
-              <select id="convert-format" class="border dark:border-gray-700 rounded-xl px-4 py-2.5 w-full bg-white dark:bg-gray-700 text-sm">
-                <option value="image/png">PNG</option>
-                <option value="image/jpeg" selected>JPG / JPEG</option>
-                <option value="image/webp">WebP</option>
-              </select>
             </div>
             <div>
-              <label class="block text-xs font-semibold mb-1">পরিমাপের একক:</label>
-              <select id="resize-unit" onchange="handleUnitChange()" class="border dark:border-gray-700 rounded-xl px-4 py-2.5 w-full bg-white dark:bg-gray-700 text-sm">
-                <option value="px" selected>Pixels (px)</option>
-                <option value="in">Inches</option>
-                <option value="cm">Centimeters</option>
-                <option value="mm">Millimeters</option>
-              </select>
+              <h4 class="font-bold text-sm text-indigo-700 dark:text-indigo-300 mb-2">🖨️ A4 পেজে মাল্টিপল ছবির পাসপোর্ট গ্রিড:</h4>
+              <input type="file" id="ai-add-more-input" accept="image/*" class="hidden" onchange="handleAddMoreImage(event)">
+              <div class="flex flex-wrap items-center gap-3">
+                <button onclick="document.getElementById('ai-add-more-input').click()" class="btn-primary bg-emerald-600 hover:bg-emerald-700 text-base py-2 px-4 flex items-center gap-1">➕ ছবি যোগ করুন</button>
+                <button onclick="addCurrentEditedImage()" class="btn-secondary text-xs">➕ এডিটেড ছবি যোগ করুন</button>
+                <button onclick="clearAiGridList()" class="btn-danger py-2 px-3 text-xs">🗑️ সব মুছুন</button>
+              </div>
+              <div id="ai-added-photos-list" class="flex flex-wrap gap-2 mt-3 p-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 min-h-[50px] items-center">
+                <span class="text-xs text-gray-400 pl-2">এখনো কোনো ছবি যোগ করা হয়নি।</span>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-3 items-center pt-2">
+              <button onclick="downloadAiA4Pdf()" id="ai-pdf-btn" class="btn-primary bg-purple-600 hover:bg-purple-700 hidden">📄 A4 PDF ডাউনলোড</button>
+              <button onclick="printAiA4Grid()" id="ai-print-btn" class="btn-secondary hidden">🖨️ সরাসরি প্রিন্ট</button>
+            </div>
+            <div id="ai-grid-preview" class="mt-4 hidden border dark:border-gray-700 p-2 bg-gray-200 dark:bg-gray-900 rounded-xl max-h-[350px] overflow-y-auto">
+              <canvas id="ai-a4-canvas" class="mx-auto bg-white shadow rounded-lg max-w-full"></canvas>
             </div>
           </div>
-          <div class="grid grid-cols-2 gap-4 mb-3">
-            <div>
-              <label class="block text-xs font-semibold mb-1">প্রস্থ (Width):</label>
-              <input type="number" id="resize-width" placeholder="Width" oninput="onWidthChange()" class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm">
-            </div>
-            <div>
-              <label class="block text-xs font-semibold mb-1">উচ্চতা (Height):</label>
-              <input type="number" id="resize-height" placeholder="Height" oninput="onHeightChange()" class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm">
-            </div>
-          </div>
-          <div class="flex flex-wrap items-center justify-between gap-4 mb-6 text-xs bg-gray-50 dark:bg-gray-800 p-3 rounded-xl border dark:border-gray-700">
-            <label class="flex items-center gap-2 cursor-pointer font-semibold">
-              <input type="checkbox" id="aspect-ratio-lock" checked class="w-4 h-4 text-indigo-600 rounded"> Maintain Aspect Ratio
-            </label>
-            <div class="flex items-center gap-2">
-              <label class="font-semibold">টার্গেট ফাইল সাইজ (ঐচ্ছিক):</label>
-              <input type="number" id="target-file-size" placeholder="e.g. 100" class="w-20 px-2 py-1 rounded border text-center dark:bg-gray-700">
-              <span>KB</span>
-            </div>
-          </div>
-          <button onclick="convertAndResizeImage()" class="btn-primary w-full py-3">🔄 কনভার্ট ও রিসাইজ করুন</button>
-          <div id="convert-result" class="mt-6"></div>
         </div>
-
-        <!-- 10. NID -->
-        <div id="panel-nid" class="tool-panel">
-          <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">NID কার্ডের সামনের এবং পেছনের অংশ আপলোড করুন:</p>
-          <input type="file" id="nid-front" accept="image/*" class="mb-2 block w-full text-sm">
-          <input type="file" id="nid-back" accept="image/*" class="mb-4 block w-full text-sm">
-          <button onclick="createNidPdf()" class="btn-primary">NID PDF তৈরি করুন</button>
-          <div id="nid-result" class="mt-6"></div>
-        </div>
-
       </div>
-    </section>
-  </div>
+
+      <!-- 2. DOCUMENT EDITOR -->
+      <div id="panel-doceditor" class="tool-panel">
+        <div class="bg-indigo-50 dark:bg-indigo-950/50 p-4 rounded-2xl border border-indigo-100 dark:border-indigo-800/50 mb-4">
+          <p class="text-sm text-indigo-900 dark:text-indigo-200 font-medium">
+            🖨️ স্ক্যানড বা গ্যালোরি ডকুমেন্টের ভুল লেখা মুছুন, টেক্সট যুক্ত করুন এবং সরাসরি PDF বা Word ফাইলে সেভ করুন।
+          </p>
+        </div>
+        <div class="mb-4 flex flex-wrap gap-3 items-center">
+          <input type="file" id="doc-input" accept="image/*" class="block text-sm">
+          <button onclick="fitToA4Standard()" class="btn-secondary text-xs">📐 A4 সাইজ ফিট</button>
+          <button onclick="rotateDocCanvas()" class="btn-secondary text-xs">🔄 ঘোরান (90°)</button>
+        </div>
+        <div id="doc-editor-tools" class="hidden space-y-4">
+          <div class="flex flex-wrap gap-2 p-3 bg-gray-100 dark:bg-gray-700 rounded-2xl items-center text-xs md:text-sm">
+            <button onclick="setDocTool('erase-brush')" id="tool-erase-btn" class="btn-primary py-1.5 px-3">🖌️ ব্রাশ ইরেজার</button>
+            <button onclick="setDocTool('erase-box')" id="tool-box-btn" class="btn-secondary py-1.5 px-3">🔳 বক্স ইরেজার</button>
+            <button onclick="setDocTool('text')" id="tool-text-btn" class="btn-secondary py-1.5 px-3">✏️ টেক্সট লিখুন</button>
+            <button onclick="setDocTool('select')" id="tool-select-btn" class="btn-secondary py-1.5 px-3">🖱️ সিলেক্ট / মুভ</button>
+            <div class="flex items-center gap-1">
+              <label class="text-xs font-semibold">ব্যাকগ্রাউন্ড কালার:</label>
+              <input type="color" id="doc-erase-color" value="#ffffff" class="w-7 h-7 rounded border cursor-pointer">
+            </div>
+            <div class="flex items-center gap-1 border-l pl-2 border-gray-300 dark:border-gray-600">
+              <label class="text-xs font-semibold">ফন্ট সাইজ:</label>
+              <input type="number" id="doc-font-size" value="22" min="10" max="120" class="w-14 p-1 rounded border text-center font-bold dark:bg-gray-800">
+            </div>
+            <div class="flex items-center gap-1">
+              <label class="text-xs font-semibold">ফন্ট স্টাইল:</label>
+              <select id="doc-font-family" class="p-1 rounded border dark:bg-gray-800 text-xs">
+                <option value="'Kalpurush', sans-serif">কালপুরুষ (বাংলা)</option>
+                <option value="Arial, sans-serif">Arial</option>
+                <option value="'Times New Roman', serif">Times</option>
+                <option value="'Courier New', monospace">Courier</option>
+              </select>
+            </div>
+            <div class="flex items-center gap-1">
+              <label class="text-xs font-semibold">টেক্সট কালার:</label>
+              <input type="color" id="doc-text-color" value="#000000" class="w-7 h-7 rounded border cursor-pointer">
+            </div>
+            <button onclick="resetDocCanvas()" class="btn-danger py-1.5 px-3 ml-auto">🔄 রিসেট</button>
+          </div>
+          <div id="selected-text-controls" class="hidden flex flex-wrap gap-3 p-3 bg-indigo-50 dark:bg-indigo-900/30 rounded-2xl items-center text-xs border border-indigo-200 dark:border-indigo-700">
+            <span class="font-bold text-indigo-700 dark:text-indigo-300">নির্বাচিত টেক্সট:</span>
+            <button onclick="editSelectedText()" class="btn-secondary py-1 px-3">✏️ এডিট টেক্সট</button>
+            <div class="flex items-center gap-1">
+              <label>সাইজ:</label>
+              <input type="number" id="selected-font-size" min="8" max="150" class="w-14 p-1 rounded border text-center dark:bg-gray-800" onchange="updateSelectedTextSize()">
+            </div>
+            <div class="flex items-center gap-1">
+              <label>রোটেশন:</label>
+              <input type="range" id="selected-rotation" min="-180" max="180" value="0" class="w-24 accent-indigo-600" oninput="updateSelectedTextRotation()">
+              <span id="rotation-value">0°</span>
+            </div>
+            <button onclick="deleteSelectedText()" class="btn-danger py-1 px-3">🗑️ মুছুন</button>
+            <button onclick="deselectText()" class="btn-secondary py-1 px-3">বাতিল</button>
+          </div>
+          <div class="border dark:border-gray-700 rounded-2xl overflow-auto bg-gray-300 dark:bg-gray-900 max-h-[500px] flex justify-center p-3 relative">
+            <canvas id="doc-canvas" class="bg-white shadow-2xl cursor-crosshair rounded max-w-full"></canvas>
+          </div>
+          <div class="border-t dark:border-gray-700 pt-4">
+            <button onclick="processScanToText()" class="btn-secondary mb-2 w-full md:w-auto">🔍 বাংলা ও ইংরেজি টেক্সট আলাদা করুন (OCR)</button>
+            <textarea id="doc-editor-text" placeholder="এক্সট্র্যাক্ট হওয়া টেক্সট..." class="w-full h-32 p-3 border dark:border-gray-700 dark:bg-gray-900 rounded-xl text-sm mb-3 hidden"></textarea>
+          </div>
+          <div class="flex flex-wrap gap-3 border-t dark:border-gray-700 pt-4">
+            <button onclick="printDocCanvas()" class="btn-primary bg-emerald-600 hover:bg-emerald-700">🖨️ A4 প্রিন্ট</button>
+            <button onclick="downloadDocPdf()" class="btn-primary bg-red-600 hover:bg-red-700">📄 PDF ডাউনলোড</button>
+            <button onclick="downloadDocWord()" class="btn-primary bg-blue-600 hover:bg-blue-700">📝 Word (.doc) সেভ</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. PDF MERGER -->
+      <div id="panel-pdfmerge" class="tool-panel">
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+          একাধিক <strong>PDF</strong>, <strong>ছবি</strong> বা স্ক্যানড ডকুমেন্ট সিলেক্ট করে একসাথে জুড়ে নতুন একটি PDF বানিয়ে ডাউনলোড করুন।
+        </p>
+        <input type="file" id="pdf-merge-input" accept="application/pdf,image/*,.jpg,.jpeg,.png,.webp,.gif,.bmp,.tiff" multiple class="mb-4 block w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+        <div id="pdf-file-list" class="space-y-2 mb-4 text-sm font-medium max-h-60 overflow-y-auto"></div>
+        <div class="flex flex-wrap gap-3 items-center">
+          <button onclick="mergePdfFiles()" class="btn-primary">📚 সব ফাইল মার্জ করে PDF ডাউনলোড</button>
+          <button onclick="clearMergeList()" class="btn-danger text-xs py-2">🗑️ লিস্ট মুছুন</button>
+        </div>
+      </div>
+
+      <!-- 4. PASSPORT GRID -->
+      <div id="panel-ppgrid" class="tool-panel">
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">পাসপোর্ট সাইজের ছবি আপলোড করে A4 পেজে বিভিন্ন কপিতে সাজিয়ে ডাউনলোড করুন।</p>
+        <input type="file" id="pp-input" accept="image/*" class="mb-4 block w-full text-sm">
+        <div class="mb-4">
+          <label class="block text-sm font-semibold mb-1">কপি সংখ্যা:</label>
+          <select id="pp-count" class="border dark:border-gray-700 rounded-xl px-4 py-2.5 w-full bg-white dark:bg-gray-700">
+            <option value="2">২ কপি</option>
+            <option value="4">৪ কপি</option>
+            <option value="8">৮ কপি</option>
+            <option value="12">১২ কপি</option>
+            <option value="16" selected>১৬ কপি</option>
+            <option value="20">২০ কপি</option>
+          </select>
+        </div>
+        <div class="flex gap-3">
+          <button onclick="generatePPGrid()" class="btn-primary">গ্রিড তৈরি করুন</button>
+          <button onclick="printPPGrid()" id="pp-print-btn" class="btn-secondary hidden">🖨️ প্রিন্ট করুন</button>
+        </div>
+        <div id="pp-preview-container" class="mt-6 hidden">
+          <div class="border dark:border-gray-700 p-2 bg-gray-200 dark:bg-gray-900 rounded-2xl max-h-[400px] overflow-y-auto">
+            <canvas id="pp-canvas" class="mx-auto bg-white shadow-md rounded-lg max-w-full"></canvas>
+          </div>
+          <button onclick="downloadPPPdf()" class="btn-primary w-full mt-4 py-3">📄 A4 PDF ডাউনলোড</button>
+        </div>
+      </div>
+
+      <!-- 5. STAMP GRID -->
+      <div id="panel-stampgrid" class="tool-panel">
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+          বাংলাদেশী স্ট্যাম্প সাইজ (প্রায় ২.৫ সেমি × ৩.০ সেমি) ছবি আপলোড করে A4 পেজে অনেক কপিতে সাজিয়ে ডাউনলোড করুন।
+        </p>
+        <input type="file" id="stamp-input" accept="image/*" class="mb-4 block w-full text-sm">
+        <div class="mb-4">
+          <label class="block text-sm font-semibold mb-1">কপি সংখ্যা:</label>
+          <select id="stamp-count" class="border dark:border-gray-700 rounded-xl px-4 py-2.5 w-full bg-white dark:bg-gray-700">
+            <option value="8">৮ কপি</option>
+            <option value="12">১২ কপি</option>
+            <option value="16">১৬ কপি</option>
+            <option value="20">২০ কপি</option>
+            <option value="24" selected>২৪ কপি</option>
+            <option value="30">৩০ কপি</option>
+            <option value="36">৩৬ কপি</option>
+            <option value="42">৪২ কপি</option>
+          </select>
+        </div>
+        <div class="flex gap-3">
+          <button onclick="generateStampGrid()" class="btn-primary">গ্রিড তৈরি করুন</button>
+          <button onclick="printStampGrid()" id="stamp-print-btn" class="btn-secondary hidden">🖨️ প্রিন্ট করুন</button>
+        </div>
+        <div id="stamp-preview-container" class="mt-6 hidden">
+          <div class="border dark:border-gray-700 p-2 bg-gray-200 dark:bg-gray-900 rounded-2xl max-h-[400px] overflow-y-auto">
+            <canvas id="stamp-canvas" class="mx-auto bg-white shadow-md rounded-lg max-w-full"></canvas>
+          </div>
+          <button onclick="downloadStampPdf()" class="btn-primary w-full mt-4 py-3">📄 A4 PDF ডাউনলোড</button>
+        </div>
+      </div>
+
+      <!-- 6. CV / RESUME MAKER -->
+      <div id="panel-cv" class="tool-panel">
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+          ৬টি প্রফেশনাল টেমপ্লেট থেকে পছন্দ করুন। AI Suggest দিয়ে টেক্সট অটো জেনারেট করুন।
+        </p>
+
+        <div class="mb-5">
+          <h4 class="font-bold text-sm mb-3 text-indigo-700 dark:text-indigo-300">🎨 টেমপ্লেট সিলেক্ট করুন:</h4>
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-3" id="template-selector">
+            <div class="template-card active" data-template="modern" onclick="selectTemplate('modern')">
+              <div class="text-2xl mb-1">🟦</div>
+              <div class="font-semibold">Modern Two-Column</div>
+            </div>
+            <div class="template-card" data-template="sidebar" onclick="selectTemplate('sidebar')">
+              <div class="text-2xl mb-1">🟩</div>
+              <div class="font-semibold">Professional Sidebar</div>
+            </div>
+            <div class="template-card" data-template="executive" onclick="selectTemplate('executive')">
+              <div class="text-2xl mb-1">🟪</div>
+              <div class="font-semibold">Executive Modern</div>
+            </div>
+            <div class="template-card" data-template="classic" onclick="selectTemplate('classic')">
+              <div class="text-2xl mb-1">⬛</div>
+              <div class="font-semibold">Classic One-Column</div>
+            </div>
+            <div class="template-card" data-template="corporate" onclick="selectTemplate('corporate')">
+              <div class="text-2xl mb-1">🟫</div>
+              <div class="font-semibold">Clean Corporate</div>
+            </div>
+            <div class="template-card" data-template="bangla" onclick="selectTemplate('bangla')">
+              <div class="text-2xl mb-1">🇧🇩</div>
+              <div class="font-semibold">বাংলা জীবন বৃত্তান্ত</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="space-y-4 max-h-[75vh] overflow-y-auto pr-1">
+            <div class="bg-indigo-50 dark:bg-gray-700/50 p-4 rounded-2xl border border-indigo-100 dark:border-gray-600">
+              <h4 class="font-bold text-sm mb-3 text-indigo-700 dark:text-indigo-300">📷 ছবি ও ব্যক্তিগত তথ্য</h4>
+              <input type="file" id="cv-photo" accept="image/*" class="mb-3 text-sm w-full">
+              <input type="text" id="cv-name" placeholder="পূর্ণ নাম" class="w-full mb-2 px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm">
+              <input type="text" id="cv-phone" placeholder="ফোন (+88 01XXXXXXXXX)" class="w-full mb-2 px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm">
+              <input type="email" id="cv-email" placeholder="ইমেইল" class="w-full mb-2 px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm">
+              <textarea id="cv-address" placeholder="ঠিকানা" rows="2" class="w-full px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm"></textarea>
+            </div>
+
+            <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-2xl">
+              <h4 class="font-bold text-sm mb-2">🎯 Career Objective / সারাংশ</h4>
+              <textarea id="cv-objective" rows="3" class="w-full px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm" placeholder="একজন দক্ষ পেশাজীবী হিসেবে..."></textarea>
+            </div>
+
+            <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-2xl">
+              <h4 class="font-bold text-sm mb-2">🎓 Education</h4>
+              <textarea id="cv-education" rows="5" class="w-full px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm" placeholder="Bachelor of Arts...&#10;University Name&#10;2021 - 2025&#10;CGPA: 3.20"></textarea>
+            </div>
+
+            <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-2xl">
+              <h4 class="font-bold text-sm mb-2">💡 Skills (প্রতি লাইনে একটি)</h4>
+              <textarea id="cv-skills" rows="4" class="w-full px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm" placeholder="Communication&#10;Teamwork&#10;Problem Solving"></textarea>
+            </div>
+
+            <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-2xl">
+              <h4 class="font-bold text-sm mb-2">💼 Work Experience</h4>
+              <textarea id="cv-experience" rows="8" class="w-full px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm" placeholder="Job Title&#10;Company Name&#10;Duration&#10;• Responsibility 1&#10;• Responsibility 2"></textarea>
+            </div>
+
+            <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-2xl">
+              <h4 class="font-bold text-sm mb-2">🌐 Languages</h4>
+              <textarea id="cv-languages" rows="2" class="w-full px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm" placeholder="Bangla (Native)&#10;English (Fluent)"></textarea>
+            </div>
+
+            <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-2xl">
+              <h4 class="font-bold text-sm mb-2">🌟 Additional / Activities</h4>
+              <textarea id="cv-activities" rows="3" class="w-full px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm" placeholder="• Member of Club&#10;• Volunteer work"></textarea>
+            </div>
+
+            <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-2xl">
+              <h4 class="font-bold text-sm mb-2">📞 References</h4>
+              <textarea id="cv-references" rows="4" class="w-full px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm" placeholder="Name&#10;Designation&#10;Phone / Email"></textarea>
+            </div>
+
+            <div class="flex flex-col gap-3">
+              <button onclick="aiSuggestCV()" class="btn-secondary w-full py-3 text-base bg-purple-100 text-purple-700 hover:bg-purple-200">
+                ✨ AI Suggest / অটো ফিল করুন
+              </button>
+              <button onclick="generateCV()" class="btn-primary w-full py-3 text-base">🚀 Generate Professional CV</button>
+            </div>
+          </div>
+
+          <div class="overflow-auto max-h-[75vh] bg-gray-100 dark:bg-gray-900 p-3 rounded-2xl">
+            <div id="cv-preview-container" class="hidden">
+              <div id="cv-preview" class="cv-preview scale-[0.65] origin-top mx-auto"></div>
+              <div class="flex flex-wrap gap-3 mt-4 justify-center sticky bottom-0 bg-gray-100 dark:bg-gray-900 py-3">
+                <button onclick="printCV()" class="btn-primary bg-emerald-600 hover:bg-emerald-700">🖨️ প্রিন্ট / Save as PDF</button>
+                <button onclick="downloadCVImage()" class="btn-secondary">⬇️ ছবি হিসেবে ডাউনলোড</button>
+              </div>
+            </div>
+            <div id="cv-placeholder" class="text-center text-gray-400 py-24">
+              <div class="text-6xl mb-4">📋</div>
+              <p class="text-sm">টেমপ্লেট সিলেক্ট করে ফর্ম পূরণ করুন<br>অথবা <strong>AI Suggest</strong> চাপুন</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7. SCANNER -->
+      <div id="panel-scanner" class="tool-panel">
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+          ক্যামেরা দিয়ে সরাসরি ডকুমেন্ট স্ক্যান করুন অথবা <strong>Canon / অন্যান্য স্ক্যানার</strong> দিয়ে স্ক্যান করা ছবি ইম্পোর্ট করুন।
+        </p>
+        
+        <div class="bg-indigo-50 dark:bg-indigo-950/40 p-4 rounded-2xl border border-indigo-100 dark:border-indigo-800 mb-5">
+          <h4 class="font-bold text-sm text-indigo-700 dark:text-indigo-300 mb-2">📁 Canon / অন্যান্য স্ক্যানার থেকে ছবি ইম্পোর্ট</h4>
+          <p class="text-xs text-gray-600 dark:text-gray-400 mb-3">স্ক্যানার সফটওয়্যার দিয়ে ছবি সেভ করে নিচে আপলোড করুন</p>
+          <input type="file" id="scanner-import-input" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+        </div>
+
+        <div class="flex flex-wrap gap-3 mb-4">
+          <button onclick="startCamera()" class="btn-primary">📷 ক্যামেরা চালু</button>
+          <button onclick="switchCamera()" class="btn-secondary">🔄 ক্যামেরা স্যুইচ</button>
+          <button onclick="stopCamera()" class="btn-danger">ক্যামেরা বন্ধ</button>
+        </div>
+        <div class="relative bg-black rounded-2xl overflow-hidden mb-4 min-h-[250px] flex items-center justify-center">
+          <video id="scanner-video" autoplay playsinline class="w-full hidden"></video>
+          <canvas id="scanner-canvas" class="hidden"></canvas>
+          <span id="camera-placeholder" class="text-white text-sm opacity-70">ক্যামেরা অফ রয়েছে</span>
+        </div>
+        <button id="snap-btn" onclick="takeSnapshot()" class="btn-primary w-full hidden py-3">📸 ক্যাপচার করুন</button>
+        <div id="scanned-result-container" class="mt-6 hidden border-t dark:border-gray-700 pt-4">
+          <img id="scanned-img" class="max-h-80 mx-auto rounded-lg border dark:border-gray-700 mb-4 shadow" />
+          <a id="scanned-download" class="btn-primary">ডাউনলোড করুন</a>
+        </div>
+      </div>
+
+      <!-- 8. COMPRESS -->
+      <div id="panel-compress" class="tool-panel">
+        <input type="file" id="compress-input" accept="image/*" class="mb-4 block w-full text-sm">
+        <div class="mb-4">
+          <label class="block text-sm mb-1">কোয়ালিটি: <span id="quality-value">80%</span></label>
+          <input type="range" id="quality" min="0.1" max="1" step="0.05" value="0.8" class="w-full accent-indigo-600">
+        </div>
+        <button onclick="compressImage()" class="btn-primary">কম্প্রেস করুন</button>
+        <div id="compress-result" class="mt-6"></div>
+      </div>
+
+      <!-- 9. CONVERT -->
+      <div id="panel-convert" class="tool-panel">
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">ইমেজ ফরম্যাট কনভার্ট করুন এবং কাস্টম ডাইমেনশন পরিবর্তন করুন।</p>
+        <input type="file" id="convert-input" accept="image/*" class="mb-4 block w-full text-sm">
+        <div id="convert-preview-info" class="hidden mb-4 p-3 bg-indigo-50 dark:bg-gray-700 rounded-xl text-xs space-y-1">
+          <p><strong>মূল সাইজ:</strong> <span id="orig-dimensions">-</span></p>
+          <p><strong>মূল ফাইল সাইজ:</strong> <span id="orig-filesize">-</span></p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label class="block text-xs font-semibold mb-1">টার্গেট ফরম্যাট:</label>
+            <select id="convert-format" class="border dark:border-gray-700 rounded-xl px-4 py-2.5 w-full bg-white dark:bg-gray-700 text-sm">
+              <option value="image/png">PNG</option>
+              <option value="image/jpeg" selected>JPG / JPEG</option>
+              <option value="image/webp">WebP</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1">পরিমাপের একক:</label>
+            <select id="resize-unit" onchange="handleUnitChange()" class="border dark:border-gray-700 rounded-xl px-4 py-2.5 w-full bg-white dark:bg-gray-700 text-sm">
+              <option value="px" selected>Pixels (px)</option>
+              <option value="in">Inches</option>
+              <option value="cm">Centimeters</option>
+              <option value="mm">Millimeters</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4 mb-3">
+          <div>
+            <label class="block text-xs font-semibold mb-1">প্রস্থ (Width):</label>
+            <input type="number" id="resize-width" placeholder="Width" oninput="onWidthChange()" class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1">উচ্চতা (Height):</label>
+            <input type="number" id="resize-height" placeholder="Height" oninput="onHeightChange()" class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-sm">
+          </div>
+        </div>
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-6 text-xs bg-gray-50 dark:bg-gray-800 p-3 rounded-xl border dark:border-gray-700">
+          <label class="flex items-center gap-2 cursor-pointer font-semibold">
+            <input type="checkbox" id="aspect-ratio-lock" checked class="w-4 h-4 text-indigo-600 rounded"> Maintain Aspect Ratio
+          </label>
+          <div class="flex items-center gap-2">
+            <label class="font-semibold">টার্গেট ফাইল সাইজ (ঐচ্ছিক):</label>
+            <input type="number" id="target-file-size" placeholder="e.g. 100" class="w-20 px-2 py-1 rounded border text-center dark:bg-gray-700">
+            <span>KB</span>
+          </div>
+        </div>
+        <button onclick="convertAndResizeImage()" class="btn-primary w-full py-3">🔄 কনভার্ট ও রিসাইজ করুন</button>
+        <div id="convert-result" class="mt-6"></div>
+      </div>
+
+      <!-- 10. NID -->
+      <div id="panel-nid" class="tool-panel">
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">NID কার্ডের সামনের এবং পেছনের অংশ আপলোড করুন:</p>
+        <input type="file" id="nid-front" accept="image/*" class="mb-2 block w-full text-sm">
+        <input type="file" id="nid-back" accept="image/*" class="mb-4 block w-full text-sm">
+        <button onclick="createNidPdf()" class="btn-primary">NID PDF তৈরি করুন</button>
+        <div id="nid-result" class="mt-6"></div>
+      </div>
+
+    </div>
+  </section>
 
   <!-- Footer -->
   <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-4 text-center text-sm transition-colors mt-auto">
     <p class="text-gray-600 dark:text-gray-400">© Amarkaj Tools • Developed by <span class="rainbow-text text-base ml-1">Antu</span></p>
   </footer>
-
-  <!-- Firebase -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyCzmfEg39TV0cxGkSKivO7lYsier3KH9AY",
-      authDomain: "amarkaj-c7d5f.firebaseapp.com",
-      projectId: "amarkaj-c7d5f",
-      storageBucket: "amarkaj-c7d5f.firebasestorage.app",
-      messagingSenderId: "183473425547",
-      appId: "1:183473425547:web:f713861eeaac48b978188e",
-      measurementId: "G-HXVW2W079G"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-
-    window.handleLogin = async function() {
-      const email = document.getElementById('auth-email').value.trim();
-      const password = document.getElementById('auth-password').value;
-      const errorEl = document.getElementById('auth-error');
-      if (!email || !password) {
-        errorEl.textContent = "ইমেইল এবং পাসওয়ার্ড সঠিকভাবে দিন।";
-        errorEl.classList.remove('hidden');
-        return;
-      }
-      toggleLoader(true, "যাচাই করা হচ্ছে...");
-      errorEl.classList.add('hidden');
-      try {
-        await signInWithEmailAndPassword(auth, email, password);
-        showToast('লগইন সফল হয়েছে!', '✅');
-      } catch (error) {
-        errorEl.textContent = "লগইন ব্যর্থ হয়েছে: " + getReadableAuthError(error.code);
-        errorEl.classList.remove('hidden');
-      } finally {
-        toggleLoader(false);
-      }
-    };
-
-    window.handleSignUp = async function() {
-      const email = document.getElementById('auth-email').value.trim();
-      const password = document.getElementById('auth-password').value;
-      const errorEl = document.getElementById('auth-error');
-      if (!email || !password) {
-        errorEl.textContent = "ইমেইল এবং পাসওয়ার্ড সঠিকভাবে দিন।";
-        errorEl.classList.remove('hidden');
-        return;
-      }
-      if(password.length < 6) {
-        errorEl.textContent = "পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।";
-        errorEl.classList.remove('hidden');
-        return;
-      }
-      toggleLoader(true, "নতুন অ্যাকাউন্ট তৈরি হচ্ছে...");
-      errorEl.classList.add('hidden');
-      try {
-        await createUserWithEmailAndPassword(auth, email, password);
-        showToast('অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে!', '🎉');
-      } catch (error) {
-        errorEl.textContent = "রেজিস্ট্রেশন ব্যর্থ: " + getReadableAuthError(error.code);
-        errorEl.classList.remove('hidden');
-      } finally {
-        toggleLoader(false);
-      }
-    };
-
-    window.handleLogout = function() {
-      signOut(auth).then(() => showToast('লগআউট করা হয়েছে', 'ℹ️'));
-    };
-
-    function getReadableAuthError(code) {
-      switch (code) {
-        case 'auth/user-not-found':
-        case 'auth/invalid-credential': return 'ইমেইল বা পাসওয়ার্ড ভুল হয়েছে।';
-        case 'auth/wrong-password': return 'পাসওয়ার্ড ভুল হয়েছে।';
-        case 'auth/email-already-in-use': return 'এই ইমেইল দিয়ে আগেই অ্যাকাউন্ট করা রয়েছে।';
-        case 'auth/invalid-email': return 'সঠিক ইমেইল ঠিকানা দিন।';
-        case 'auth/weak-password': return 'পাসওয়ার্ড আরও শক্ত দিন (কমপক্ষে ৬ ডিজিট)।';
-        default: return 'সমস্যা হয়েছে, পরে চেষ্টা করুন।';
-      }
-    }
-
-    onAuthStateChanged(auth, (user) => {
-      const modal = document.getElementById('auth-modal');
-      const content = document.getElementById('app-content');
-      const userDisplay = document.getElementById('user-display');
-      if (user) {
-        modal.classList.add('hidden');
-        content.classList.remove('hidden');
-        userDisplay.textContent = "স্বাগতম, " + (user.email || '');
-      } else {
-        modal.classList.remove('hidden');
-        content.classList.add('hidden');
-      }
-    });
-  </script>
 
   <script>
     // ========== UI Helpers ==========
@@ -845,8 +711,9 @@
         convert: 'ইমেজ কনভার্ট & কাস্টম রিসাইজ',
         nid: 'NID কার্ড → PDF'
       };
-      document.getElementById('tool-title').textContent = titles[tool];
-      document.getElementById('panel-' + tool).classList.add('active');
+      document.getElementById('tool-title').textContent = titles[tool] || tool;
+      const panel = document.getElementById('panel-' + tool);
+      if (panel) panel.classList.add('active');
       window.scrollTo({ top: document.getElementById('workspace').offsetTop - 70, behavior: 'smooth' });
     }
 
@@ -855,9 +722,13 @@
       document.getElementById('workspace').classList.add('hidden');
     }
 
-    document.getElementById('quality').addEventListener('input', function() {
-      document.getElementById('quality-value').textContent = Math.round(this.value * 100) + '%';
-    });
+    // Quality slider
+    const qualityEl = document.getElementById('quality');
+    if (qualityEl) {
+      qualityEl.addEventListener('input', function() {
+        document.getElementById('quality-value').textContent = Math.round(this.value * 100) + '%';
+      });
+    }
 
     // ========== AI BG REMOVAL ==========
     let cropper = null;
@@ -868,10 +739,12 @@
 
     function initMediaPipe() {
       if (!selfieSegmentation) {
-        selfieSegmentation = new SelfieSegmentation({
-          locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`
-        });
-        selfieSegmentation.setOptions({ modelSelection: 1 });
+        try {
+          selfieSegmentation = new SelfieSegmentation({
+            locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`
+          });
+          selfieSegmentation.setOptions({ modelSelection: 1 });
+        } catch(e) { console.log('MediaPipe load issue'); }
       }
     }
     initMediaPipe();
@@ -910,6 +783,7 @@
 
     function getSegmentedMask(imageElem) {
       return new Promise((resolve) => {
+        if (!selfieSegmentation) { resolve(null); return; }
         const tempCanvas = document.createElement('canvas');
         tempCanvas.width = imageElem.naturalWidth || imageElem.width;
         tempCanvas.height = imageElem.naturalHeight || imageElem.height;
@@ -936,8 +810,10 @@
         const ctx = canvas.getContext('2d');
         ctx.fillStyle = color;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.globalCompositeOperation = 'destination-out';
-        ctx.drawImage(maskCanvas, 0, 0, canvas.width, canvas.height);
+        if (maskCanvas) {
+          ctx.globalCompositeOperation = 'destination-out';
+          ctx.drawImage(maskCanvas, 0, 0, canvas.width, canvas.height);
+        }
         ctx.globalCompositeOperation = 'destination-over';
         ctx.drawImage(baseLoadedImage, 0, 0, canvas.width, canvas.height);
         const newUrl = canvas.toDataURL('image/png');
@@ -972,8 +848,10 @@
             canvas.height = baseLoadedImage.naturalHeight || baseLoadedImage.height;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
-            ctx.globalCompositeOperation = 'destination-out';
-            ctx.drawImage(maskCanvas, 0, 0, canvas.width, canvas.height);
+            if (maskCanvas) {
+              ctx.globalCompositeOperation = 'destination-out';
+              ctx.drawImage(maskCanvas, 0, 0, canvas.width, canvas.height);
+            }
             ctx.globalCompositeOperation = 'destination-over';
             ctx.drawImage(baseLoadedImage, 0, 0, canvas.width, canvas.height);
             const newUrl = canvas.toDataURL('image/png');
@@ -998,7 +876,7 @@
 
     function applyFilters() {
       const img = document.getElementById('ai-image');
-      if (!img.src) return;
+      if (!img || !img.src) return;
       const b = document.getElementById('filter-brightness').value;
       const c = document.getElementById('filter-contrast').value;
       const blur = document.getElementById('filter-blur').value;
@@ -1008,6 +886,7 @@
 
     function enableCrop() {
       const img = document.getElementById('ai-image');
+      if (!img.src) return showToast('আগে ছবি লোড করুন', '⚠️');
       if (cropper) cropper.destroy();
       cropper = new Cropper(img, { aspectRatio: NaN, viewMode: 1 });
       showToast('ক্রপ এরিয়া নির্বাচন করুন', '✂️');
@@ -1418,7 +1297,8 @@
     function setDocTool(tool) {
       currentDocTool = tool;
       ['tool-erase-btn','tool-box-btn','tool-text-btn','tool-select-btn'].forEach(id => {
-        document.getElementById(id).className = 'btn-secondary py-1.5 px-3';
+        const el = document.getElementById(id);
+        if (el) el.className = 'btn-secondary py-1.5 px-3';
       });
       if (tool === 'erase-brush') {
         document.getElementById('tool-erase-btn').className = 'btn-primary py-1.5 px-3';
@@ -1721,9 +1601,12 @@
         videoStream.getTracks().forEach(track => track.stop());
         videoStream = null;
       }
-      document.getElementById('scanner-video').classList.add('hidden');
-      document.getElementById('camera-placeholder').classList.remove('hidden');
-      document.getElementById('snap-btn').classList.add('hidden');
+      const video = document.getElementById('scanner-video');
+      if (video) video.classList.add('hidden');
+      const placeholder = document.getElementById('camera-placeholder');
+      if (placeholder) placeholder.classList.remove('hidden');
+      const snap = document.getElementById('snap-btn');
+      if (snap) snap.classList.add('hidden');
     }
 
     function takeSnapshot() {
@@ -1859,7 +1742,7 @@
       setTimeout(() => { win.print(); win.close(); }, 500);
     }
 
-    // ========== CV GENERATOR (MULTI TEMPLATE + AI) ==========
+    // ========== CV GENERATOR ==========
     let cvPhotoData = null;
     let currentTemplate = 'modern';
 
@@ -1876,12 +1759,12 @@
     function selectTemplate(tpl) {
       currentTemplate = tpl;
       document.querySelectorAll('.template-card').forEach(c => c.classList.remove('active'));
-      document.querySelector(`[data-template="${tpl}"]`).classList.add('active');
+      const card = document.querySelector(`[data-template="${tpl}"]`);
+      if (card) card.classList.add('active');
       showToast('টেমপ্লেট সিলেক্ট করা হয়েছে: ' + tpl, '🎨');
     }
 
     function aiSuggestCV() {
-      const name = document.getElementById('cv-name').value.trim() || 'Your Name';
       document.getElementById('cv-objective').value = `A highly motivated and results-driven professional seeking to leverage skills and experience in a challenging role. Committed to continuous learning, teamwork, and delivering excellence with integrity and dedication.`;
       document.getElementById('cv-skills').value = `Communication & Interpersonal Skills
 Teamwork & Collaboration
