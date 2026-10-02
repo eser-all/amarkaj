@@ -203,7 +203,7 @@
     <section class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white py-12 relative overflow-hidden">
       <div class="max-w-4xl mx-auto px-4 text-center relative z-10">
         <h2 class="text-3xl md:text-5xl font-extrabold mb-3 leading-tight">স্মার্ট এডিটিং ও প্রফেশনাল ফাইল ম্যানেজার</h2>
-        <p class="text-base md:text-lg opacity-90 font-light">AI ফটো • A4 গ্রিড • ডকুমেন্ট এডিটর • <strong>AI CV মেকার</strong> • PDF মার্জার</p>
+        <p class="text-base md:text-lg opacity-90 font-light">AI ফটো • A4 গ্রিড • ডকুমেন্ট এডিটর • <strong>AI CV মেকার</strong> • PDF মার্জার • Canon স্ক্যানার সাপোর্ট</p>
       </div>
     </section>
 
@@ -238,7 +238,7 @@
         </div>
         <div class="tool-card" onclick="showTool('scanner')">
           <div class="text-4xl">📷</div>
-          <h4 class="font-semibold text-sm md:text-base">লাইভ এইচডি স্ক্যানার</h4>
+          <h4 class="font-semibold text-sm md:text-base">লাইভ এইচডি স্ক্যানার + Canon</h4>
         </div>
         <div class="tool-card" onclick="showTool('compress')">
           <div class="text-4xl">📦</div>
@@ -600,9 +600,19 @@ Email: sales2@grandvistana.com"></textarea>
           </div>
         </div>
 
-        <!-- 7. SCANNER -->
+        <!-- 7. SCANNER (Canon + Live Camera) -->
         <div id="panel-scanner" class="tool-panel">
-          <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">ক্যামেরা দিয়ে সরাসরি ডকুমেন্ট স্ক্যান করুন।</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+            ক্যামেরা দিয়ে সরাসরি ডকুমেন্ট স্ক্যান করুন অথবা <strong>Canon / অন্যান্য স্ক্যানার</strong> দিয়ে স্ক্যান করা ছবি ইম্পোর্ট করুন।
+          </p>
+          
+          <!-- Canon / Scanner Import -->
+          <div class="bg-indigo-50 dark:bg-indigo-950/40 p-4 rounded-2xl border border-indigo-100 dark:border-indigo-800 mb-5">
+            <h4 class="font-bold text-sm text-indigo-700 dark:text-indigo-300 mb-2">📁 Canon / অন্যান্য স্ক্যানার থেকে ছবি ইম্পোর্ট</h4>
+            <p class="text-xs text-gray-600 dark:text-gray-400 mb-3">স্ক্যানার সফটওয়্যার দিয়ে ছবি সেভ করে নিচে আপলোড করুন (JPG, PNG, TIFF ইত্যাদি সাপোর্টেড)</p>
+            <input type="file" id="scanner-import-input" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+          </div>
+
           <div class="flex flex-wrap gap-3 mb-4">
             <button onclick="startCamera()" class="btn-primary">📷 ক্যামেরা চালু</button>
             <button onclick="switchCamera()" class="btn-secondary">🔄 ক্যামেরা স্যুইচ</button>
@@ -824,7 +834,7 @@ Email: sales2@grandvistana.com"></textarea>
       document.getElementById('workspace').classList.remove('hidden');
       document.querySelectorAll('.tool-panel').forEach(p => p.classList.remove('active'));
       const titles = {
-        scanner: 'লাইভ এইচডি স্ক্যানার',
+        scanner: 'লাইভ এইচডি স্ক্যানার + Canon ইম্পোর্ট',
         ai: 'AI ফটো এডিট ও ব্যাকগ্রাউন্ড চেঞ্জার',
         doceditor: 'স্মার্ট ডকুমেন্ট এডিটর & OCR',
         pdfmerge: 'একাধিক PDF / ছবি / ডকুমেন্ট মার্জার',
@@ -1666,9 +1676,26 @@ Email: sales2@grandvistana.com"></textarea>
       fileDownload.click();
     }
 
-    // ========== CAMERA ==========
+    // ========== CAMERA + CANON IMPORT ==========
     let videoStream = null;
     let currentFacingMode = 'environment';
+
+    // Canon / Scanner Import
+    document.getElementById('scanner-import-input').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        document.getElementById('scanned-img').src = evt.target.result;
+        const dl = document.getElementById('scanned-download');
+        dl.href = evt.target.result;
+        dl.download = 'scanned-from-canon-' + Date.now() + '.jpg';
+        document.getElementById('scanned-result-container').classList.remove('hidden');
+        showToast('Canon/স্ক্যানার থেকে ছবি সফলভাবে ইম্পোর্ট হয়েছে!', '📁');
+        e.target.value = '';
+      };
+      reader.readAsDataURL(file);
+    });
 
     async function startCamera() {
       try {
