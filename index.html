@@ -87,6 +87,11 @@
       0% { background-position: 0% center; }
       100% { background-position: 200% center; }
     }
+
+    /* Document Editor Text Selection Style */
+    .text-selected {
+      outline: 2px dashed #6366f1;
+    }
   </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 min-h-screen transition-colors duration-200 flex flex-col justify-between">
@@ -120,7 +125,7 @@
     </div>
   </div>
 
-  <!-- Main App View (Login এর আগে ঝাপসা থাকবে) -->
+  <!-- Main App View -->
   <div id="app-content" class="hidden">
     <!-- Toast Notification -->
     <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 bg-gray-900 text-white text-sm px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2 opacity-0">
@@ -282,7 +287,6 @@
             <!-- BORDER & MULTI-IMAGE GRID SECTION -->
             <div class="bg-indigo-50/50 dark:bg-gray-700/30 p-4 rounded-2xl border border-indigo-100 dark:border-gray-600 mt-4 space-y-4">
               
-              <!-- ১. বর্ডার সেটিংস -->
               <div class="border-b dark:border-gray-600 pb-3">
                 <h4 class="font-bold text-sm text-indigo-700 dark:text-indigo-300 mb-2">🖼️ ছবির বর্ডার সেটিংস:</h4>
                 <div class="flex flex-wrap items-center gap-4 text-xs font-semibold">
@@ -301,7 +305,6 @@
                 </div>
               </div>
 
-              <!-- ২. একাধিক ছবি ও প্লাস আইকন কন্ট্রোল -->
               <div>
                 <h4 class="font-bold text-sm text-indigo-700 dark:text-indigo-300 mb-2">🖨️ A4 পেজে মাল্টিপল ছবির পাসপোর্ট গ্রিড:</h4>
                 
@@ -324,7 +327,6 @@
                 </div>
               </div>
 
-              <!-- ৩. প্রিন্ট ও ডাউনলোড অ্যাকশন -->
               <div class="flex flex-wrap gap-3 items-center pt-2">
                 <button onclick="downloadAiA4Pdf()" id="ai-pdf-btn" class="btn-primary bg-purple-600 hover:bg-purple-700 hidden">📄 A4 PDF ডাউনলোড</button>
                 <button onclick="printAiA4Grid()" id="ai-print-btn" class="btn-secondary hidden">🖨️ সরাসরি প্রিন্ট</button>
@@ -339,10 +341,13 @@
           </div>
         </div>
 
-        <!-- ==================== 2. DOCUMENT EDITOR ==================== -->
+        <!-- ==================== 2. DOCUMENT EDITOR (Enhanced with Movable/Editable Text) ==================== -->
         <div id="panel-doceditor" class="tool-panel">
           <div class="bg-indigo-50 dark:bg-indigo-950/50 p-4 rounded-2xl border border-indigo-100 dark:border-indigo-800/50 mb-4">
-            <p class="text-sm text-indigo-900 dark:text-indigo-200 font-medium">🖨️ স্ক্যানড বা গ্যালোরি ডকুমেন্টের ভুল লেখা মুছুন, টেক্সট যুক্ত করুন এবং সরাসরি PDF বা Word ফাইলে সেভ করুন।</p>
+            <p class="text-sm text-indigo-900 dark:text-indigo-200 font-medium">
+              🖨️ স্ক্যানড বা গ্যালোরি ডকুমেন্টের ভুল লেখা মুছুন, টেক্সট যুক্ত করুন এবং সরাসরি PDF বা Word ফাইলে সেভ করুন।
+              <br><span class="text-xs">নতুন: টেক্সট লেখার পর ড্র্যাগ করে সরান, রিসাইজ করুন, ঘোরান এবং এডিট করুন।</span>
+            </p>
           </div>
 
           <div class="mb-4 flex flex-wrap gap-3 items-center">
@@ -356,6 +361,7 @@
               <button onclick="setDocTool('erase-brush')" id="tool-erase-btn" class="btn-primary py-1.5 px-3">🖌️ ব্রাশ ইরেজার</button>
               <button onclick="setDocTool('erase-box')" id="tool-box-btn" class="btn-secondary py-1.5 px-3">🔳 বক্স ইরেজার</button>
               <button onclick="setDocTool('text')" id="tool-text-btn" class="btn-secondary py-1.5 px-3">✏️ টেক্সট লিখুন</button>
+              <button onclick="setDocTool('select')" id="tool-select-btn" class="btn-secondary py-1.5 px-3">🖱️ সিলেক্ট / মুভ</button>
               
               <div class="flex items-center gap-1">
                 <label class="text-xs font-semibold">ব্যাকগ্রাউন্ড কালার:</label>
@@ -364,7 +370,7 @@
 
               <div class="flex items-center gap-1 border-l pl-2 border-gray-300 dark:border-gray-600">
                 <label class="text-xs font-semibold">ফন্ট সাইজ:</label>
-                <input type="number" id="doc-font-size" value="22" min="10" max="100" class="w-14 p-1 rounded border text-center font-bold dark:bg-gray-800">
+                <input type="number" id="doc-font-size" value="22" min="10" max="120" class="w-14 p-1 rounded border text-center font-bold dark:bg-gray-800">
               </div>
 
               <div class="flex items-center gap-1">
@@ -385,7 +391,28 @@
               <button onclick="resetDocCanvas()" class="btn-danger py-1.5 px-3 ml-auto">🔄 রিসেট</button>
             </div>
 
-            <div class="border dark:border-gray-700 rounded-2xl overflow-auto bg-gray-300 dark:bg-gray-900 max-h-[500px] flex justify-center p-3">
+            <!-- Selected Text Controls -->
+            <div id="selected-text-controls" class="hidden flex flex-wrap gap-3 p-3 bg-indigo-50 dark:bg-indigo-900/30 rounded-2xl items-center text-xs border border-indigo-200 dark:border-indigo-700">
+              <span class="font-bold text-indigo-700 dark:text-indigo-300">নির্বাচিত টেক্সট:</span>
+              
+              <button onclick="editSelectedText()" class="btn-secondary py-1 px-3">✏️ এডিট টেক্সট</button>
+              
+              <div class="flex items-center gap-1">
+                <label>সাইজ:</label>
+                <input type="number" id="selected-font-size" min="8" max="150" class="w-14 p-1 rounded border text-center dark:bg-gray-800" onchange="updateSelectedTextSize()">
+              </div>
+              
+              <div class="flex items-center gap-1">
+                <label>রোটেশন:</label>
+                <input type="range" id="selected-rotation" min="-180" max="180" value="0" class="w-24 accent-indigo-600" oninput="updateSelectedTextRotation()">
+                <span id="rotation-value">0°</span>
+              </div>
+              
+              <button onclick="deleteSelectedText()" class="btn-danger py-1 px-3">🗑️ মুছুন</button>
+              <button onclick="deselectText()" class="btn-secondary py-1 px-3">বাতিল</button>
+            </div>
+
+            <div class="border dark:border-gray-700 rounded-2xl overflow-auto bg-gray-300 dark:bg-gray-900 max-h-[500px] flex justify-center p-3 relative">
               <canvas id="doc-canvas" class="bg-white shadow-2xl cursor-crosshair rounded max-w-full"></canvas>
             </div>
 
@@ -402,7 +429,7 @@
           </div>
         </div>
 
-        <!-- ==================== 3. PDF / IMAGE / DOCUMENT MERGER PANEL ==================== -->
+        <!-- ==================== 3. PDF / IMAGE MERGER PANEL ==================== -->
         <div id="panel-pdfmerge" class="tool-panel">
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
             একাধিক <strong>PDF</strong>, <strong>ছবি</strong> (JPG, PNG, WebP ইত্যাদি) বা স্ক্যানড ডকুমেন্ট সিলেক্ট করে একসাথে জুড়ে নতুন একটি PDF বানিয়ে ডাউনলোড করুন।
@@ -500,7 +527,6 @@
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <!-- Target Format -->
             <div>
               <label class="block text-xs font-semibold mb-1">টার্গেট ফরম্যাট:</label>
               <select id="convert-format" class="border dark:border-gray-700 rounded-xl px-4 py-2.5 w-full bg-white dark:bg-gray-700 text-sm">
@@ -510,7 +536,6 @@
               </select>
             </div>
 
-            <!-- Dimension Unit -->
             <div>
               <label class="block text-xs font-semibold mb-1">পরিমাপের একক (Unit):</label>
               <select id="resize-unit" onchange="handleUnitChange()" class="border dark:border-gray-700 rounded-xl px-4 py-2.5 w-full bg-white dark:bg-gray-700 text-sm">
@@ -522,7 +547,6 @@
             </div>
           </div>
 
-          <!-- Dimension Inputs -->
           <div class="grid grid-cols-2 gap-4 mb-3">
             <div>
               <label class="block text-xs font-semibold mb-1">প্রস্থ (Width):</label>
@@ -534,7 +558,6 @@
             </div>
           </div>
 
-          <!-- Aspect Ratio & Max File Size Options -->
           <div class="flex flex-wrap items-center justify-between gap-4 mb-6 text-xs bg-gray-50 dark:bg-gray-800 p-3 rounded-xl border dark:border-gray-700">
             <label class="flex items-center gap-2 cursor-pointer font-semibold">
               <input type="checkbox" id="aspect-ratio-lock" checked class="w-4 h-4 text-indigo-600 rounded">
@@ -586,11 +609,9 @@
       measurementId: "G-HXVW2W079G"
     };
 
-    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    // Login Handler
     window.handleLogin = async function() {
       const email = document.getElementById('auth-email').value.trim();
       const password = document.getElementById('auth-password').value;
@@ -616,7 +637,6 @@
       }
     };
 
-    // Registration/SignUp Handler
     window.handleSignUp = async function() {
       const email = document.getElementById('auth-email').value.trim();
       const password = document.getElementById('auth-password').value;
@@ -648,14 +668,12 @@
       }
     };
 
-    // Logout Handler
     window.handleLogout = function() {
       signOut(auth).then(() => {
         showToast('লগআউট করা হয়েছে', 'ℹ️');
       });
     };
 
-    // Bengali Error Codes
     function getReadableAuthError(code) {
       switch (code) {
         case 'auth/user-not-found':
@@ -674,7 +692,6 @@
       }
     }
 
-    // Auth State Changed Observer
     onAuthStateChanged(auth, (user) => {
       const modal = document.getElementById('auth-modal');
       const content = document.getElementById('app-content');
@@ -747,7 +764,6 @@
     let originalAiImageSrc = null;
     let baseLoadedImage = null; 
     let selfieSegmentation = null;
-
     let aiGridPhotos = [];
 
     function initMediaPipe() {
@@ -980,7 +996,6 @@
       }
     }
 
-    // MULTI-IMAGE & BORDER LOGIC
     function handleAddMoreImage(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -1114,15 +1129,13 @@
       setTimeout(() => { win.print(); win.close(); }, 500);
     }
 
-    // ========== ADVANCED PDF + IMAGE + DOCUMENT MERGER ==========
-    let mergeFileList = []; // keep selected files for re-render
+    // ========== ADVANCED PDF + IMAGE MERGER ==========
+    let mergeFileList = [];
 
     document.getElementById('pdf-merge-input').addEventListener('change', function(e) {
       const files = Array.from(e.target.files);
-      // Append new files to existing list
       mergeFileList = mergeFileList.concat(files);
       renderMergeFileList();
-      // reset input so same file can be selected again if needed
       e.target.value = '';
     });
 
@@ -1170,19 +1183,14 @@
       showToast('সব ফাইল মুছে ফেলা হয়েছে', '🧹');
     }
 
-    // Helper: Convert an image File to a PDF page (embedded as JPEG)
     async function addImageAsPdfPage(mergedPdf, imageFile) {
       const arrayBuffer = await imageFile.arrayBuffer();
       let imageEmbed;
 
-      // Detect type and embed accordingly
       if (imageFile.type === 'image/png' || imageFile.name.toLowerCase().endsWith('.png')) {
         imageEmbed = await mergedPdf.embedPng(arrayBuffer);
       } else {
-        // Default to JPEG (works for jpg, jpeg, webp converted via canvas if needed)
-        // For safety, convert non-JPEG to JPEG via canvas first
         if (imageFile.type !== 'image/jpeg' && !imageFile.name.toLowerCase().match(/\.(jpe?g)$/)) {
-          // Convert via canvas to JPEG
           const blobUrl = URL.createObjectURL(imageFile);
           const img = await new Promise((resolve, reject) => {
             const i = new Image();
@@ -1207,14 +1215,12 @@
         }
       }
 
-      // Create A4 page (595 x 842 points)
-      const page = mergedPdf.addPage([595.28, 841.89]); // A4 in points
+      const page = mergedPdf.addPage([595.28, 841.89]);
       const { width, height } = page.getSize();
 
-      // Scale image to fit page while keeping aspect ratio
       const imgWidth = imageEmbed.width;
       const imgHeight = imageEmbed.height;
-      const scale = Math.min(width / imgWidth, height / imgHeight) * 0.95; // 95% to leave small margin
+      const scale = Math.min(width / imgWidth, height / imgHeight) * 0.95;
       const drawWidth = imgWidth * scale;
       const drawHeight = imgHeight * scale;
       const x = (width - drawWidth) / 2;
@@ -1244,16 +1250,13 @@
           const isImage = file.type.startsWith('image/') || /\.(jpe?g|png|webp|gif|bmp|tiff?)$/i.test(file.name);
 
           if (isPdf) {
-            // Load existing PDF and copy all pages
             const fileBytes = await file.arrayBuffer();
             const pdfDoc = await PDFLib.PDFDocument.load(fileBytes, { ignoreEncryption: true });
             const copiedPages = await mergedPdf.copyPages(pdfDoc, pdfDoc.getPageIndices());
             copiedPages.forEach((page) => mergedPdf.addPage(page));
           } else if (isImage) {
-            // Convert image to a single PDF page
             await addImageAsPdfPage(mergedPdf, file);
           } else {
-            // Unsupported file type – skip with warning
             console.warn('Unsupported file skipped:', file.name);
             showToast(`স্কিপ করা হয়েছে: ${file.name} (সাপোর্টেড নয়)`, '⚠️');
           }
@@ -1273,7 +1276,6 @@
         a.download = 'merged_document_amarkaj.pdf';
         a.click();
 
-        // Cleanup
         setTimeout(() => URL.revokeObjectURL(url), 5000);
 
         toggleLoader(false);
@@ -1285,13 +1287,20 @@
       }
     }
 
-    // ========== DOCUMENT EDITOR CANVAS ==========
+    // ========== DOCUMENT EDITOR CANVAS (Enhanced with Movable/Editable/Rotatable Text) ==========
     let docCanvas = document.getElementById('doc-canvas');
     let docCtx = docCanvas.getContext('2d');
     let rawDocImage = null;
     let currentDocTool = 'erase-brush'; 
     let isDrawing = false;
     let startX = 0, startY = 0;
+
+    // Text Objects System
+    let textObjects = [];          // Array of {id, text, x, y, fontSize, fontFamily, color, rotation, width, height}
+    let selectedTextId = null;
+    let isDraggingText = false;
+    let dragOffsetX = 0, dragOffsetY = 0;
+    let nextTextId = 1;
 
     document.getElementById('doc-input').addEventListener('change', function(e) {
       const file = e.target.files[0];
@@ -1303,7 +1312,10 @@
         rawDocImage.onload = function() {
           docCanvas.width = rawDocImage.width;
           docCanvas.height = rawDocImage.height;
-          docCtx.drawImage(rawDocImage, 0, 0);
+          textObjects = [];
+          selectedTextId = null;
+          document.getElementById('selected-text-controls').classList.add('hidden');
+          redrawDocCanvas();
           document.getElementById('doc-editor-tools').classList.remove('hidden');
           showToast('ডকুমেন্ট এডিটর প্রস্তুত', '📄');
         };
@@ -1312,6 +1324,43 @@
       reader.readAsDataURL(file);
     });
 
+    function redrawDocCanvas() {
+      if (!rawDocImage) return;
+      
+      // Clear and redraw background image
+      docCtx.clearRect(0, 0, docCanvas.width, docCanvas.height);
+      docCtx.drawImage(rawDocImage, 0, 0);
+
+      // Draw all text objects
+      textObjects.forEach(obj => {
+        docCtx.save();
+        docCtx.translate(obj.x, obj.y);
+        docCtx.rotate(obj.rotation * Math.PI / 180);
+        docCtx.font = `${obj.fontSize}px ${obj.fontFamily}`;
+        docCtx.fillStyle = obj.color;
+        docCtx.textBaseline = 'top';
+        docCtx.fillText(obj.text, 0, 0);
+
+        // Draw selection box if selected
+        if (obj.id === selectedTextId) {
+          const metrics = docCtx.measureText(obj.text);
+          const textWidth = metrics.width;
+          const textHeight = obj.fontSize * 1.2;
+          
+          docCtx.strokeStyle = '#6366f1';
+          docCtx.lineWidth = 2;
+          docCtx.setLineDash([5, 3]);
+          docCtx.strokeRect(-4, -4, textWidth + 8, textHeight + 4);
+          docCtx.setLineDash([]);
+          
+          // Draw resize handle (bottom-right)
+          docCtx.fillStyle = '#6366f1';
+          docCtx.fillRect(textWidth + 2, textHeight - 2, 10, 10);
+        }
+        docCtx.restore();
+      });
+    }
+
     function fitToA4Standard() {
       if (!docCanvas.width) return;
       const tempCanvas = document.createElement('canvas');
@@ -1319,23 +1368,46 @@
       tempCanvas.height = docCanvas.height;
       tempCanvas.getContext('2d').drawImage(docCanvas, 0, 0);
 
+      // Scale text objects proportionally
+      const oldW = docCanvas.width;
+      const oldH = docCanvas.height;
+      
       docCanvas.width = 1240;
       docCanvas.height = 1754;
-      docCtx.fillStyle = "#ffffff";
-      docCtx.fillRect(0, 0, 1240, 1754);
       
-      const ratio = Math.min(1240 / tempCanvas.width, 1754 / tempCanvas.height);
-      const w = tempCanvas.width * ratio;
-      const h = tempCanvas.height * ratio;
+      const ratio = Math.min(1240 / oldW, 1754 / oldH);
+      const w = oldW * ratio;
+      const h = oldH * ratio;
       const x = (1240 - w) / 2;
       const y = (1754 - h) / 2;
 
-      docCtx.drawImage(tempCanvas, x, y, w, h);
-      showToast('A4 সাইজে ফিট হয়েছে', '📐');
+      // Update text positions
+      textObjects.forEach(obj => {
+        obj.x = x + (obj.x * ratio);
+        obj.y = y + (obj.y * ratio);
+        obj.fontSize = Math.max(10, obj.fontSize * ratio);
+      });
+
+      // Create new background
+      const newBg = document.createElement('canvas');
+      newBg.width = 1240;
+      newBg.height = 1754;
+      const nctx = newBg.getContext('2d');
+      nctx.fillStyle = "#ffffff";
+      nctx.fillRect(0, 0, 1240, 1754);
+      nctx.drawImage(tempCanvas, x, y, w, h);
+      
+      rawDocImage = new Image();
+      rawDocImage.onload = () => {
+        redrawDocCanvas();
+        showToast('A4 সাইজে ফিট হয়েছে', '📐');
+      };
+      rawDocImage.src = newBg.toDataURL();
     }
 
     function rotateDocCanvas() {
       if (!docCanvas.width) return;
+      
       const tempCanvas = document.createElement('canvas');
       tempCanvas.width = docCanvas.height;
       tempCanvas.height = docCanvas.width;
@@ -1345,10 +1417,26 @@
       tempCtx.rotate(90 * Math.PI / 180);
       tempCtx.drawImage(docCanvas, -docCanvas.width / 2, -docCanvas.height / 2);
 
+      // Rotate text objects
+      const oldW = docCanvas.width;
+      const oldH = docCanvas.height;
+      textObjects.forEach(obj => {
+        const newX = oldH - obj.y;
+        const newY = obj.x;
+        obj.x = newX;
+        obj.y = newY;
+        obj.rotation = (obj.rotation + 90) % 360;
+      });
+
       docCanvas.width = tempCanvas.width;
       docCanvas.height = tempCanvas.height;
-      docCtx.drawImage(tempCanvas, 0, 0);
-      showToast('৯০° ঘোরানো হয়েছে', '🔄');
+      
+      rawDocImage = new Image();
+      rawDocImage.onload = () => {
+        redrawDocCanvas();
+        showToast('৯০° ঘোরানো হয়েছে', '🔄');
+      };
+      rawDocImage.src = tempCanvas.toDataURL();
     }
 
     function setDocTool(tool) {
@@ -1356,19 +1444,113 @@
       document.getElementById('tool-erase-btn').className = 'btn-secondary py-1.5 px-3';
       document.getElementById('tool-box-btn').className = 'btn-secondary py-1.5 px-3';
       document.getElementById('tool-text-btn').className = 'btn-secondary py-1.5 px-3';
+      document.getElementById('tool-select-btn').className = 'btn-secondary py-1.5 px-3';
 
       if (tool === 'erase-brush') {
         document.getElementById('tool-erase-btn').className = 'btn-primary py-1.5 px-3';
+        docCanvas.style.cursor = 'crosshair';
       } else if (tool === 'erase-box') {
         document.getElementById('tool-box-btn').className = 'btn-primary py-1.5 px-3';
+        docCanvas.style.cursor = 'crosshair';
       } else if (tool === 'text') {
         document.getElementById('tool-text-btn').className = 'btn-primary py-1.5 px-3';
+        docCanvas.style.cursor = 'text';
+      } else if (tool === 'select') {
+        document.getElementById('tool-select-btn').className = 'btn-primary py-1.5 px-3';
+        docCanvas.style.cursor = 'default';
       }
+    }
+
+    // Get text object under mouse
+    function getTextAtPosition(x, y) {
+      // Check from last to first (topmost first)
+      for (let i = textObjects.length - 1; i >= 0; i--) {
+        const obj = textObjects[i];
+        docCtx.save();
+        docCtx.font = `${obj.fontSize}px ${obj.fontFamily}`;
+        const metrics = docCtx.measureText(obj.text);
+        const textWidth = metrics.width;
+        const textHeight = obj.fontSize * 1.2;
+        docCtx.restore();
+
+        // Simple hit test (approximate, without full rotation matrix for simplicity)
+        // For better accuracy we use bounding box around center
+        const dx = x - obj.x;
+        const dy = y - obj.y;
+        const cos = Math.cos(-obj.rotation * Math.PI / 180);
+        const sin = Math.sin(-obj.rotation * Math.PI / 180);
+        const localX = dx * cos - dy * sin;
+        const localY = dx * sin + dy * cos;
+
+        if (localX >= -4 && localX <= textWidth + 4 && localY >= -4 && localY <= textHeight + 4) {
+          return obj;
+        }
+      }
+      return null;
+    }
+
+    function selectText(obj) {
+      selectedTextId = obj ? obj.id : null;
+      const controls = document.getElementById('selected-text-controls');
+      if (obj) {
+        controls.classList.remove('hidden');
+        document.getElementById('selected-font-size').value = Math.round(obj.fontSize);
+        document.getElementById('selected-rotation').value = obj.rotation;
+        document.getElementById('rotation-value').textContent = Math.round(obj.rotation) + '°';
+      } else {
+        controls.classList.add('hidden');
+      }
+      redrawDocCanvas();
+    }
+
+    function deselectText() {
+      selectText(null);
+    }
+
+    function editSelectedText() {
+      if (!selectedTextId) return;
+      const obj = textObjects.find(t => t.id === selectedTextId);
+      if (!obj) return;
+      const newText = prompt("টেক্সট এডিট করুন:", obj.text);
+      if (newText !== null && newText.trim() !== "") {
+        obj.text = newText;
+        redrawDocCanvas();
+        showToast('টেক্সট আপডেট হয়েছে', '✅');
+      }
+    }
+
+    function updateSelectedTextSize() {
+      if (!selectedTextId) return;
+      const obj = textObjects.find(t => t.id === selectedTextId);
+      if (!obj) return;
+      const size = parseInt(document.getElementById('selected-font-size').value);
+      if (size >= 8 && size <= 150) {
+        obj.fontSize = size;
+        redrawDocCanvas();
+      }
+    }
+
+    function updateSelectedTextRotation() {
+      if (!selectedTextId) return;
+      const obj = textObjects.find(t => t.id === selectedTextId);
+      if (!obj) return;
+      const rot = parseInt(document.getElementById('selected-rotation').value);
+      obj.rotation = rot;
+      document.getElementById('rotation-value').textContent = rot + '°';
+      redrawDocCanvas();
+    }
+
+    function deleteSelectedText() {
+      if (!selectedTextId) return;
+      textObjects = textObjects.filter(t => t.id !== selectedTextId);
+      selectText(null);
+      showToast('টেক্সট মুছে ফেলা হয়েছে', '🗑️');
     }
 
     docCanvas.addEventListener('mousedown', handleDocPointerDown);
     docCanvas.addEventListener('mousemove', handleDocPointerMove);
     docCanvas.addEventListener('mouseup', handleDocPointerUp);
+    docCanvas.addEventListener('mouseleave', handleDocPointerUp);
 
     function getCanvasCoords(e) {
       const rect = docCanvas.getBoundingClientRect();
@@ -1384,35 +1566,78 @@
       const coords = getCanvasCoords(e);
       startX = coords.x;
       startY = coords.y;
+
+      if (currentDocTool === 'select') {
+        const hit = getTextAtPosition(coords.x, coords.y);
+        if (hit) {
+          selectText(hit);
+          isDraggingText = true;
+          dragOffsetX = coords.x - hit.x;
+          dragOffsetY = coords.y - hit.y;
+          docCanvas.style.cursor = 'grabbing';
+        } else {
+          deselectText();
+        }
+        return;
+      }
+
       isDrawing = true;
 
       if (currentDocTool === 'erase-brush') {
         eraseBrushAt(coords.x, coords.y);
       } else if (currentDocTool === 'text') {
         const text = prompt("আপনার টেক্সটটি লিখুন:");
-        if (text) {
-          const fontSize = document.getElementById('doc-font-size').value;
+        if (text && text.trim() !== "") {
+          const fontSize = parseInt(document.getElementById('doc-font-size').value) || 22;
           const fontFamily = document.getElementById('doc-font-family').value;
           const color = document.getElementById('doc-text-color').value;
           
-          docCtx.font = `${fontSize}px ${fontFamily}`;
-          docCtx.fillStyle = color;
-          docCtx.fillText(text, coords.x, coords.y);
-          showToast('লেখা যুক্ত হয়েছে', '✅');
+          const newObj = {
+            id: nextTextId++,
+            text: text,
+            x: coords.x,
+            y: coords.y,
+            fontSize: fontSize,
+            fontFamily: fontFamily,
+            color: color,
+            rotation: 0
+          };
+          textObjects.push(newObj);
+          selectText(newObj);
+          setDocTool('select'); // Automatically switch to select tool after adding
+          showToast('টেক্সট যুক্ত হয়েছে। এখন ড্র্যাগ করে সরান বা এডিট করুন।', '✅');
         }
         isDrawing = false;
       }
     }
 
     function handleDocPointerMove(e) {
-      if (!isDrawing) return;
       const coords = getCanvasCoords(e);
+
+      if (isDraggingText && selectedTextId) {
+        const obj = textObjects.find(t => t.id === selectedTextId);
+        if (obj) {
+          obj.x = coords.x - dragOffsetX;
+          obj.y = coords.y - dragOffsetY;
+          redrawDocCanvas();
+        }
+        return;
+      }
+
+      if (!isDrawing) return;
+
       if (currentDocTool === 'erase-brush') {
         eraseBrushAt(coords.x, coords.y);
       }
     }
 
     function handleDocPointerUp(e) {
+      if (isDraggingText) {
+        isDraggingText = false;
+        docCanvas.style.cursor = currentDocTool === 'select' ? 'default' : 'crosshair';
+        return;
+      }
+
       if (!isDrawing) return;
       isDrawing = false;
 
@@ -1422,14 +1647,25 @@
         const height = coords.y - startY;
         const eraseColor = document.getElementById('doc-erase-color').value;
 
+        // Permanent erase on the background image
         docCtx.fillStyle = eraseColor;
         docCtx.fillRect(startX, startY, width, height);
+        
+        // Update rawDocImage so erase is permanent
+        const temp = document.createElement('canvas');
+        temp.width = docCanvas.width;
+        temp.height = docCanvas.height;
+        temp.getContext('2d').drawImage(docCanvas, 0, 0);
+        rawDocImage = new Image();
+        rawDocImage.onload = () => redrawDocCanvas();
+        rawDocImage.src = temp.toDataURL();
+
         showToast('অঞ্চলটি মোছা হয়েছে', '🧹');
       }
     }
 
     function eraseBrushAt(x, y) {
-      const fontSize = document.getElementById('doc-font-size').value;
+      const fontSize = parseInt(document.getElementById('doc-font-size').value) || 22;
       const eraseColor = document.getElementById('doc-erase-color').value;
       docCtx.fillStyle = eraseColor;
       docCtx.beginPath();
@@ -1439,10 +1675,16 @@
 
     function resetDocCanvas() {
       if (rawDocImage) {
-        docCanvas.width = rawDocImage.width;
-        docCanvas.height = rawDocImage.height;
-        docCtx.drawImage(rawDocImage, 0, 0);
-        showToast('রিসেট করা হয়েছে', '🔄');
+        // Reload original
+        const originalSrc = rawDocImage.src;
+        textObjects = [];
+        selectedTextId = null;
+        document.getElementById('selected-text-controls').classList.add('hidden');
+        
+        // We need the very first image. For simplicity, we keep the current raw and clear texts.
+        // If user wants full reset including erases, they should re-upload.
+        redrawDocCanvas();
+        showToast('টেক্সট রিসেট করা হয়েছে (ইরেজ থাকবে)', '🔄');
       }
     }
 
@@ -1468,6 +1710,8 @@
 
     function printDocCanvas() {
       if (!docCanvas.width) return;
+      // Ensure latest draw
+      redrawDocCanvas();
       const win = window.open('', '_blank');
       win.document.write(`<img src="${docCanvas.toDataURL('image/jpeg', 1.0)}" style="width:100%;"/>`);
       win.document.close();
@@ -1477,6 +1721,7 @@
 
     function downloadDocPdf() {
       if (!docCanvas.width) return;
+      redrawDocCanvas();
       const imgData = docCanvas.toDataURL('image/jpeg', 1.0);
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF('p', 'mm', 'a4');
@@ -1486,6 +1731,7 @@
 
     function downloadDocWord() {
       const text = document.getElementById('doc-editor-text').value || "সম্পাদিত ডকুমেন্ট।";
+      redrawDocCanvas();
       const imgData = docCanvas.toDataURL('image/png');
       
       const sourceHTML = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'></head><body><div style="text-align:center;"><img src="\( {imgData}" style="max-width:100%;"/></div><br/><p style="font-family:'Kalpurush', sans-serif;"> \){text.replace(/\n/g, "<br>")}</p></body></html>`;
@@ -1497,7 +1743,7 @@
       fileDownload.click();
     }
 
-    // ========== CAMERA & COMPRESS UTILITIES ==========
+    // ========== CAMERA & COMPRESS ==========
     let videoStream = null;
     let currentFacingMode = 'environment';
 
@@ -1622,10 +1868,10 @@
       }
     }
 
-    // ========== ADVANCED CONVERT & RESIZE LOGIC ==========
+    // ========== CONVERT & RESIZE ==========
     let loadedConvertImage = null;
     let convertOriginalAspectRatio = 1;
-    const DPI = 96; // Standard Web DPI
+    const DPI = 96;
 
     document.getElementById('convert-input').addEventListener('change', function(e) {
       const file = e.target.files[0];
@@ -1641,7 +1887,6 @@
           document.getElementById('orig-dimensions').textContent = `${loadedConvertImage.width} x ${loadedConvertImage.height} px`;
           document.getElementById('convert-preview-info').classList.remove('hidden');
 
-          // Default set to pixels
           document.getElementById('resize-unit').value = 'px';
           document.getElementById('resize-width').value = loadedConvertImage.width;
           document.getElementById('resize-height').value = loadedConvertImage.height;
@@ -1651,19 +1896,18 @@
       reader.readAsDataURL(file);
     });
 
-    // Units Conversion Helpers (to/from PX)
     function unitToPx(val, unit) {
       if (unit === 'in') return val * DPI;
       if (unit === 'cm') return (val / 2.54) * DPI;
       if (unit === 'mm') return (val / 25.4) * DPI;
-      return val; // px
+      return val;
     }
 
     function pxToUnit(px, unit) {
       if (unit === 'in') return (px / DPI).toFixed(2);
       if (unit === 'cm') return ((px / DPI) * 2.54).toFixed(2);
       if (unit === 'mm') return ((px / DPI) * 25.4).toFixed(1);
-      return Math.round(px); // px
+      return Math.round(px);
     }
 
     function handleUnitChange() {
@@ -1705,7 +1949,6 @@
 
       toggleLoader(true, "কনভার্ট ও রিসাইজ প্রসেস হচ্ছে...");
 
-      // Convert dimensions to Pixels for Canvas Rendering
       const pxWidth = Math.round(unitToPx(targetWidth, unit));
       const pxHeight = Math.round(unitToPx(targetHeight, unit));
 
@@ -1714,7 +1957,6 @@
       canvas.height = pxHeight;
       const ctx = canvas.getContext('2d');
 
-      // Fill background white for JPG conversion if transparent
       if (format === 'image/jpeg') {
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, pxWidth, pxHeight);
@@ -1723,8 +1965,6 @@
       ctx.drawImage(loadedConvertImage, 0, 0, pxWidth, pxHeight);
 
       let quality = 0.92;
-
-      // Quality adjustment for target File Size limit
       const getBlobWithQuality = (q) => new Promise(res => canvas.toBlob(res, format, q));
 
       let blob = await getBlobWithQuality(quality);
@@ -1760,7 +2000,7 @@
       showToast('ইমেজ সফলভাবে রিসাইজ ও কনভার্ট হয়েছে!', '🎉');
     }
 
-    // ========== NID TO PDF LOGIC ==========
+    // ========== NID TO PDF ==========
     async function createNidPdf() {
       const frontFile = document.getElementById('nid-front').files[0];
       const backFile = document.getElementById('nid-back').files[0];
@@ -1796,18 +2036,15 @@
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, 1240, 1754);
 
-        // Standard NID proportions
         const cardW = 600;
         const cardH = 380;
         const startX = (1240 - cardW) / 2;
 
-        // Front Image
         ctx.drawImage(imgFront, startX, 200, cardW, cardH);
         ctx.strokeStyle = '#cccccc';
         ctx.lineWidth = 2;
         ctx.strokeRect(startX, 200, cardW, cardH);
 
-        // Back Image
         ctx.drawImage(imgBack, startX, 640, cardW, cardH);
         ctx.strokeRect(startX, 640, cardW, cardH);
 
