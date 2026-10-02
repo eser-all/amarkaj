@@ -20,7 +20,7 @@
     }
   </script>
 
-  <!-- Kalpurush Bangla Font Support -->
+  <!-- Kalpurush Bangla Font -->
   <link href="https://fonts.maateen.me/kalpurush/font.css" rel="stylesheet" />
 
   <!-- External Libraries -->
@@ -29,7 +29,7 @@
   <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.js"></script>
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
   
-  <!-- MediaPipe Selfie Segmentation -->
+  <!-- MediaPipe -->
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js" crossorigin="anonymous"></script>
 
@@ -78,6 +78,70 @@
       0% { background-position: 0% center; }
       100% { background-position: 200% center; }
     }
+
+    /* ===== CV Styles ===== */
+    .cv-preview {
+      width: 210mm;
+      min-height: 297mm;
+      background: white;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+      margin: 0 auto;
+      display: flex;
+      font-family: Arial, Helvetica, sans-serif;
+      color: #1f2937;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .cv-left {
+      width: 34%;
+      background: #f3f4f6;
+      padding: 26px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .cv-right {
+      width: 66%;
+      padding: 28px 24px;
+    }
+    .cv-photo {
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid #fff;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      margin: 0 auto 8px;
+      display: block;
+      background: #e5e7eb;
+    }
+    .cv-section-title {
+      background: #374151;
+      color: white;
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+      display: inline-block;
+      margin-bottom: 8px;
+    }
+    .cv-name {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 16px;
+      color: #111827;
+      line-height: 1.2;
+    }
+    .cv-right h3 {
+      font-size: 15px;
+      font-weight: 700;
+      border-bottom: 2px solid #1f2937;
+      padding-bottom: 4px;
+      margin-bottom: 10px;
+      margin-top: 18px;
+    }
+    .cv-right h3:first-child { margin-top: 0; }
   </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 min-h-screen transition-colors duration-200 flex flex-col justify-between">
@@ -108,7 +172,7 @@
     </div>
   </div>
 
-  <!-- Main App View -->
+  <!-- Main App -->
   <div id="app-content" class="hidden">
     <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 bg-gray-900 text-white text-sm px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2 opacity-0">
       <span id="toast-icon">ℹ</span>
@@ -139,7 +203,7 @@
     <section class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white py-12 relative overflow-hidden">
       <div class="max-w-4xl mx-auto px-4 text-center relative z-10">
         <h2 class="text-3xl md:text-5xl font-extrabold mb-3 leading-tight">স্মার্ট এডিটিং ও প্রফেশনাল ফাইল ম্যানেজার</h2>
-        <p class="text-base md:text-lg opacity-90 font-light">ডাটা সুরক্ষাসহ AI ফটো ব্যাকগ্রাউন্ড রিমুভার • A4 প্রিন্ট গ্রিড • স্মার্ট ডকুমেন্ট এডিটর & PDF মার্জার</p>
+        <p class="text-base md:text-lg opacity-90 font-light">AI ফটো • A4 গ্রিড • ডকুমেন্ট এডিটর • <strong>AI CV মেকার</strong> • PDF মার্জার</p>
       </div>
     </section>
 
@@ -152,43 +216,38 @@
           <div class="text-4xl">🤖</div>
           <h4 class="font-semibold text-sm md:text-base">AI ফটো এডিট ও ব্যাকগ্রাউন্ড</h4>
         </div>
-
         <div class="tool-card" onclick="showTool('doceditor')">
           <div class="text-4xl">📄</div>
           <h4 class="font-semibold text-sm md:text-base">স্মার্ট ডকুমেন্ট এডিটর & OCR</h4>
         </div>
-
         <div class="tool-card" onclick="showTool('pdfmerge')">
           <div class="text-4xl">📚</div>
           <h4 class="font-semibold text-sm md:text-base">একাধিক PDF / ছবি মার্জার</h4>
         </div>
-
         <div class="tool-card" onclick="showTool('ppgrid')">
           <div class="text-4xl">🖼️</div>
           <h4 class="font-semibold text-sm md:text-base">পাসপোর্ট ছবি গ্রিড (A4)</h4>
         </div>
-
-        <!-- নতুন টুল: বাংলাদেশী স্ট্যাম্প সাইজ -->
         <div class="tool-card" onclick="showTool('stampgrid')">
           <div class="text-4xl">🧾</div>
-          <h4 class="font-semibold text-sm md:text-base">বাংলাদেশী স্ট্যাম্প সাইজ গ্রিড (A4)</h4>
+          <h4 class="font-semibold text-sm md:text-base">বাংলাদেশী স্ট্যাম্প সাইজ গ্রিড</h4>
         </div>
-
+        <div class="tool-card" onclick="showTool('cv')">
+          <div class="text-4xl">📋</div>
+          <h4 class="font-semibold text-sm md:text-base">AI CV / Resume মেকার</h4>
+        </div>
         <div class="tool-card" onclick="showTool('scanner')">
           <div class="text-4xl">📷</div>
           <h4 class="font-semibold text-sm md:text-base">লাইভ এইচডি স্ক্যানার</h4>
         </div>
-
         <div class="tool-card" onclick="showTool('compress')">
           <div class="text-4xl">📦</div>
           <h4 class="font-semibold text-sm md:text-base">স্মার্ট ইমেজ কম্প্রেস</h4>
         </div>
-
         <div class="tool-card" onclick="showTool('convert')">
           <div class="text-4xl">🔄</div>
           <h4 class="font-semibold text-sm md:text-base">ইমেজ কনভার্ট & রিসাইজ</h4>
         </div>
-
         <div class="tool-card" onclick="showTool('nid')">
           <div class="text-4xl">🪪</div>
           <h4 class="font-semibold text-sm md:text-base">NID → PDF মেকার</h4>
@@ -196,7 +255,7 @@
       </div>
     </section>
 
-    <!-- Workspace Panel -->
+    <!-- Workspace -->
     <section id="workspace" class="max-w-5xl mx-auto px-4 pb-20 hidden">
       <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-6 md:p-8 border border-gray-100 dark:border-gray-700">
         <div class="flex justify-between items-center mb-6 border-b dark:border-gray-700 pb-4">
@@ -206,7 +265,7 @@
 
         <!-- 1. AI PHOTO -->
         <div id="panel-ai" class="tool-panel">
-          <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">স্বয়ংক্রিয় বা কাস্টম কালারে ব্যাকগ্রাউন্ড পরিবর্তন, ফিল্টার প্রসেসিং ও A4 পেপারে মাল্টি-কপি প্রিন্ট করুন।</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">স্বয়ংক্রিয় বা কাস্টম কালারে ব্যাকগ্রাউন্ড পরিবর্তন, ফিল্টার ও A4 মাল্টি-কপি প্রিন্ট।</p>
           <input type="file" id="ai-input" accept="image/*" class="mb-4 block w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
           <div id="ai-controls" class="hidden space-y-4">
             <div class="bg-indigo-50/70 dark:bg-gray-700/50 p-4 rounded-2xl border border-indigo-100 dark:border-gray-600">
@@ -412,11 +471,10 @@
           </div>
         </div>
 
-        <!-- 5. নতুন: BANGLADESHI STAMP SIZE GRID -->
+        <!-- 5. STAMP GRID -->
         <div id="panel-stampgrid" class="tool-panel">
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
             বাংলাদেশী স্ট্যাম্প সাইজ (প্রায় ২.৫ সেমি × ৩.০ সেমি) ছবি আপলোড করে A4 পেজে অনেক কপিতে সাজিয়ে ডাউনলোড করুন।
-            <br><span class="text-xs text-indigo-600 dark:text-indigo-400">পাসপোর্ট গ্রিডের মতোই কাজ করে, কিন্তু ছোট সাইজে বেশি কপি ফিট হয়।</span>
           </p>
           <input type="file" id="stamp-input" accept="image/*" class="mb-4 block w-full text-sm">
           <div class="mb-4">
@@ -444,7 +502,105 @@
           </div>
         </div>
 
-        <!-- 6. SCANNER -->
+        <!-- 6. CV / RESUME MAKER -->
+        <div id="panel-cv" class="tool-panel">
+          <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+            ছবির মতো প্রফেশনাল দুই-কলাম CV তৈরি করুন। সব তথ্য পূরণ করে <strong>Generate CV</strong> বাটনে ক্লিক করুন।
+          </p>
+
+          <div class="grid lg:grid-cols-2 gap-6">
+            <!-- Form -->
+            <div class="space-y-4 max-h-[75vh] overflow-y-auto pr-1">
+              <div class="bg-indigo-50 dark:bg-gray-700/50 p-4 rounded-2xl border border-indigo-100 dark:border-gray-600">
+                <h4 class="font-bold text-sm mb-3 text-indigo-700 dark:text-indigo-300">📷 ছবি ও ব্যক্তিগত তথ্য</h4>
+                <input type="file" id="cv-photo" accept="image/*" class="mb-3 text-sm w-full">
+                <input type="text" id="cv-name" placeholder="পূর্ণ নাম (যেমন: Md. Emon Khan)" class="w-full mb-2 px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm">
+                <input type="text" id="cv-phone" placeholder="ফোন (+88 01XXXXXXXXX)" class="w-full mb-2 px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm">
+                <input type="email" id="cv-email" placeholder="ইমেইল" class="w-full mb-2 px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm">
+                <textarea id="cv-address" placeholder="ঠিকানা" rows="2" class="w-full px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm"></textarea>
+              </div>
+
+              <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-2xl">
+                <h4 class="font-bold text-sm mb-2">🎓 Education</h4>
+                <textarea id="cv-education" rows="5" class="w-full px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm" placeholder="Bachelor of Arts in Tourism and Hospitality Management.
+International University Of Business Agriculture And Technology, Uttara Dhaka.
+2021 - 2025
+CGPA :3.20 out of 4.00
+
+H.S.C
+Milestone College Uttara. Dhaka
+2018 - 2020
+Business Studies
+GPA 4.00 out of 5.00"></textarea>
+              </div>
+
+              <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-2xl">
+                <h4 class="font-bold text-sm mb-2">💡 Skills (প্রতি লাইনে একটি)</h4>
+                <textarea id="cv-skills" rows="4" class="w-full px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm" placeholder="Business Development & Sales
+Client Relationship Management
+Customer Service & Communication
+Negotiation & Persuasion
+Problem-Solving & Conflict Resolution
+Teamwork & Cross-Functional Coordination"></textarea>
+              </div>
+
+              <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-2xl">
+                <h4 class="font-bold text-sm mb-2">💼 Work Experience</h4>
+                <textarea id="cv-experience" rows="9" class="w-full px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm" placeholder="Executive Sales and Marketing
+Hotel Grand Vistana
+House:11, Road:06, Sector: 01, Uttara, Dhaka
+Feb: 2026 - Present
+• Develop and maintain strong client relationships while identifying new business opportunities through prospecting, networking, and effective follow-up.
+• Handle client inquiries, prepare quotations and proposals, negotiate requirements, and support the sales process from initial contact to successful conversion.
+
+Internship
+Hotel Hansa | Uttara, Dhaka
+March: 2025
+Completed a three-month internship in Front Office Operations..."></textarea>
+              </div>
+
+              <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-2xl">
+                <h4 class="font-bold text-sm mb-2">🌟 Additional Activities</h4>
+                <textarea id="cv-activities" rows="3" class="w-full px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm" placeholder="• Former Member, Rotaract Club of IUBAT
+• Former Member, Shikdermollik Blood Donation Foundation"></textarea>
+              </div>
+
+              <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-2xl">
+                <h4 class="font-bold text-sm mb-2">📞 References</h4>
+                <textarea id="cv-references" rows="5" class="w-full px-3 py-2 rounded-lg border dark:bg-gray-800 text-sm" placeholder="Mr. Shafiqul Islam
+Assistant Professor
+International University Of Business Agriculture And Technology
+Phone: +88 01822000938
+Email: shafiqul.cthm@iubat.com
+
+Md. Rubel Howlader
+Manager- Sales & Marketing
+Grand Vistana.
+Phone: +88 01722131414
+Email: sales2@grandvistana.com"></textarea>
+              </div>
+
+              <button onclick="generateCV()" class="btn-primary w-full py-3 text-base">✨ Generate Professional CV</button>
+            </div>
+
+            <!-- Preview -->
+            <div class="overflow-auto max-h-[75vh] bg-gray-100 dark:bg-gray-900 p-3 rounded-2xl">
+              <div id="cv-preview-container" class="hidden">
+                <div id="cv-preview" class="cv-preview scale-[0.68] origin-top mx-auto"></div>
+                <div class="flex flex-wrap gap-3 mt-4 justify-center sticky bottom-0 bg-gray-100 dark:bg-gray-900 py-3">
+                  <button onclick="printCV()" class="btn-primary bg-emerald-600 hover:bg-emerald-700">🖨️ প্রিন্ট / Save as PDF</button>
+                  <button onclick="downloadCVImage()" class="btn-secondary">⬇️ ছবি হিসেবে ডাউনলোড</button>
+                </div>
+              </div>
+              <div id="cv-placeholder" class="text-center text-gray-400 py-24">
+                <div class="text-6xl mb-4">📋</div>
+                <p class="text-sm">বাম পাশের ফর্ম পূরণ করে<br><strong>Generate Professional CV</strong> বাটনে ক্লিক করুন</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 7. SCANNER -->
         <div id="panel-scanner" class="tool-panel">
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">ক্যামেরা দিয়ে সরাসরি ডকুমেন্ট স্ক্যান করুন।</p>
           <div class="flex flex-wrap gap-3 mb-4">
@@ -464,7 +620,7 @@
           </div>
         </div>
 
-        <!-- 7. COMPRESS -->
+        <!-- 8. COMPRESS -->
         <div id="panel-compress" class="tool-panel">
           <input type="file" id="compress-input" accept="image/*" class="mb-4 block w-full text-sm">
           <div class="mb-4">
@@ -475,7 +631,7 @@
           <div id="compress-result" class="mt-6"></div>
         </div>
 
-        <!-- 8. CONVERT -->
+        <!-- 9. CONVERT -->
         <div id="panel-convert" class="tool-panel">
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">ইমেজ ফরম্যাট কনভার্ট করুন এবং কাস্টম ডাইমেনশন পরিবর্তন করুন।</p>
           <input type="file" id="convert-input" accept="image/*" class="mb-4 block w-full text-sm">
@@ -526,7 +682,7 @@
           <div id="convert-result" class="mt-6"></div>
         </div>
 
-        <!-- 9. NID -->
+        <!-- 10. NID -->
         <div id="panel-nid" class="tool-panel">
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">NID কার্ডের সামনের এবং পেছনের অংশ আপলোড করুন:</p>
           <input type="file" id="nid-front" accept="image/*" class="mb-2 block w-full text-sm">
@@ -674,6 +830,7 @@
         pdfmerge: 'একাধিক PDF / ছবি / ডকুমেন্ট মার্জার',
         ppgrid: 'A4 পেপারে পাসপোর্ট ফটো গ্রিড মেকার',
         stampgrid: 'A4 পেপারে বাংলাদেশী স্ট্যাম্প সাইজ গ্রিড',
+        cv: 'AI CV / Resume মেকার',
         compress: 'স্মার্ট ইমেজ কম্প্রেস',
         convert: 'ইমেজ কনভার্ট & কাস্টম রিসাইজ',
         nid: 'NID কার্ড → PDF'
@@ -692,7 +849,7 @@
       document.getElementById('quality-value').textContent = Math.round(this.value * 100) + '%';
     });
 
-    // ========== AI BG REMOVAL (same as before) ==========
+    // ========== AI BG REMOVAL ==========
     let cropper = null;
     let originalAiImageSrc = null;
     let baseLoadedImage = null;
@@ -1134,7 +1291,7 @@
       }
     }
 
-    // ========== DOCUMENT EDITOR (with movable text) ==========
+    // ========== DOCUMENT EDITOR ==========
     let docCanvas = document.getElementById('doc-canvas');
     let docCtx = docCanvas.getContext('2d');
     let rawDocImage = null;
@@ -1612,7 +1769,7 @@
       setTimeout(() => { win.print(); win.close(); }, 500);
     }
 
-    // ========== নতুন: BANGLADESHI STAMP SIZE GRID ==========
+    // ========== STAMP GRID ==========
     let stampImageObj = null;
     document.getElementById('stamp-input').addEventListener('change', function(e) {
       const file = e.target.files[0];
@@ -1634,23 +1791,19 @@
       canvas.height = 1754;
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, 1240, 1754);
-
-      // বাংলাদেশী স্ট্যাম্প সাইজ (প্রায় ২.৫cm × ৩.০cm)
-      // A4 canvas 1240×1754 এ ছোট সাইজ রাখা হয়েছে যাতে বেশি কপি ফিট হয়
-      const photoWidth = 130;   // ≈ 2.5cm
-      const photoHeight = 155;  // ≈ 3.0cm
+      const photoWidth = 130;
+      const photoHeight = 155;
       const gapX = 18;
       const gapY = 18;
       const startX = 45;
       const startY = 50;
-      const cols = 8;           // বেশি কলাম
+      const cols = 8;
 
       for (let i = 0; i < count; i++) {
         const row = Math.floor(i / cols);
         const col = i % cols;
         const x = startX + col * (photoWidth + gapX);
         const y = startY + row * (photoHeight + gapY);
-        // হালকা বর্ডার
         ctx.strokeStyle = '#bbbbbb';
         ctx.lineWidth = 1;
         ctx.strokeRect(x, y, photoWidth, photoHeight);
@@ -1678,6 +1831,122 @@
       win.document.close();
       win.focus();
       setTimeout(() => { win.print(); win.close(); }, 500);
+    }
+
+    // ========== CV GENERATOR ==========
+    let cvPhotoData = null;
+    document.getElementById('cv-photo').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        cvPhotoData = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    function generateCV() {
+      const name = document.getElementById('cv-name').value.trim() || 'Your Name';
+      const phone = document.getElementById('cv-phone').value.trim();
+      const email = document.getElementById('cv-email').value.trim();
+      const address = document.getElementById('cv-address').value.trim();
+      const education = document.getElementById('cv-education').value.trim();
+      const skills = document.getElementById('cv-skills').value.trim();
+      const experience = document.getElementById('cv-experience').value.trim();
+      const activities = document.getElementById('cv-activities').value.trim();
+      const references = document.getElementById('cv-references').value.trim();
+
+      const photoHtml = cvPhotoData 
+        ? `<img src="${cvPhotoData}" class="cv-photo" alt="Photo">` 
+        : `<div class="cv-photo flex items-center justify-center text-4xl text-gray-400">👤</div>`;
+
+      const skillsList = skills.split('\n').filter(s => s.trim()).map(s => `<li class="mb-1">• ${s.trim()}</li>`).join('') || '<li>—</li>';
+      const eduHtml = education.replace(/\n/g, '<br>') || '—';
+      const expHtml = experience.replace(/\n/g, '<br>') || '—';
+      const actHtml = activities.replace(/\n/g, '<br>') || '—';
+      const refHtml = references.replace(/\n/g, '<br>') || '—';
+
+      const html = `
+        <div class="cv-left">
+          ${photoHtml}
+          <div>
+            <div class="cv-section-title">CONTACT</div>
+            <div class="text-sm space-y-1.5 mt-2 leading-snug">
+              ${phone ? `<div>📞 ${phone}</div>` : ''}
+              ${email ? `<div>✉️ ${email}</div>` : ''}
+              ${address ? `<div>📍 ${address.replace(/\n/g,'<br>')}</div>` : ''}
+            </div>
+          </div>
+          <div>
+            <div class="cv-section-title">EDUCATION</div>
+            <div class="text-sm leading-relaxed mt-2">${eduHtml}</div>
+          </div>
+          <div>
+            <div class="cv-section-title">SKILLS</div>
+            <ul class="mt-2 text-sm list-none pl-0">${skillsList}</ul>
+          </div>
+        </div>
+        <div class="cv-right">
+          <div class="cv-name">${name}</div>
+          <div>
+            <h3>WORK EXPERIENCE</h3>
+            <div class="text-sm leading-relaxed whitespace-pre-line">${expHtml}</div>
+          </div>
+          <div>
+            <h3>ADDITIONAL ACTIVITIES</h3>
+            <div class="text-sm">${actHtml}</div>
+          </div>
+          <div>
+            <h3>REFERENCES</h3>
+            <div class="text-sm">${refHtml}</div>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('cv-preview').innerHTML = html;
+      document.getElementById('cv-preview-container').classList.remove('hidden');
+      document.getElementById('cv-placeholder').classList.add('hidden');
+      showToast('CV সফলভাবে তৈরি হয়েছে!', '✅');
+    }
+
+    function printCV() {
+      const preview = document.getElementById('cv-preview').innerHTML;
+      if (!preview) return showToast('আগে CV Generate করুন', '⚠️');
+      const win = window.open('', '_blank');
+      win.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>CV - ${document.getElementById('cv-name').value || 'Resume'}</title>
+          <style>
+            * { box-sizing: border-box; margin: 0; padding: 0; }
+            body { font-family: Arial, Helvetica, sans-serif; }
+            .cv-preview { width: 210mm; min-height: 297mm; display: flex; color: #1f2937; font-size: 13px; line-height: 1.45; }
+            .cv-left { width: 34%; background: #f3f4f6; padding: 26px 18px; display: flex; flex-direction: column; gap: 18px; }
+            .cv-right { width: 66%; padding: 28px 24px; }
+            .cv-photo { width: 130px; height: 130px; border-radius: 50%; object-fit: cover; border: 4px solid #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin: 0 auto 8px; display: block; background: #e5e7eb; }
+            .cv-section-title { background: #374151; color: white; padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; display: inline-block; margin-bottom: 8px; }
+            .cv-name { font-size: 28px; font-weight: 800; margin-bottom: 16px; color: #111827; }
+            .cv-right h3 { font-size: 15px; font-weight: 700; border-bottom: 2px solid #1f2937; padding-bottom: 4px; margin-bottom: 10px; margin-top: 18px; }
+            .cv-right h3:first-of-type { margin-top: 0; }
+            @media print {
+              body { margin: 0; }
+              .cv-preview { box-shadow: none; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="cv-preview">${preview}</div>
+          <script>window.onload = function(){ setTimeout(function(){ window.print(); }, 400); }<\/script>
+        </body>
+        </html>
+      `);
+      win.document.close();
+    }
+
+    function downloadCVImage() {
+      showToast('ছবি ডাউনলোডের জন্য Print → Save as PDF ব্যবহার করুন (সবচেয়ে ভালো কোয়ালিটি)', '📄');
+      printCV();
     }
 
     // ========== COMPRESS ==========
