@@ -124,7 +124,7 @@
   <div id="app-content" class="hidden">
     <!-- Toast Notification -->
     <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 bg-gray-900 text-white text-sm px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2 opacity-0">
-      <span id="toast-icon">ℹ️️</span>
+      <span id="toast-icon">ℹ</span>
       <span id="toast-msg">বার্তা</span>
     </div>
 
@@ -1446,7 +1446,7 @@
 
       document.getElementById('pp-preview-container').classList.remove('hidden');
       document.getElementById('pp-print-btn').classList.remove('hidden');
-      showToast('গ্রিড তৈরি হয়েছে!', '🖼️️');
+      showToast('গ্রিড তৈরি হয়েছে!', '🖼');
     }
 
     function downloadPPPdf() {
@@ -1562,7 +1562,7 @@
       const targetSizeKB = parseFloat(document.getElementById('target-file-size').value);
 
       if (!targetWidth || !targetHeight || targetWidth <= 0 || targetHeight <= 0) {
-        return showToast('সঠিক Width এবং Height দিন', '⚠️');
+        return showToast('সঠিক Width এবং Height দিন', '⚠️️');
       }
 
       toggleLoader(true, "কনভার্ট ও রিসাইজ প্রসেস হচ্ছে...");
@@ -1605,41 +1605,88 @@
       const finalSizeKB = (blob.size / 1024).toFixed(1);
 
       document.getElementById('convert-result').innerHTML = `
-        <div class="p-4 bg-gray-100 dark:bg-gray-700 rounded-2xl text-center space-y-2">
-          <p class="text-sm font-semibold text-green-600 dark:text-green-400">✅ প্রসেসিং সফল হয়েছে!</p>
-          <p class="text-xs text-gray-600 dark:text-gray-300">নতুন রেজুলেশন: <strong>${pxWidth} x ${pxHeight} px</strong></p>
-          <p class="text-xs text-gray-600 dark:text-gray-300">নতুন ফাইল সাইজ: <strong>${finalSizeKB} KB</strong></p>
-          <a href="${url}" download="resized_image.${ext}" class="btn-primary inline-block py-2.5 px-6 mt-2">⬇️ ডাউনলোড (${ext.toUpperCase()})</a>
+        <div class="p-4 bg-emerald-50 dark:bg-emerald-950/40 rounded-2xl border border-emerald-200 dark:border-emerald-800 text-center space-y-2">
+          <p class="text-xs text-emerald-800 dark:text-emerald-200 font-semibold">
+            নতুন ডাইমেনশন: ${pxWidth} x ${pxHeight} px | ফাইল সাইজ: ${finalSizeKB} KB
+          </p>
+          <a href="${url}" download="converted-image.${ext}" class="btn-primary bg-emerald-600 hover:bg-emerald-700 py-2.5 px-6 inline-block">
+            ⬇️ ডাউনলোড করুন (${ext.toUpperCase()})
+          </a>
         </div>
       `;
 
       toggleLoader(false);
-      showToast('কনভার্ট ও রিসাইজ সম্পন্ন!', '🎉');
+      showToast('কনভার্ট ও রিসাইজ সম্পূর্ণ হয়েছে!', '✅');
     }
 
-    // NID PDF Creator
-    function createNidPdf() {
+    // ========== NID TO PDF LOGIC ==========
+    async function createNidPdf() {
       const frontFile = document.getElementById('nid-front').files[0];
       const backFile = document.getElementById('nid-back').files[0];
-      if (!frontFile) return showToast('সামনের পিঠের ছবি দিন', '⚠️');
 
-      toggleLoader(true, "NID PDF তৈরি হচ্ছে...");
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF('p', 'mm', 'a4');
+      if (!frontFile || !backFile) return showToast('NID এর উভয় পাশের ছবি আপলোড করুন', '⚠️');
 
-      const readFile = (file) => new Promise(res => {
-        const reader = new FileReader();
-        reader.onload = e => res(e.target.result);
-        reader.readAsDataURL(file);
-      });
+      toggleLoader(true, "NID PDF তৈরি করা হচ্ছে...");
 
-      Promise.all([readFile(frontFile), backFile ? readFile(backFile) : Promise.resolve(null)]).then(([front, back]) => {
-        doc.addImage(front, 'JPEG', 15, 20, 85.6, 53.98);
-        if (back) doc.addImage(back, 'JPEG', 15, 80, 85.6, 53.98);
-        doc.save('nid-card.pdf');
+      try {
+        const readAsDataURL = (file) => new Promise((resolve) => {
+          const r = new FileReader();
+          r.onload = (e) => resolve(e.target.result);
+          r.readAsDataURL(file);
+        });
+
+        const frontData = await readAsDataURL(frontFile);
+        const backData = await readAsDataURL(backFile);
+
+        const canvas = document.createElement('canvas');
+        canvas.width = 1240;
+        canvas.height = 1754;
+        const ctx = canvas.getContext('2d');
+
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, 1240, 1754);
+
+        const cardW = 500;
+        const cardH = 315;
+        const x = (1240 - cardW) / 2;
+
+        const imgFront = new Image();
+        const imgBack = new Image();
+
+        await new Promise(r => { imgFront.onload = r; imgFront.src = frontData; });
+        await new Promise(r => { imgBack.onload = r; imgBack.src = backData; });
+
+        // Front Card
+        ctx.drawImage(imgFront, x, 250, cardW, cardH);
+        ctx.strokeStyle = '#cccccc';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(x, 250, cardW, cardH);
+
+        // Back Card
+        ctx.drawImage(imgBack, x, 620, cardW, cardH);
+        ctx.strokeRect(x, 620, cardW, cardH);
+
+        const imgData = canvas.toDataURL('image/jpeg', 1.0);
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
+
+        const pdfBlob = pdf.output('blob');
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+
+        document.getElementById('nid-result').innerHTML = `
+          <div class="p-4 bg-indigo-50 dark:bg-gray-700 rounded-2xl text-center">
+            <p class="text-sm font-semibold mb-3">NID PDF সফলভাবে তৈরি হয়েছে!</p>
+            <a href="${pdfUrl}" download="NID_Card.pdf" class="btn-primary">📄 NID PDF ডাউনলোড করুন</a>
+          </div>
+        `;
+
         toggleLoader(false);
-        showToast('NID PDF তৈরি হয়েছে!', '🪪');
-      }).catch(() => toggleLoader(false));
+        showToast('NID PDF সম্পূর্ণ!', '🪪');
+      } catch (err) {
+        toggleLoader(false);
+        showToast('NID PDF তৈরি করতে ত্রুটি ঘটেছে', '❌');
+      }
     }
   </script>
 </body>
