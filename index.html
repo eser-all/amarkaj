@@ -939,7 +939,7 @@ Email: sales2@grandvistana.com"></textarea>
     let originalAiImageSrc = null;
     let baseLoadedImage = null;
     let selfieSegmentation = null;
-    // Now stores objects: { src, x, y, rotation, w, h }
+    // Stores objects: { src, x, y, rotation, w, h }
     let aiGridPhotos = [];
     let selectedSize = null;
     let doubleSecondImageSrc = null;
@@ -1060,21 +1060,31 @@ Email: sales2@grandvistana.com"></textarea>
       const first = doubleFirstEditedSrc || '';
       const second = doubleSecondImageSrc || '';
       if (!first || !second) return showToast('প্রথম ছবি এডিট এবং দ্বিতীয় ছবি আপলোড করুন', '⚠️');
-      const a=new Image(), b=new Image(); let n=0;
-      const done=()=>{ if(++n!==2)return;
-        const w=mmToPx(45), h=mmToPx(55), half=Math.floor(h/2);
-        const c=document.createElement('canvas'); c.width=w;c.height=h;
-        const x=c.getContext('2d'); x.fillStyle='#fff';x.fillRect(0,0,w,h);
-        x.drawImage(a,0,0,w,half);x.drawImage(b,0,half,w,h-half);
-        x.strokeStyle='#ccc';x.beginPath();x.moveTo(0,half);x.lineTo(w,half);x.stroke();
-        const url=c.toDataURL('image/png'), img=document.getElementById('ai-image');
-        img.src=url;img.style.filter='none';baseLoadedImage=new Image();baseLoadedImage.src=url;
-        const dl=document.getElementById('ai-download');dl.href=url;dl.download='double-passport-combined-45x55mm.png';
-        if(cropper){cropper.destroy();cropper=null;} editingDoubleSecond=false;
+      const a = new Image(), b = new Image(); let n = 0;
+      const done = () => {
+        if (++n !== 2) return;
+        const w = mmToPx(45), h = mmToPx(55), half = Math.floor(h / 2);
+        const c = document.createElement('canvas'); c.width = w; c.height = h;
+        const x = c.getContext('2d');
+        x.fillStyle = '#fff'; x.fillRect(0, 0, w, h);
+        x.drawImage(a, 0, 0, w, half);
+        x.drawImage(b, 0, half, w, h - half);
+        x.strokeStyle = '#ccc';
+        x.beginPath(); x.moveTo(0, half); x.lineTo(w, half); x.stroke();
+        const url = c.toDataURL('image/png');
+        const img = document.getElementById('ai-image');
+        img.src = url; img.style.filter = 'none';
+        baseLoadedImage = new Image(); baseLoadedImage.src = url;
+        const dl = document.getElementById('ai-download');
+        dl.href = url; dl.download = 'double-passport-combined-45x55mm.png';
+        if (cropper) { cropper.destroy(); cropper = null; }
+        editingDoubleSecond = false;
         showToast('দুইটি ছবি একত্রে তৈরি হয়েছে—সিঙ্গেল ছবি ডাউনলোড করুন', '✅');
       };
-      a.onload=done;b.onload=done;a.onerror=()=>showToast('প্রথম ছবি লোড হয়নি','❌');b.onerror=()=>showToast('দ্বিতীয় ছবি লোড হয়নি','❌');
-      a.src=first;b.src=second;
+      a.onload = done; b.onload = done;
+      a.onerror = () => showToast('প্রথম ছবি লোড হয়নি', '❌');
+      b.onerror = () => showToast('দ্বিতীয় ছবি লোড হয়নি', '❌');
+      a.src = first; b.src = second;
     }
 
     function applySelectedSize() {
@@ -1120,7 +1130,8 @@ Email: sales2@grandvistana.com"></textarea>
         document.getElementById('ai-download').download = `photo-\( {selectedSize}- \){PHOTO_SIZES[selectedSize].w}x${PHOTO_SIZES[selectedSize].h}mm.png`;
         if (aiGridPhotos.length > 0) {
           aiGridPhotos[0].src = finalUrl;
-          aiGridPhotos[0].x = null; aiGridPhotos[0].y = null;
+          aiGridPhotos[0].x = null;
+          aiGridPhotos[0].y = null;
           renderAiAddedPhotosList();
           updateAiGridPreview();
         }
@@ -1177,7 +1188,7 @@ Email: sales2@grandvistana.com"></textarea>
           updateAiGridPreview();
         }
         showToast('ব্যাকগ্রাউন্ড সফলভাবে পরিবর্তন করা হয়েছে!', '🎨');
-      } catch(e) {
+      } catch (e) {
         toggleLoader(false);
         showToast('প্রসেসিংয়ে ত্রুটি ঘটেছে', '❌');
       }
@@ -1213,7 +1224,7 @@ Email: sales2@grandvistana.com"></textarea>
               updateAiGridPreview();
             }
             showToast('কাস্টম ব্যাকগ্রাউন্ড যোগ করা হয়েছে!', '🖼');
-          } catch(e) {
+          } catch (e) {
             toggleLoader(false);
             showToast('ত্রুটি ঘটেছে', '❌');
           }
@@ -1230,7 +1241,7 @@ Email: sales2@grandvistana.com"></textarea>
       const c = document.getElementById('filter-contrast').value;
       const blur = document.getElementById('filter-blur').value;
       const sat = document.getElementById('filter-saturate').value;
-      img.style.filter = `brightness(${b}%) contrast( \( {c}%) blur( \){blur}px) saturate( ${sat}%)`;
+      img.style.filter = `brightness(\( {b}%) contrast( \){c}%) blur(\( {blur}px) saturate( \){sat}%)`;
     }
 
     function enableCrop() {
@@ -1259,7 +1270,8 @@ Email: sales2@grandvistana.com"></textarea>
         document.getElementById('ai-download').download = 'cropped-photo.png';
         if (aiGridPhotos.length > 0) {
           aiGridPhotos[0].src = croppedUrl;
-          aiGridPhotos[0].x = null; aiGridPhotos[0].y = null;
+          aiGridPhotos[0].x = null;
+          aiGridPhotos[0].y = null;
           renderAiAddedPhotosList();
           updateAiGridPreview();
         }
@@ -1269,7 +1281,7 @@ Email: sales2@grandvistana.com"></textarea>
     }
 
     function aiReset() {
-      if(originalAiImageSrc) {
+      if (originalAiImageSrc) {
         baseLoadedImage = new Image();
         baseLoadedImage.onload = () => {
           document.getElementById('ai-image').src = originalAiImageSrc;
@@ -1285,7 +1297,8 @@ Email: sales2@grandvistana.com"></textarea>
           document.getElementById('double-photo-upload').classList.add('hidden');
           if (aiGridPhotos.length > 0) {
             aiGridPhotos[0].src = originalAiImageSrc;
-            aiGridPhotos[0].x = null; aiGridPhotos[0].y = null;
+            aiGridPhotos[0].x = null;
+            aiGridPhotos[0].y = null;
             renderAiAddedPhotosList();
             updateAiGridPreview();
           }
@@ -1356,7 +1369,7 @@ Email: sales2@grandvistana.com"></textarea>
         return;
       }
       container.innerHTML = aiGridPhotos.map((p, idx) => `
-        <div class="relative group w-12 h-14 rounded border border-indigo-300 dark:border-indigo-600 overflow-hidden shadow-sm bg-gray-100 flex-shrink-0 ${selectedA4Index===idx?'ring-2 ring-indigo-500':''}">
+        <div class="relative group w-12 h-14 rounded border border-indigo-300 dark:border-indigo-600 overflow-hidden shadow-sm bg-gray-100 flex-shrink-0 ${selectedA4Index === idx ? 'ring-2 ring-indigo-500' : ''}">
           <img src="${p.src}" class="w-full h-full object-cover">
           <span class="absolute top-0 left-0 bg-indigo-600 text-white text-[9px] px-1 font-bold rounded-br">${idx + 1}</span>
           <button onclick="removeAiGridPhoto(${idx})" class="absolute bottom-0 right-0 bg-red-600 text-white w-4 h-4 text-[10px] flex items-center justify-center rounded-tl opacity-90 hover:opacity-100">✕</button>
@@ -1472,8 +1485,8 @@ Email: sales2@grandvistana.com"></textarea>
       canvas.addEventListener('mouseup', onA4MouseUp);
       canvas.addEventListener('mouseleave', onA4MouseUp);
       // Touch support
-      canvas.addEventListener('touchstart', (e) => { e.preventDefault(); onA4MouseDown(e.touches[0]); }, {passive:false});
-      canvas.addEventListener('touchmove', (e) => { e.preventDefault(); onA4MouseMove(e.touches[0]); }, {passive:false});
+      canvas.addEventListener('touchstart', (e) => { e.preventDefault(); onA4MouseDown(e.touches[0]); }, { passive: false });
+      canvas.addEventListener('touchmove', (e) => { e.preventDefault(); onA4MouseMove(e.touches[0]); }, { passive: false });
       canvas.addEventListener('touchend', onA4MouseUp);
       a4CanvasEventsAttached = true;
     }
@@ -1490,11 +1503,9 @@ Email: sales2@grandvistana.com"></textarea>
     }
 
     function hitTestA4Photo(mx, my) {
-      // Check from top-most (last drawn) to first
       for (let i = aiGridPhotos.length - 1; i >= 0; i--) {
         const p = aiGridPhotos[i];
         if (p.x === null) continue;
-        // Transform mouse into photo local space
         const cx = p.x + p.w / 2;
         const cy = p.y + p.h / 2;
         const dx = mx - cx;
@@ -1520,7 +1531,6 @@ Email: sales2@grandvistana.com"></textarea>
         photoStartX = aiGridPhotos[idx].x;
         photoStartY = aiGridPhotos[idx].y;
         document.getElementById('ai-a4-canvas').classList.add('dragging');
-        // Update rotation slider
         const rot = aiGridPhotos[idx].rotation || 0;
         document.getElementById('a4-rotation-slider').value = rot;
         document.getElementById('a4-rotation-value').textContent = Math.round(rot) + '°';
@@ -1574,7 +1584,6 @@ Email: sales2@grandvistana.com"></textarea>
     function downloadAiA4Pdf() {
       const canvas = document.getElementById('ai-a4-canvas');
       if (!canvas || !canvas.width) return showToast('আগে A4 গ্রিড তৈরি করুন', '⚠️');
-      // Clear selection highlight before export
       const prevSelected = selectedA4Index;
       selectedA4Index = -1;
       updateAiGridPreview();
@@ -2379,7 +2388,7 @@ Email: sales2@grandvistana.com"></textarea>
     // ========== COMPRESS ==========
     async function compressImage() {
       const file = document.getElementById('compress-input').files[0];
-      if (!file) return showToast('একটি ছবি সিলেক্ট করুন', '⚠️️');
+      if (!file) return showToast('একটি ছবি সিলেক্ট করুন', '⚠️');
       const quality = parseFloat(document.getElementById('quality').value);
       toggleLoader(true, "ছবি কম্প্রেস করা হচ্ছে...");
       try {
@@ -2387,7 +2396,7 @@ Email: sales2@grandvistana.com"></textarea>
         const url = URL.createObjectURL(compressedFile);
         document.getElementById('compress-result').innerHTML = `
           <div class="p-4 bg-gray-100 dark:bg-gray-700 rounded-2xl text-center space-y-2">
-            <p class="text-xs">মূল আকার: ${(file.size / 1024).toFixed(1)} KB ➔ নতুন আকার: <strong> ${(compressedFile.size / 1024).toFixed(1)} KB</strong></p>
+            <p class="text-xs">মূল আকার: \( {(file.size / 1024).toFixed(1)} KB ➔ নতুন আকার: <strong> \){(compressedFile.size / 1024).toFixed(1)} KB</strong></p>
             <a href="\( {url}" download="compressed_ \){file.name}" class="btn-primary inline-block">⬇️ কম্প্রেসড ছবি ডাউনলোড</a>
           </div>
         `;
@@ -2477,7 +2486,7 @@ Email: sales2@grandvistana.com"></textarea>
       document.getElementById('convert-result').innerHTML = `
         <div class="p-4 bg-gray-100 dark:bg-gray-700 rounded-2xl text-center space-y-3">
           <img src="${dataUrl}" class="max-h-48 mx-auto rounded border dark:border-gray-600 shadow-sm" />
-          <p class="text-xs">নতুন সাইজ: ${canvas.width} x ${canvas.height} px ( ${format.split('/')[1].toUpperCase()})</p>
+          <p class="text-xs">নতুন সাইজ: ${canvas.width} x \( {canvas.height} px ( \){format.split('/')[1].toUpperCase()})</p>
           <a href="\( {dataUrl}" download="converted_amarkaj. \){ext}" class="btn-primary inline-block">⬇️ কনভার্ট করা ছবি ডাউনলোড</a>
         </div>
       `;
@@ -2489,7 +2498,7 @@ Email: sales2@grandvistana.com"></textarea>
       const frontFile = document.getElementById('nid-front').files[0];
       const backFile = document.getElementById('nid-back').files[0];
 
-      if (!frontFile || !backFile) return showToast('NID-এর দুটি অংশই আপলোড করুন', '⚠️️');
+      if (!frontFile || !backFile) return showToast('NID-এর দুটি অংশই আপলোড করুন', '⚠️');
 
       toggleLoader(true, "NID কার্ডের PDF তৈরি করা হচ্ছে...");
 
