@@ -979,6 +979,7 @@ Email: sales2@grandvistana.com"></textarea>
       if (!file) return;
       const reader = new FileReader();
       reader.onload = function(evt) {
+        ensurePhotoSizeSelected();
         originalAiImageSrc = evt.target.result;
         baseLoadedImage = new Image();
         baseLoadedImage.onload = function() {
@@ -1000,6 +1001,19 @@ Email: sales2@grandvistana.com"></textarea>
       };
       reader.readAsDataURL(file);
     });
+
+    function ensurePhotoSizeSelected() {
+      if (selectedSize && PHOTO_SIZES[selectedSize]) return selectedSize;
+      selectedSize = 'standard';
+      const btn = document.getElementById('size-standard');
+      if (btn) btn.classList.add('active');
+      const info = document.getElementById('size-info');
+      if (info) {
+        info.classList.remove('hidden');
+        info.textContent = 'নির্বাচিত: ' + PHOTO_SIZES.standard.name;
+      }
+      return selectedSize;
+    }
 
     function selectPhotoSize(type) {
       selectedSize = type;
@@ -1078,17 +1092,28 @@ Email: sales2@grandvistana.com"></textarea>
         ctx.fillStyle = '#fff';
         ctx.fillRect(0, 0, outW, outH);
 
-        function drawContain(img, x, y, w, h) {
+        // Each person gets the same half of the 55×45 mm unit.
+        // COVER-crop instead of contain/stretch: equal-sized portraits, no distortion.
+        function drawCover(img, x, y, w, h) {
           const iw = img.naturalWidth || img.width;
           const ih = img.naturalHeight || img.height;
-          const scale = Math.min(w / iw, h / ih);
-          const dw = iw * scale, dh = ih * scale;
-          ctx.drawImage(img, x + (w - dw) / 2, y + (h - dh) / 2, dw, dh);
+          if (!iw || !ih) return;
+          const targetRatio = w / h;
+          const sourceRatio = iw / ih;
+          let sx = 0, sy = 0, sw = iw, sh = ih;
+          if (sourceRatio > targetRatio) {
+            sw = ih * targetRatio;
+            sx = (iw - sw) / 2;
+          } else if (sourceRatio < targetRatio) {
+            sh = iw / targetRatio;
+            sy = (ih - sh) / 2;
+          }
+          ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
         }
 
         const halfW = Math.floor(outW / 2);
-        drawContain(a, 0, 0, halfW, outH);
-        drawContain(b, halfW, 0, outW - halfW, outH);
+        drawCover(a, 0, 0, halfW, outH);
+        drawCover(b, halfW, 0, outW - halfW, outH);
         ctx.strokeStyle = '#cccccc';
         ctx.lineWidth = Math.max(1, Math.round(mmToPx(0.25)));
         ctx.beginPath(); ctx.moveTo(halfW, 0); ctx.lineTo(halfW, outH); ctx.stroke();
@@ -1433,7 +1458,10 @@ Email: sales2@grandvistana.com"></textarea>
       canvas.width = pageW; canvas.height = pageH;
       ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, pageW, pageH);
 
-      const size = PHOTO_SIZES[selectedSize || 'standard'];
+      // The clicked size icon is the single source of truth for A4.
+      // No accidental e-passport fallback is used.
+      const activeSizeKey = (selectedSize && PHOTO_SIZES[selectedSize]) ? selectedSize : 'standard';
+      const size = PHOTO_SIZES[activeSizeKey];
       const photoW = Math.round(size.w * scale);
       const photoH = Math.round(size.h * scale);
       const margin = Math.round(5 * scale), gap = Math.round(2 * scale);
@@ -1495,7 +1523,23 @@ Email: sales2@grandvistana.com"></textarea>
           ctx.save();
           ctx.translate(p.x + p.w / 2, p.y + p.h / 2);
           ctx.rotate((p.rotation || 0) * Math.PI / 180);
-          ctx.drawImage(img, -p.w / 2, -p.h / 2, p.w, p.h);
+
+          // COVER crop into the exact selected-size frame; never stretch faces.
+          const iw = img.naturalWidth || img.width;
+          const ih = img.naturalHeight || img.height;
+          if (iw && ih) {
+            const targetRatio = p.w / p.h;
+            const sourceRatio = iw / ih;
+            let sx = 0, sy = 0, sw = iw, sh = ih;
+            if (sourceRatio > targetRatio) {
+              sw = ih * targetRatio;
+              sx = (iw - sw) / 2;
+            } else if (sourceRatio < targetRatio) {
+              sh = iw / targetRatio;
+              sy = (ih - sh) / 2;
+            }
+            ctx.drawImage(img, sx, sy, sw, sh, -p.w / 2, -p.h / 2, p.w, p.h);
+          }
           if (enableBorder) {
             ctx.lineWidth = borderWidth;
             ctx.strokeStyle = borderColor;
@@ -1619,6 +1663,8 @@ Email: sales2@grandvistana.com"></textarea>
       const canvas = document.getElementById('ai-a4-canvas');
       if (!canvas || !canvas.width) return showToast('আগে A4 গ্রিড তৈরি করুন', '⚠️');
       const prevSelected = selectedA4Index;
+      const activeSizeKey = (selectedSize && PHOTO_SIZES[selectedSize]) ? selectedSize : 'standard';
+      const activeSize = PHOTO_SIZES[activeSizeKey];
       selectedA4Index = -1;
       updateAiGridPreview();
       setTimeout(() => {
@@ -1626,7 +1672,7 @@ Email: sales2@grandvistana.com"></textarea>
         const { jsPDF } = window.jspdf;
         const pdf = new jsPDF('p', 'mm', 'a4');
         pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
-        pdf.save(`amarkaj-${selectedSize || 'standard'}-${PHOTO_SIZES[selectedSize || 'standard'].w}x${PHOTO_SIZES[selectedSize || 'standard'].h}mm-a4.pdf`);
+        pdf.save(`amarkaj-${activeSizeKey}-${activeSize.w}x${activeSize.h}mm-a4.pdf`);
         selectedA4Index = prevSelected;
         updateAiGridPreview();
         showToast('A4 PDF ডাউনলোড হয়েছে', '📄');
@@ -1637,13 +1683,15 @@ Email: sales2@grandvistana.com"></textarea>
       const canvas = document.getElementById('ai-a4-canvas');
       if (!canvas || !canvas.width) return showToast('আগে A4 গ্রিড তৈরি করুন', '⚠️');
       const prevSelected = selectedA4Index;
+      const activeSizeKey = (selectedSize && PHOTO_SIZES[selectedSize]) ? selectedSize : 'standard';
+      const activeSize = PHOTO_SIZES[activeSizeKey];
       selectedA4Index = -1;
       updateAiGridPreview();
       setTimeout(() => {
         const win = window.open('', '_blank');
         if (!win) return showToast('পপ-আপ অনুমতি দিন, তারপর আবার প্রিন্ট করুন', '⚠️');
         const data = canvas.toDataURL('image/png');
-        win.document.write(`<!doctype html><html><head><title>A4 Photo Print - ${PHOTO_SIZES[selectedSize || 'standard'].name}</title>
+        win.document.write(`<!doctype html><html><head><title>A4 Photo Print - ${activeSize.name} (${activeSize.w}×${activeSize.h} mm)</title>
           <style>@page{size:A4 portrait;margin:0}html,body{margin:0;padding:0;width:210mm;height:297mm}
           img{display:block;width:210mm;height:297mm;object-fit:fill}</style></head>
           <body><img src="${data}"></body></html>`);
