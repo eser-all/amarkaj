@@ -28,6 +28,7 @@
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.js"></script>
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   
   <!-- MediaPipe -->
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
@@ -810,7 +811,7 @@ Email: sales2@grandvistana.com"></textarea>
 
   <script>
     // ========== UI Helpers ==========
-    function showToast(message, icon = 'ℹ️') {
+    function showToast(message, icon = 'ℹ️️') {
       const toast = document.getElementById('toast');
       document.getElementById('toast-msg').textContent = message;
       document.getElementById('toast-icon').textContent = icon;
@@ -1187,7 +1188,7 @@ Email: sales2@grandvistana.com"></textarea>
       mergeFileList.forEach((file, idx) => {
         const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
         const isImage = file.type.startsWith('image/') || /\.(jpe?g|png|webp|gif|bmp|tiff?)$/i.test(file.name);
-        const icon = isPdf ? '📄' : (isImage ? '🖼️' : '📎');
+        const icon = isPdf ? '📄' : (isImage ? '🖼️️' : '📎');
         const typeLabel = isPdf ? 'PDF' : (isImage ? 'ছবি' : 'ফাইল');
         const item = document.createElement('div');
         item.className = 'flex justify-between items-center bg-gray-100 dark:bg-gray-700 p-2.5 rounded-xl gap-2';
@@ -1825,7 +1826,7 @@ Email: sales2@grandvistana.com"></textarea>
         const x = startX + col * (photoWidth + gap);
         const y = startY + row * (photoHeight + gap);
         ctx.drawImage(stampImageObj, x, y, photoWidth, photoHeight);
-        ctx.lineWidth = 1;
+        ctx.lineWidth = 1.5;
         ctx.strokeStyle = '#cccccc';
         ctx.strokeRect(x, y, photoWidth, photoHeight);
       }
@@ -1853,7 +1854,7 @@ Email: sales2@grandvistana.com"></textarea>
     }
 
     // ========== CV MAKER ==========
-    let cvPhotoSrc = null;
+    let cvPhotoSrc = '';
     document.getElementById('cv-photo').addEventListener('change', function(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -1862,92 +1863,131 @@ Email: sales2@grandvistana.com"></textarea>
       reader.readAsDataURL(file);
     });
 
+    function formatListLines(text) {
+      if (!text) return '';
+      return text.split('\n').filter(l => l.trim() !== '').map(l => {
+        let line = l.trim();
+        if (!line.startsWith('•') && !line.startsWith('-')) line = '• ' + line;
+        return `<div>${line}</div>`;
+      }).join('');
+    }
+
     function generateCV() {
       const name = document.getElementById('cv-name').value || 'Md. Emon Khan';
-      const phone = document.getElementById('cv-phone').value || '+88 01XXXXXXXXX';
+      const phone = document.getElementById('cv-phone').value || '+88 01700000000';
       const email = document.getElementById('cv-email').value || 'example@email.com';
       const address = document.getElementById('cv-address').value || 'Dhaka, Bangladesh';
+
       const education = document.getElementById('cv-education').value;
       const skills = document.getElementById('cv-skills').value;
       const experience = document.getElementById('cv-experience').value;
       const activities = document.getElementById('cv-activities').value;
       const references = document.getElementById('cv-references').value;
 
-      const skillsList = skills.split('\n').filter(s => s.trim() !== '').map(s => `<li>• ${s.trim()}</li>`).join('');
-
       const preview = document.getElementById('cv-preview');
       preview.innerHTML = `
         <div class="cv-left">
-          ${cvPhotoSrc ? `<img src="${cvPhotoSrc}" class="cv-photo">` : '<div class="cv-photo flex items-center justify-center text-gray-400">No Photo</div>'}
+          ${cvPhotoSrc ? `<img src="${cvPhotoSrc}" class="cv-photo">` : '<div class="cv-photo flex items-center justify-center text-3xl text-gray-400">👤</div>'}
+          
           <div>
             <span class="cv-section-title">CONTACT</span>
-            <p class="mt-2 font-semibold">📞 Phone</p><p class="text-xs text-gray-600">${phone}</p>
-            <p class="mt-2 font-semibold">✉️ Email</p><p class="text-xs text-gray-600">${email}</p>
-            <p class="mt-2 font-semibold">📍 Address</p><p class="text-xs text-gray-600">${address.replace(/\n/g, '<br>')}</p>
+            <div class="mt-2 space-y-1 text-xs">
+              <p>📞 ${phone}</p>
+              <p>✉️ ${email}</p>
+              <p>📍 ${address.replace(/\n/g, ', ')}</p>
+            </div>
           </div>
-          ${skillsList ? `
+
+          <div>
+            <span class="cv-section-title">EDUCATION</span>
+            <div class="mt-2 text-xs space-y-3 whitespace-pre-line">${education || 'Degree details...'}</div>
+          </div>
+
           <div>
             <span class="cv-section-title">SKILLS</span>
-            <ul class="mt-2 space-y-1 text-xs text-gray-700 font-medium">${skillsList}</ul>
-          </div>` : ''}
-          ${activities ? `
-          <div>
-            <span class="cv-section-title">ACTIVITIES</span>
-            <p class="mt-2 text-xs text-gray-700 whitespace-pre-line">${activities}</p>
-          </div>` : ''}
+            <div class="mt-2 text-xs space-y-1">${formatListLines(skills) || '• Skill details'}</div>
+          </div>
         </div>
+
         <div class="cv-right">
           <h2 class="cv-name">${name}</h2>
-          ${education ? `<h3>EDUCATION</h3><p class="whitespace-pre-line text-xs text-gray-700 mb-4">${education}</p>` : ''}
-          ${experience ? `<h3>WORK EXPERIENCE</h3><p class="whitespace-pre-line text-xs text-gray-700 mb-4">${experience}</p>` : ''}
-          ${references ? `<h3>REFERENCES</h3><p class="whitespace-pre-line text-xs text-gray-700">${references}</p>` : ''}
+
+          <h3>WORK EXPERIENCE</h3>
+          <div class="text-xs whitespace-pre-line leading-relaxed mb-4">${experience || 'Experience details...'}</div>
+
+          ${activities ? `
+            <h3>ADDITIONAL ACTIVITIES</h3>
+            <div class="text-xs space-y-1 mb-4">${formatListLines(activities)}</div>
+          ` : ''}
+
+          ${references ? `
+            <h3>REFERENCES</h3>
+            <div class="text-xs whitespace-pre-line leading-relaxed">${references}</div>
+          ` : ''}
         </div>
       `;
 
       document.getElementById('cv-placeholder').classList.add('hidden');
       document.getElementById('cv-preview-container').classList.remove('hidden');
-      showToast('CV সফলভাবে তৈরি হয়েছে!', '📋');
+      showToast('প্রফেশনাল CV তৈরি সম্পন্ন!', '✨');
     }
 
     function printCV() {
-      const cvContent = document.getElementById('cv-preview').outerHTML;
+      const elem = document.getElementById('cv-preview');
       const win = window.open('', '_blank');
       win.document.write(`
         <html>
           <head>
             <title>CV Print</title>
             <style>
-              body { margin: 0; padding: 0; background: #fff; }
-              .cv-preview { width: 100%; min-height: 100vh; box-shadow: none; }
+              body { margin: 0; padding: 0; background: white; }
               ${document.querySelector('style').innerHTML}
+              .cv-preview { scale: 1 !important; shadow: none !important; margin: 0 !important; width: 210mm !important; min-height: 297mm !important; }
             </style>
           </head>
-          <body>${cvContent}</body>
+          <body>
+            ${elem.outerHTML}
+          </body>
         </html>
       `);
       win.document.close();
       win.focus();
-      setTimeout(() => { win.print(); win.close(); }, 500);
+      setTimeout(() => { win.print(); win.close(); }, 600);
     }
 
     function downloadCVImage() {
-      showToast('প্রিন্ট অপশন থেকে "Save as PDF" বেছে নিয়ে সেভ করতে পারেন', 'ℹ️');
-      printCV();
+      const elem = document.getElementById('cv-preview');
+      toggleLoader(true, "CV ইমেজ জেনারেট হচ্ছে...");
+      html2canvas(elem, { scale: 2 }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'cv-resume.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        toggleLoader(false);
+        showToast('CV ডাউনলোড সফল!', '⬇️');
+      }).catch(err => {
+        toggleLoader(false);
+        showToast('ডাউনলোড করতে সমস্যা হয়েছে', '❌');
+      });
     }
 
-    // ========== COMPRESS ==========
+    // ========== COMPRESS TOOL ==========
     async function compressImage() {
-      const file = document.getElementById('compress-input').files[0];
-      if (!file) return showToast('একটি ছবি সিলেক্ট করুন', '⚠️️');
+      const fileInput = document.getElementById('compress-input');
+      if (!fileInput.files[0]) return showToast('একটি ছবি নির্বাচন করুন', '⚠️');
       const quality = parseFloat(document.getElementById('quality').value);
       toggleLoader(true, "ছবি কম্প্রেস করা হচ্ছে...");
       try {
-        const compressedFile = await imageCompression(file, { maxSizeMB: 1, initialQuality: quality, useWebWorker: true });
-        const url = URL.createObjectURL(compressedFile);
+        const compressed = await imageCompression(fileInput.files[0], {
+          maxSizeMB: 2,
+          initialQuality: quality,
+          useWebWorker: true
+        });
+        const url = URL.createObjectURL(compressed);
         document.getElementById('compress-result').innerHTML = `
-          <div class="p-4 bg-gray-100 dark:bg-gray-700 rounded-2xl text-center space-y-2">
-            <p class="text-xs">মূল আকার: ${(file.size / 1024).toFixed(1)} KB ➔ নতুন আকার: <strong>${(compressedFile.size / 1024).toFixed(1)} KB</strong></p>
-            <a href="${url}" download="compressed_${file.name}" class="btn-primary inline-block">⬇️ কম্প্রেসড ছবি ডাউনলোড</a>
+          <div class="p-4 bg-green-50 dark:bg-gray-700 rounded-2xl border border-green-200 dark:border-gray-600 text-center">
+            <p class="text-xs mb-2 text-green-800 dark:text-green-300">মূল সাইজ: ${(fileInput.files[0].size/1024).toFixed(1)} KB ➔ নতুন সাইজ: ${(compressed.size/1024).toFixed(1)} KB</p>
+            <a href="${url}" download="compressed_${fileInput.files[0].name}" class="btn-primary bg-green-600 hover:bg-green-700">⬇️ কম্প্রেসড ছবি ডাউনলোড</a>
           </div>
         `;
         toggleLoader(false);
@@ -1958,141 +1998,184 @@ Email: sales2@grandvistana.com"></textarea>
       }
     }
 
-    // ========== CONVERT & RESIZE ==========
-    let origImageObj = null;
-    let origFile = null;
+    // ========== CONVERT & RESIZE TOOL ==========
+    let originalImageObj = null;
+    let originalAspect = 1;
 
     document.getElementById('convert-input').addEventListener('change', function(e) {
-      origFile = e.target.files[0];
-      if (!origFile) return;
+      const file = e.target.files[0];
+      if (!file) return;
       const reader = new FileReader();
       reader.onload = function(evt) {
-        origImageObj = new Image();
-        origImageObj.onload = function() {
-          document.getElementById('orig-dimensions').textContent = `${origImageObj.width} x ${origImageObj.height} px`;
-          document.getElementById('orig-filesize').textContent = `${(origFile.size / 1024).toFixed(1)} KB`;
+        originalImageObj = new Image();
+        originalImageObj.onload = function() {
+          originalAspect = originalImageObj.width / originalImageObj.height;
+          document.getElementById('orig-dimensions').textContent = `${originalImageObj.width} × ${originalImageObj.height} px`;
+          document.getElementById('orig-filesize').textContent = (file.size / 1024).toFixed(1) + ' KB';
           document.getElementById('convert-preview-info').classList.remove('hidden');
-          document.getElementById('resize-width').value = origImageObj.width;
-          document.getElementById('resize-height').value = origImageObj.height;
+          
+          document.getElementById('resize-unit').value = 'px';
+          document.getElementById('resize-width').value = originalImageObj.width;
+          document.getElementById('resize-height').value = originalImageObj.height;
         };
-        origImageObj.src = evt.target.result;
+        originalImageObj.src = evt.target.result;
       };
-      reader.readAsDataURL(origFile);
+      reader.readAsDataURL(file);
     });
 
-    function handleUnitChange() {
-      if (!origImageObj) return;
-      const unit = document.getElementById('resize-unit').value;
+    function unitToPixels(val, unit) {
       const dpi = 96;
-      let w = origImageObj.width, h = origImageObj.height;
-      if (unit === 'in') { w = (w / dpi).toFixed(2); h = (h / dpi).toFixed(2); }
-      else if (unit === 'cm') { w = (w / dpi * 2.54).toFixed(2); h = (h / dpi * 2.54).toFixed(2); }
-      else if (unit === 'mm') { w = (w / dpi * 25.4).toFixed(1); h = (h / dpi * 25.4).toFixed(1); }
-      document.getElementById('resize-width').value = w;
-      document.getElementById('resize-height').value = h;
+      if (unit === 'in') return val * dpi;
+      if (unit === 'cm') return (val / 2.54) * dpi;
+      if (unit === 'mm') return (val / 25.4) * dpi;
+      return val;
+    }
+
+    function pixelsToUnit(px, unit) {
+      const dpi = 96;
+      if (unit === 'in') return (px / dpi).toFixed(2);
+      if (unit === 'cm') return ((px / dpi) * 2.54).toFixed(2);
+      if (unit === 'mm') return ((px / dpi) * 25.4).toFixed(1);
+      return Math.round(px);
+    }
+
+    function handleUnitChange() {
+      if (!originalImageObj) return;
+      const unit = document.getElementById('resize-unit').value;
+      document.getElementById('resize-width').value = pixelsToUnit(originalImageObj.width, unit);
+      document.getElementById('resize-height').value = pixelsToUnit(originalImageObj.height, unit);
     }
 
     function onWidthChange() {
-      if (!origImageObj || !document.getElementById('aspect-ratio-lock').checked) return;
-      const w = parseFloat(document.getElementById('resize-width').value);
-      if (!w) return;
-      const ratio = origImageObj.height / origImageObj.width;
-      document.getElementById('resize-height').value = Math.round(w * ratio);
+      const lock = document.getElementById('aspect-ratio-lock').checked;
+      if (!lock || !originalImageObj) return;
+      const unit = document.getElementById('resize-unit').value;
+      const wVal = parseFloat(document.getElementById('resize-width').value);
+      if (!wVal) return;
+      const pxWidth = unitToPixels(wVal, unit);
+      const pxHeight = pxWidth / originalAspect;
+      document.getElementById('resize-height').value = pixelsToUnit(pxHeight, unit);
     }
 
     function onHeightChange() {
-      if (!origImageObj || !document.getElementById('aspect-ratio-lock').checked) return;
-      const h = parseFloat(document.getElementById('resize-height').value);
-      if (!h) return;
-      const ratio = origImageObj.width / origImageObj.height;
-      document.getElementById('resize-width').value = Math.round(h * ratio);
+      const lock = document.getElementById('aspect-ratio-lock').checked;
+      if (!lock || !originalImageObj) return;
+      const unit = document.getElementById('resize-unit').value;
+      const hVal = parseFloat(document.getElementById('resize-height').value);
+      if (!hVal) return;
+      const pxHeight = unitToPixels(hVal, unit);
+      const pxWidth = pxHeight * originalAspect;
+      document.getElementById('resize-width').value = pixelsToUnit(pxWidth, unit);
     }
 
-    function convertAndResizeImage() {
-      if (!origImageObj) return showToast('একটি ছবি আপলোড করুন', '⚠️');
-      const unit = document.getElementById('resize-unit').value;
+    async function convertAndResizeImage() {
+      if (!originalImageObj) return showToast('একটি ছবি সিলেক্ট করুন', '⚠️');
       const format = document.getElementById('convert-format').value;
-      let targetW = parseFloat(document.getElementById('resize-width').value);
-      let targetH = parseFloat(document.getElementById('resize-height').value);
-      const dpi = 96;
+      const unit = document.getElementById('resize-unit').value;
+      const wVal = parseFloat(document.getElementById('resize-width').value);
+      const hVal = parseFloat(document.getElementById('resize-height').value);
+      const targetKb = parseFloat(document.getElementById('target-file-size').value);
 
-      if (unit === 'in') { targetW *= dpi; targetH *= dpi; }
-      else if (unit === 'cm') { targetW = (targetW / 2.54) * dpi; targetH = (targetH / 2.54) * dpi; }
-      else if (unit === 'mm') { targetW = (targetW / 25.4) * dpi; targetH = (targetH / 25.4) * dpi; }
+      if (!wVal || !hVal) return showToast('প্রস্থ ও উচ্চতা দিন', '⚠️');
+
+      const targetPxW = Math.round(unitToPixels(wVal, unit));
+      const targetPxH = Math.round(unitToPixels(hVal, unit));
+
+      toggleLoader(true, "ছবি কনভার্ট ও রিসাইজ হচ্ছে...");
 
       const canvas = document.createElement('canvas');
-      canvas.width = Math.round(targetW);
-      canvas.height = Math.round(targetH);
+      canvas.width = targetPxW;
+      canvas.height = targetPxH;
       const ctx = canvas.getContext('2d');
       if (format === 'image/jpeg') {
         ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillRect(0, 0, targetPxW, targetPxH);
       }
-      ctx.drawImage(origImageObj, 0, 0, canvas.width, canvas.height);
+      ctx.drawImage(originalImageObj, 0, 0, targetPxW, targetPxH);
 
-      const ext = format === 'image/png' ? 'png' : (format === 'image/webp' ? 'webp' : 'jpg');
-      const dataUrl = canvas.toDataURL(format, 0.9);
+      let quality = 0.92;
+      let blob = await new Promise(r => canvas.toBlob(r, format, quality));
+
+      if (targetKb && targetKb > 0 && format !== 'image/png') {
+        while (blob.size / 1024 > targetKb && quality > 0.1) {
+          quality -= 0.05;
+          blob = await new Promise(r => canvas.toBlob(r, format, quality));
+        }
+      }
+
+      const url = URL.createObjectURL(blob);
+      const ext = format.split('/')[1];
 
       document.getElementById('convert-result').innerHTML = `
-        <div class="p-4 bg-gray-100 dark:bg-gray-700 rounded-2xl text-center space-y-3">
-          <img src="${dataUrl}" class="max-h-48 mx-auto rounded border dark:border-gray-600 shadow-sm" />
-          <p class="text-xs">নতুন সাইজ: ${canvas.width} x ${canvas.height} px (${format.split('/')[1].toUpperCase()})</p>
-          <a href="${dataUrl}" download="converted_amarkaj.${ext}" class="btn-primary inline-block">⬇️ কনভার্ট করা ছবি ডাউনলোড</a>
+        <div class="p-4 bg-indigo-50 dark:bg-gray-700 rounded-2xl border border-indigo-200 dark:border-gray-600 text-center">
+          <p class="text-xs mb-2 text-indigo-900 dark:text-indigo-200">
+            নতুন মাত্রা: ${targetPxW} × ${targetPxH} px • সাইজ: ${(blob.size / 1024).toFixed(1)} KB
+          </p>
+          <a href="${url}" download="converted_image.${ext}" class="btn-primary">⬇️ কনভার্টেড ছবি ডাউনলোড</a>
         </div>
       `;
+      toggleLoader(false);
       showToast('কনভার্ট ও রিসাইজ সম্পন্ন!', '🔄');
     }
 
-    // ========== NID TO PDF ==========
-    function createNidPdf() {
+    // ========== NID MAKER ==========
+    async function createNidPdf() {
       const frontFile = document.getElementById('nid-front').files[0];
       const backFile = document.getElementById('nid-back').files[0];
+      if (!frontFile || !backFile) return showToast('সামনের ও পেছনের দুটি ছবিই প্রদান করুন', '⚠️');
 
-      if (!frontFile || !backFile) return showToast('NID-এর দুটি অংশই আপলোড করুন', '⚠️️');
+      toggleLoader(true, "NID PDF তৈরি হচ্ছে...");
 
-      toggleLoader(true, "NID কার্ডের PDF তৈরি করা হচ্ছে...");
+      const readAsDataUrl = (file) => new Promise(r => {
+        const fr = new FileReader();
+        fr.onload = e => r(e.target.result);
+        fr.readAsDataURL(file);
+      });
 
-      let frontImg = new Image(), backImg = new Image();
-      let loaded = 0;
+      const frontData = await readAsDataUrl(frontFile);
+      const backData = await readAsDataUrl(backFile);
 
-      const checkLoaded = () => {
-        loaded++;
-        if (loaded === 2) {
-          const canvas = document.createElement('canvas');
-          canvas.width = 1240; canvas.height = 1754;
-          const ctx = canvas.getContext('2d');
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(0, 0, 1240, 1754);
+      const canvas = document.createElement('canvas');
+      canvas.width = 1240; canvas.height = 1754;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, 1240, 1754);
 
-          // NID Card Standard Aspect Size (Approx 8.5cm x 5.5cm)
-          const cardW = 500, cardH = 315;
-          const x = (1240 - cardW) / 2;
+      const loadImage = (src) => new Promise(r => {
+        const img = new Image();
+        img.onload = () => r(img);
+        img.src = src;
+      });
 
-          ctx.drawImage(frontImg, x, 300, cardW, cardH);
-          ctx.lineWidth = 2; ctx.strokeStyle = '#cccccc';
-          ctx.strokeRect(x, 300, cardW, cardH);
+      const imgFront = await loadImage(frontData);
+      const imgBack = await loadImage(backData);
 
-          ctx.drawImage(backImg, x, 750, cardW, cardH);
-          ctx.strokeRect(x, 750, cardW, cardH);
+      const nidW = 500, nidH = 315;
+      const x = (1240 - nidW) / 2;
 
-          const { jsPDF } = window.jspdf;
-          const pdf = new jsPDF('p', 'mm', 'a4');
-          pdf.addImage(canvas.toDataURL('image/jpeg', 1.0), 'JPEG', 0, 0, 210, 297);
-          
-          const pdfUrl = pdf.output('bloburl');
-          document.getElementById('nid-result').innerHTML = `
-            <div class="p-4 bg-gray-100 dark:bg-gray-700 rounded-2xl text-center space-y-3">
-              <p class="text-xs font-semibold">NID কার্ডের PDF সফলভাবে তৈরি হয়েছে!</p>
-              <button onclick="window.open('${pdfUrl}')" class="btn-primary">📄 NID PDF দেখুন ও ডাউনলোড করুন</button>
-            </div>
-          `;
-          toggleLoader(false);
-          showToast('NID PDF তৈরি হয়েছে!', '🪪');
-        }
-      };
+      ctx.drawImage(imgFront, x, 350, nidW, nidH);
+      ctx.lineWidth = 2; ctx.strokeStyle = '#cccccc';
+      ctx.strokeRect(x, 350, nidW, nidH);
 
-      const r1 = new FileReader(); r1.onload = (e) => { frontImg.onload = checkLoaded; frontImg.src = e.target.result; }; r1.readAsDataURL(frontFile);
-      const r2 = new FileReader(); r2.onload = (e) => { backImg.onload = checkLoaded; backImg.src = e.target.result; }; r2.readAsDataURL(backFile);
+      ctx.drawImage(imgBack, x, 800, nidW, nidH);
+      ctx.strokeRect(x, 800, nidW, nidH);
+
+      const pdfData = canvas.toDataURL('image/jpeg', 1.0);
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      pdf.addImage(pdfData, 'JPEG', 0, 0, 210, 297);
+
+      const pdfBlob = pdf.output('blob');
+      const url = URL.createObjectURL(pdfBlob);
+
+      document.getElementById('nid-result').innerHTML = `
+        <div class="p-4 bg-indigo-50 dark:bg-gray-700 rounded-2xl text-center">
+          <a href="${url}" download="NID_Card_A4.pdf" class="btn-primary">📄 NID PDF ডাউনলোড করুন</a>
+        </div>
+      `;
+
+      toggleLoader(false);
+      showToast('NID PDF সফলভাবে তৈরি হয়েছে!', '🪪');
     }
   </script>
 </body>
