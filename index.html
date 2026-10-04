@@ -1437,8 +1437,6 @@ Email: sales2@grandvistana.com"></textarea>
     }
 
     // ========== A4 Interactive Grid ==========
-    let a4RenderToken = 0;
-
     function updateAiGridPreview() {
       const canvas = document.getElementById('ai-a4-canvas');
       const ctx = canvas.getContext('2d');
@@ -1452,82 +1450,81 @@ Email: sales2@grandvistana.com"></textarea>
         pdfBtn.classList.add('hidden');
         printBtn.classList.add('hidden');
         editControls.classList.add('hidden');
-        return Promise.resolve();
+        return;
       }
 
-      // The selected icon is ALWAYS the source of truth. Never infer the size
-      // from the previously generated canvas or from an old PDF/print render.
+      const dpi = 150, scale = dpi / 25.4;
+      const pageW = Math.round(210 * scale), pageH = Math.round(297 * scale);
+      canvas.width = pageW; canvas.height = pageH;
+      ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, pageW, pageH);
+
+      // The clicked size icon is the single source of truth for A4.
+      // No accidental e-passport fallback is used.
       const activeSizeKey = (selectedSize && PHOTO_SIZES[selectedSize]) ? selectedSize : 'standard';
       const size = PHOTO_SIZES[activeSizeKey];
-      const dpi = 150;
-      const scale = dpi / 25.4;
-      const pageW = Math.round(210 * scale);
-      const pageH = Math.round(297 * scale);
-      const photoW = Math.max(1, Math.round(size.w * scale));
-      const photoH = Math.max(1, Math.round(size.h * scale));
-      const margin = Math.round(5 * scale);
-      const gap = Math.round(2 * scale);
+      const photoW = Math.round(size.w * scale);
+      const photoH = Math.round(size.h * scale);
+      const margin = Math.round(5 * scale), gap = Math.round(2 * scale);
       const cols = Math.max(1, Math.floor((pageW - margin * 2 + gap) / (photoW + gap)));
       const rows = Math.max(1, Math.floor((pageH - margin * 2 + gap) / (photoH + gap)));
       const capacity = cols * rows;
+      if (aiGridPhotos.length > capacity) {
+        showToast(`এই সাইজে এক A4 পেজে সর্বোচ্চ ${capacity}টি ছবি বসবে। অতিরিক্ত ছবি বাদ দিয়ে দেখানো হচ্ছে।`, '⚠️');
+      }
       const count = Math.min(aiGridPhotos.length, capacity);
       const usedW = cols * photoW + (cols - 1) * gap;
       const offsetX = Math.max(margin, Math.floor((pageW - usedW) / 2));
-
-      if (aiGridPhotos.length > capacity) {
-        showToast(`এই ${size.w}×${size.h} mm সাইজে এক A4 পেজে সর্বোচ্চ ${capacity}টি ছবি বসবে।`, '⚠️');
-      }
-
-      canvas.width = pageW;
-      canvas.height = pageH;
-      ctx.fillStyle = '#fff';
-      ctx.fillRect(0, 0, pageW, pageH);
-
       const enableBorder = document.getElementById('ai-border-enable').checked;
       const borderWidth = Math.max(1, parseInt(document.getElementById('ai-border-width').value, 10) || 1);
       const borderColor = document.getElementById('ai-border-color').value || '#ccc';
-      const renderToken = ++a4RenderToken;
 
-      // Recalculate every item's physical frame whenever the selected size changes.
-      // This is what prevents 50×50 mm e-passport dimensions from leaking into
-      // standard/traditional A4 output.
+      // Auto-position any photo that has null x/y
       for (let i = 0; i < count; i++) {
         const p = aiGridPhotos[i];
         p.w = photoW;
         p.h = photoH;
         if (p.x === null || p.y === null) {
-          const row = Math.floor(i / cols);
-          const col = i % cols;
+          const row = Math.floor(i / cols), col = i % cols;
           p.x = offsetX + col * (photoW + gap);
           p.y = margin + row * (photoH + gap);
-          p.rotation = 0;
+          p.rotation = p.rotation || 0;
         }
       }
 
-      // Load all images before declaring the A4 canvas ready. PDF/Print uses this
-      // same promise, so it can never capture an old/blank/previous-size canvas.
-      const jobs = [];
+      let loaded = 0;
+      const finish = () => {
+        loaded++;
+        if (loaded === count) {
+          // Draw selection highlight last
+          if (selectedA4Index >= 0 && selectedA4Index < count) {
+            const p = aiGridPhotos[selectedA4Index];
+            ctx.save();
+            ctx.translate(p.x + p.w / 2, p.y + p.h / 2);
+            ctx.rotate((p.rotation || 0) * Math.PI / 180);
+            ctx.strokeStyle = '#6366f1';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([6, 4]);
+            ctx.strokeRect(-p.w / 2 - 4, -p.h / 2 - 4, p.w + 8, p.h + 8);
+            ctx.setLineDash([]);
+            ctx.restore();
+          }
+          preview.classList.remove('hidden');
+          pdfBtn.classList.remove('hidden');
+          printBtn.classList.remove('hidden');
+          editControls.classList.remove('hidden');
+          attachA4CanvasEvents();
+        }
+      };
+
       for (let i = 0; i < count; i++) {
         const p = aiGridPhotos[i];
-        jobs.push(new Promise(resolve => {
-          const img = new Image();
-          img.onload = () => resolve({ p, img, ok: true });
-          img.onerror = () => resolve({ p, img: null, ok: false });
-          img.src = p.src;
-        }));
-      }
-
-      return Promise.all(jobs).then(items => {
-        if (renderToken !== a4RenderToken) return;
-
-        for (const item of items) {
-          const {p, img, ok} = item;
-          if (!ok || !img) continue;
+        const img = new Image();
+        img.onload = () => {
           ctx.save();
           ctx.translate(p.x + p.w / 2, p.y + p.h / 2);
           ctx.rotate((p.rotation || 0) * Math.PI / 180);
 
-          // Exact physical frame with proportional COVER crop. No stretching.
+          // COVER crop into the exact selected-size frame; never stretch faces.
           const iw = img.naturalWidth || img.width;
           const ih = img.naturalHeight || img.height;
           if (iw && ih) {
@@ -1549,27 +1546,11 @@ Email: sales2@grandvistana.com"></textarea>
             ctx.strokeRect(-p.w / 2, -p.h / 2, p.w, p.h);
           }
           ctx.restore();
-        }
-
-        if (selectedA4Index >= 0 && selectedA4Index < count) {
-          const p = aiGridPhotos[selectedA4Index];
-          ctx.save();
-          ctx.translate(p.x + p.w / 2, p.y + p.h / 2);
-          ctx.rotate((p.rotation || 0) * Math.PI / 180);
-          ctx.strokeStyle = '#6366f1';
-          ctx.lineWidth = 3;
-          ctx.setLineDash([6, 4]);
-          ctx.strokeRect(-p.w / 2 - 4, -p.h / 2 - 4, p.w + 8, p.h + 8);
-          ctx.setLineDash([]);
-          ctx.restore();
-        }
-
-        preview.classList.remove('hidden');
-        pdfBtn.classList.remove('hidden');
-        printBtn.classList.remove('hidden');
-        editControls.classList.remove('hidden');
-        attachA4CanvasEvents();
-      });
+          finish();
+        };
+        img.onerror = finish;
+        img.src = p.src;
+      }
     }
 
     function attachA4CanvasEvents() {
@@ -1678,38 +1659,35 @@ Email: sales2@grandvistana.com"></textarea>
       showToast('A4 লেআউট রিসেট করা হয়েছে', '🔄');
     }
 
-    async function downloadAiA4Pdf() {
-      if (!aiGridPhotos.length) return showToast('আগে ছবি যোগ করুন', '⚠️');
+    function downloadAiA4Pdf() {
+      const canvas = document.getElementById('ai-a4-canvas');
+      if (!canvas || !canvas.width) return showToast('আগে A4 গ্রিড তৈরি করুন', '⚠️');
       const prevSelected = selectedA4Index;
       const activeSizeKey = (selectedSize && PHOTO_SIZES[selectedSize]) ? selectedSize : 'standard';
       const activeSize = PHOTO_SIZES[activeSizeKey];
       selectedA4Index = -1;
-      try {
-        // IMPORTANT: wait until the newly selected size has fully rendered.
-        await updateAiGridPreview();
-        const canvas = document.getElementById('ai-a4-canvas');
+      updateAiGridPreview();
+      setTimeout(() => {
         const imgData = canvas.toDataURL('image/jpeg', 1.0);
         const { jsPDF } = window.jspdf;
         const pdf = new jsPDF('p', 'mm', 'a4');
         pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
         pdf.save(`amarkaj-${activeSizeKey}-${activeSize.w}x${activeSize.h}mm-a4.pdf`);
-        showToast(`A4 PDF তৈরি হয়েছে — ${activeSize.w}×${activeSize.h} mm`, '📄');
-      } finally {
         selectedA4Index = prevSelected;
-        await updateAiGridPreview();
-      }
+        updateAiGridPreview();
+        showToast('A4 PDF ডাউনলোড হয়েছে', '📄');
+      }, 150);
     }
 
-    async function printAiA4Grid() {
-      if (!aiGridPhotos.length) return showToast('আগে ছবি যোগ করুন', '⚠️');
+    function printAiA4Grid() {
+      const canvas = document.getElementById('ai-a4-canvas');
+      if (!canvas || !canvas.width) return showToast('আগে A4 গ্রিড তৈরি করুন', '⚠️');
       const prevSelected = selectedA4Index;
       const activeSizeKey = (selectedSize && PHOTO_SIZES[selectedSize]) ? selectedSize : 'standard';
       const activeSize = PHOTO_SIZES[activeSizeKey];
       selectedA4Index = -1;
-      try {
-        // Wait for the exact selected physical size to be rendered before printing.
-        await updateAiGridPreview();
-        const canvas = document.getElementById('ai-a4-canvas');
+      updateAiGridPreview();
+      setTimeout(() => {
         const win = window.open('', '_blank');
         if (!win) return showToast('পপ-আপ অনুমতি দিন, তারপর আবার প্রিন্ট করুন', '⚠️');
         const data = canvas.toDataURL('image/png');
@@ -1719,10 +1697,9 @@ Email: sales2@grandvistana.com"></textarea>
           <body><img src="${data}"></body></html>`);
         win.document.close();
         win.onload = () => { win.focus(); win.print(); };
-      } finally {
         selectedA4Index = prevSelected;
-        await updateAiGridPreview();
-      }
+        updateAiGridPreview();
+      }, 150);
     }
 
     // ========== PDF MERGER ==========
