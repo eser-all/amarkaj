@@ -154,8 +154,34 @@
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 min-h-screen transition-colors duration-200 flex flex-col justify-between">
 
-  <!-- Main App (always visible) -->
-  <div id="app-content">
+  <!-- FIREBASE LOGIN OVERLAY -->
+  <div id="auth-modal" class="fixed inset-0 bg-gray-900/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-gray-800 w-full max-w-md rounded-3xl p-6 md:p-8 shadow-2xl border border-gray-100 dark:border-gray-700">
+      <div class="text-center mb-6">
+        <span class="text-4xl inline-block mb-2">⚡</span>
+        <h2 class="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Amarkaj সিকিউর লগইন</h2>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">অ্যাক্সেস করতে ইমেইল ও পাসওয়ার্ড দিয়ে প্রবেশ করুন</p>
+      </div>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold mb-1 text-gray-700 dark:text-gray-300">ইমেইল ঠিকানা</label>
+          <input type="email" id="auth-email" placeholder="example@domain.com" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold mb-1 text-gray-700 dark:text-gray-300">পাসওয়ার্ড</label>
+          <input type="password" id="auth-password" placeholder="••••••••" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <div class="flex gap-2">
+          <button id="login-btn" onclick="handleLogin()" class="btn-primary flex-1 py-3 text-base shadow-indigo-200">লগইন</button>
+          <button id="signup-btn" onclick="handleSignUp()" class="btn-secondary flex-1 py-3 text-base">রেজিস্টার</button>
+        </div>
+      </div>
+      <p id="auth-error" class="text-xs text-red-500 text-center mt-4 hidden font-semibold"></p>
+    </div>
+  </div>
+
+  <!-- Main App -->
+  <div id="app-content" class="hidden">
     <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 bg-gray-900 text-white text-sm px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2 opacity-0">
       <span id="toast-icon">ℹ</span>
       <span id="toast-msg">বার্তা</span>
@@ -174,6 +200,8 @@
           <h1 class="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Amarkaj</h1>
         </div>
         <div class="flex items-center gap-3">
+          <span id="user-display" class="text-xs font-semibold text-gray-500 dark:text-gray-300 hidden md:inline-block"></span>
+          <button onclick="handleLogout()" class="text-xs bg-red-100 text-red-600 hover:bg-red-200 px-3 py-1.5 rounded-lg font-bold transition">লগআউট</button>
           <button onclick="toggleDarkMode()" class="p-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-200 hover:opacity-80 transition" title="থিম পরিবর্তন">🌙</button>
         </div>
       </div>
@@ -183,7 +211,7 @@
     <section class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white py-12 relative overflow-hidden">
       <div class="max-w-4xl mx-auto px-4 text-center relative z-10">
         <h2 class="text-3xl md:text-5xl font-extrabold mb-3 leading-tight">স্মার্ট এডিটিং ও প্রফেশনাল ফাইল ম্যানেজার</h2>
-        <p class="text-base md:text-lg opacity-90 font-light">AI ফটো • ডাবল 45×55 • A4 গ্রিড • ডকুমেন্ট এডিটর • <strong>AI CV মেকার</strong> • PDF মার্জার • Canon স্ক্যানার সাপোর্ট</p>
+        <p class="text-base md:text-lg opacity-90 font-light">AI ফটো • A4 গ্রিড • ডকুমেন্ট এডিটর • <strong>AI CV মেকার</strong> • PDF মার্জার • Canon স্ক্যানার সাপোর্ট</p>
       </div>
     </section>
 
@@ -195,10 +223,6 @@
         <div class="tool-card" onclick="showTool('ai')">
           <div class="text-4xl">🤖</div>
           <h4 class="font-semibold text-sm md:text-base">AI ফটো এডিট ও ব্যাকগ্রাউন্ড</h4>
-        </div>
-        <div class="tool-card" onclick="showTool('double')">
-          <div class="text-4xl">👥</div>
-          <h4 class="font-semibold text-sm md:text-base">ডাবল পাসপোর্ট 45×55</h4>
         </div>
         <div class="tool-card" onclick="showTool('doceditor')">
           <div class="text-4xl">📄</div>
@@ -253,27 +277,53 @@
           <input type="file" id="ai-input" accept="image/*" class="mb-4 block w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
           
           <div id="ai-controls" class="hidden space-y-4">
+            
+            <!-- ========== NEW: PHOTO SIZE SELECTOR ========== -->
             <div class="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-gray-700/50 dark:to-gray-700/30 p-4 rounded-2xl border border-indigo-100 dark:border-gray-600">
               <h4 class="font-bold text-sm text-indigo-700 dark:text-indigo-300 mb-3">📏 অফিসিয়াল ফটো সাইজ নির্বাচন করুন:</h4>
-              <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <!-- Standard Passport -->
                 <div class="size-btn" id="size-standard" onclick="selectPhotoSize('standard')">
                   <span class="text-2xl">🪪</span>
                   <span class="text-xs font-bold">স্ট্যান্ডার্ড</span>
                   <span class="text-[10px] text-gray-500">45×35 mm</span>
                 </div>
+                <!-- E-Passport -->
                 <div class="size-btn" id="size-epassport" onclick="selectPhotoSize('epassport')">
                   <span class="text-2xl">🛂</span>
                   <span class="text-xs font-bold">ই-পাসপোর্ট</span>
                   <span class="text-[10px] text-gray-500">50×50 mm</span>
                 </div>
+                <!-- Traditional -->
                 <div class="size-btn" id="size-traditional" onclick="selectPhotoSize('traditional')">
                   <span class="text-2xl">📷</span>
                   <span class="text-xs font-bold">ট্র্যাডিশনাল</span>
                   <span class="text-[10px] text-gray-500">55×45 mm</span>
                 </div>
+                <!-- Double -->
+                <div class="size-btn" id="size-double" onclick="selectPhotoSize('double')">
+                  <span class="text-2xl">👥</span>
+                  <span class="text-xs font-bold">ডাবল</span>
+                  <span class="text-[10px] text-gray-500">45×55 mm</span>
+                </div>
               </div>
               <p id="size-info" class="text-xs text-indigo-600 dark:text-indigo-300 mt-3 font-medium hidden"></p>
+              
+              <!-- Double photo second image upload -->
+              <div id="double-photo-upload" class="hidden mt-3 p-3 bg-white dark:bg-gray-800 rounded-xl border border-dashed border-indigo-300">
+                <p class="text-xs font-semibold mb-2">দ্বিতীয় ছবি আপলোড করে আলাদাভাবে এডিট করুন, তারপর দুইটি একত্রে ডাউনলোড করুন:</p>
+                <input type="file" id="double-second-image" accept="image/*" class="text-xs w-full">
+                <div class="flex flex-wrap gap-2 mt-2">
+                  <button type="button" onclick="editDoubleSecondImage()" class="btn-secondary text-xs">✏️ দ্বিতীয় ছবি এডিট করুন</button>
+                  <button type="button" onclick="combineDoublePhotos()" class="btn-primary text-xs">👥 দুই ছবি একত্রে তৈরি</button>
+                </div>
+                <div class="mt-2 flex gap-3 items-center">
+                  <img id="double-second-preview" class="hidden w-20 h-24 object-contain border rounded bg-gray-100" alt="দ্বিতীয় ছবির প্রিভিউ">
+                  <span id="double-second-status" class="text-xs text-gray-500">দ্বিতীয় ছবি এখনো আপলোড হয়নি</span>
+                </div>
+              </div>
             </div>
+            <!-- ========== END SIZE SELECTOR ========== -->
 
             <div class="bg-indigo-50/70 dark:bg-gray-700/50 p-4 rounded-2xl border border-indigo-100 dark:border-gray-600">
               <h4 class="font-bold text-sm text-indigo-700 dark:text-indigo-300 mb-3">✨ AI ব্যাকগ্রাউন্ড এডিটর:</h4>
@@ -349,6 +399,7 @@
                 <div class="flex flex-wrap items-center gap-3">
                   <button onclick="document.getElementById('ai-add-more-input').click()" class="btn-primary bg-emerald-600 hover:bg-emerald-700 text-base py-2 px-4 flex items-center gap-1">➕ ছবি যোগ করুন</button>
                   <button onclick="addCurrentEditedImage()" class="btn-secondary text-xs">➕ এডিটেড ছবি যোগ করুন</button>
+                  <button onclick="addDoubleEditedImageToA4()" class="btn-secondary text-xs">👥 ডাবল 45×55 ছবি A4-তে যোগ করুন</button>
                   <button onclick="clearAiGridList()" class="btn-danger py-2 px-3 text-xs">🗑️ সব মুছুন</button>
                 </div>
                 <div id="ai-added-photos-list" class="flex flex-wrap gap-2 mt-3 p-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 min-h-[50px] items-center">
@@ -366,132 +417,7 @@
           </div>
         </div>
 
-        <!-- DOUBLE 45×55 -->
-        <div id="panel-double" class="tool-panel">
-          <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
-            দুইটি ছবি আলাদাভাবে এডিট করে <strong>45×55 mm</strong> ডাবল পাসপোর্ট সাইজে একত্রিত করুন। সব AI টুলস (ব্যাকগ্রাউন্ড, ফিল্টার, ক্রপ, A4 গ্রিড) এখানেই পাবেন।
-          </p>
-
-          <div class="mb-4 p-4 bg-indigo-50 dark:bg-gray-700/40 rounded-2xl border border-indigo-100 dark:border-gray-600">
-            <h4 class="font-bold text-sm text-indigo-700 dark:text-indigo-300 mb-2">1️⃣ প্রথম ছবি (উপরের অংশ)</h4>
-            <input type="file" id="dbl-first-input" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700">
-          </div>
-
-          <div class="mb-4 p-4 bg-purple-50 dark:bg-gray-700/40 rounded-2xl border border-purple-100 dark:border-gray-600">
-            <h4 class="font-bold text-sm text-purple-700 dark:text-purple-300 mb-2">2️⃣ দ্বিতীয় ছবি (নিচের অংশ)</h4>
-            <input type="file" id="dbl-second-input" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700">
-            <div class="mt-2 flex gap-3 items-center">
-              <img id="dbl-second-preview" class="hidden w-16 h-20 object-contain border rounded bg-gray-100" alt="দ্বিতীয় ছবি">
-              <span id="dbl-second-status" class="text-xs text-gray-500">দ্বিতীয় ছবি এখনো আপলোড হয়নি</span>
-            </div>
-          </div>
-
-          <div id="dbl-controls" class="hidden space-y-4">
-            <div class="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-gray-700/50 dark:to-gray-700/30 p-4 rounded-2xl border border-indigo-100 dark:border-gray-600">
-              <h4 class="font-bold text-sm text-indigo-700 dark:text-indigo-300 mb-1">📏 নির্ধারিত সাইজ: ডাবল পাসপোর্ট</h4>
-              <p class="text-xs text-indigo-600 dark:text-indigo-300 font-medium">45 × 55 mm (দুইটি ছবি একত্রে)</p>
-            </div>
-
-            <div class="bg-indigo-50/70 dark:bg-gray-700/50 p-4 rounded-2xl border border-indigo-100 dark:border-gray-600">
-              <h4 class="font-bold text-sm text-indigo-700 dark:text-indigo-300 mb-3">✨ AI ব্যাকগ্রাউন্ড এডিটর (বর্তমান ছবির জন্য):</h4>
-              <div class="flex flex-wrap gap-3 items-center">
-                <div class="flex items-center gap-2">
-                  <label class="text-xs font-semibold">রং বেছে নিন:</label>
-                  <input type="color" id="dbl-bg-color" value="#3b82f6" class="w-8 h-8 rounded cursor-pointer border-0">
-                  <button onclick="dblApplyBgColor()" class="btn-primary py-1.5 px-3 text-xs">ব্যাকগ্রাউন্ড পরিবর্তন</button>
-                </div>
-                <div class="flex items-center gap-1">
-                  <span class="text-xs font-semibold mr-1">দ্রুত কালার:</span>
-                  <button onclick="dblQuickBg('#ffffff')" class="w-6 h-6 rounded-full bg-white border border-gray-400 shadow" title="সাদা"></button>
-                  <button onclick="dblQuickBg('#3b82f6')" class="w-6 h-6 rounded-full bg-blue-500 shadow" title="পাসপোর্ট ব্লু"></button>
-                  <button onclick="dblQuickBg('#e0f2fe')" class="w-6 h-6 rounded-full bg-sky-100 border shadow" title="হালকা নীল"></button>
-                  <button onclick="dblQuickBg('#ef4444')" class="w-6 h-6 rounded-full bg-red-500 shadow" title="লাল"></button>
-                </div>
-                <div class="flex items-center gap-2 border-l border-gray-300 dark:border-gray-600 pl-3">
-                  <input type="file" id="dbl-bg-image-file" accept="image/*" class="text-xs text-gray-500 w-36">
-                  <button onclick="dblApplyBgImage()" class="btn-secondary py-1.5 px-3 text-xs">ছবি বসান</button>
-                </div>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 bg-gray-50 dark:bg-gray-700/50 p-4 rounded-2xl">
-              <div>
-                <label class="block text-xs font-semibold mb-1">উজ্জ্বলতা</label>
-                <input type="range" id="dbl-filter-brightness" min="50" max="150" value="100" oninput="dblApplyFilters()" class="w-full accent-indigo-600">
-              </div>
-              <div>
-                <label class="block text-xs font-semibold mb-1">কনট্রাস্ট</label>
-                <input type="range" id="dbl-filter-contrast" min="50" max="150" value="100" oninput="dblApplyFilters()" class="w-full accent-indigo-600">
-              </div>
-              <div>
-                <label class="block text-xs font-semibold mb-1">স্মুথনেস</label>
-                <input type="range" id="dbl-filter-blur" min="0" max="4" step="0.5" value="0" oninput="dblApplyFilters()" class="w-full accent-indigo-600">
-              </div>
-              <div>
-                <label class="block text-xs font-semibold mb-1">স্যাচুরেশন</label>
-                <input type="range" id="dbl-filter-saturate" min="0" max="200" value="100" oninput="dblApplyFilters()" class="w-full accent-indigo-600">
-              </div>
-            </div>
-
-            <div class="flex flex-wrap gap-2">
-              <button onclick="dblEnableCrop()" class="btn-secondary">✂️ ক্রপ টুল</button>
-              <button onclick="dblCropImage()" class="btn-primary bg-green-600 hover:bg-green-700">ক্রপ কনফার্ম</button>
-              <button onclick="dblApplySize()" class="btn-primary bg-purple-600 hover:bg-purple-700">📏 45×55 mm সাইজে অ্যাপ্লাই</button>
-              <button onclick="dblReset()" class="btn-danger">অরিজিনাল ছবিতে রিসেট</button>
-              <button onclick="dblSwitchToSecond()" class="btn-secondary">🔄 দ্বিতীয় ছবিতে স্যুইচ</button>
-              <button onclick="dblCombine()" class="btn-primary bg-emerald-600 hover:bg-emerald-700">👥 দুই ছবি একত্রে তৈরি</button>
-            </div>
-
-            <div class="max-h-[350px] overflow-hidden rounded-2xl border dark:border-gray-700 bg-gray-100 dark:bg-gray-900 flex items-center justify-center p-2">
-              <img id="dbl-image" class="max-w-full max-h-[330px] object-contain" />
-            </div>
-
-            <div class="flex flex-wrap gap-3 items-center justify-between border-t dark:border-gray-700 pt-4">
-              <a id="dbl-download" class="btn-primary bg-green-600 hover:bg-green-700">⬇️ সিঙ্গেল/ডাবল ছবি ডাউনলোড</a>
-              <span id="dbl-current-label" class="text-xs font-semibold text-indigo-600">বর্তমানে: প্রথম ছবি এডিট করছেন</span>
-            </div>
-
-            <div class="bg-indigo-50/50 dark:bg-gray-700/30 p-4 rounded-2xl border border-indigo-100 dark:border-gray-600 mt-4 space-y-4">
-              <div class="border-b dark:border-gray-600 pb-3">
-                <h4 class="font-bold text-sm text-indigo-700 dark:text-indigo-300 mb-2">🖼️ ছবির বর্ডার সেটিংস:</h4>
-                <div class="flex flex-wrap items-center gap-4 text-xs font-semibold">
-                  <label class="flex items-center gap-1 cursor-pointer">
-                    <input type="checkbox" id="dbl-border-enable" checked onchange="dblUpdateGridPreview()" class="w-4 h-4 text-indigo-600 rounded"> বর্ডার যুক্ত করুন
-                  </label>
-                  <div class="flex items-center gap-1">
-                    <span>সাইজ:</span>
-                    <input type="number" id="dbl-border-width" value="3" min="1" max="15" onchange="dblUpdateGridPreview()" class="w-12 px-1 py-0.5 border rounded text-center dark:bg-gray-700"> px
-                  </div>
-                  <div class="flex items-center gap-1">
-                    <span>রং:</span>
-                    <input type="color" id="dbl-border-color" value="#cccccc" onchange="dblUpdateGridPreview()" class="w-6 h-6 rounded cursor-pointer border-0">
-                  </div>
-                </div>
-              </div>
-              <div>
-                <h4 class="font-bold text-sm text-indigo-700 dark:text-indigo-300 mb-2">🖨️ A4 পেজে ডাবল 45×55 গ্রিড:</h4>
-                <input type="file" id="dbl-add-more-input" accept="image/*" class="hidden" onchange="dblHandleAddMore(event)">
-                <div class="flex flex-wrap items-center gap-3">
-                  <button onclick="document.getElementById('dbl-add-more-input').click()" class="btn-primary bg-emerald-600 hover:bg-emerald-700 text-base py-2 px-4 flex items-center gap-1">➕ ছবি যোগ করুন</button>
-                  <button onclick="dblAddCurrentToGrid()" class="btn-secondary text-xs">➕ এডিটেড ছবি যোগ করুন</button>
-                  <button onclick="dblClearGrid()" class="btn-danger py-2 px-3 text-xs">🗑️ সব মুছুন</button>
-                </div>
-                <div id="dbl-added-photos-list" class="flex flex-wrap gap-2 mt-3 p-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 min-h-[50px] items-center">
-                  <span class="text-xs text-gray-400 pl-2">এখনো কোনো ছবি যোগ করা হয়নি।</span>
-                </div>
-              </div>
-              <div class="flex flex-wrap gap-3 items-center pt-2">
-                <button onclick="dblDownloadA4Pdf()" id="dbl-pdf-btn" class="btn-primary bg-purple-600 hover:bg-purple-700 hidden">📄 A4 PDF ডাউনলোড</button>
-                <button onclick="dblPrintA4Grid()" id="dbl-print-btn" class="btn-secondary hidden">🖨️ সরাসরি প্রিন্ট</button>
-              </div>
-              <div id="dbl-grid-preview" class="mt-4 hidden border dark:border-gray-700 p-2 bg-gray-200 dark:bg-gray-900 rounded-xl max-h-[350px] overflow-y-auto">
-                <canvas id="dbl-a4-canvas" class="mx-auto bg-white shadow rounded-lg max-w-full"></canvas>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- DOCUMENT EDITOR -->
+        <!-- 2. DOCUMENT EDITOR -->
         <div id="panel-doceditor" class="tool-panel">
           <div class="bg-indigo-50 dark:bg-indigo-950/50 p-4 rounded-2xl border border-indigo-100 dark:border-indigo-800/50 mb-4">
             <p class="text-sm text-indigo-900 dark:text-indigo-200 font-medium">
@@ -563,7 +489,7 @@
           </div>
         </div>
 
-        <!-- PDF MERGER -->
+        <!-- 3. PDF MERGER -->
         <div id="panel-pdfmerge" class="tool-panel">
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
             একাধিক <strong>PDF</strong>, <strong>ছবি</strong> বা স্ক্যানড ডকুমেন্ট সিলেক্ট করে একসাথে জুড়ে নতুন একটি PDF বানিয়ে ডাউনলোড করুন।
@@ -577,7 +503,7 @@
           </div>
         </div>
 
-        <!-- PASSPORT GRID -->
+        <!-- 4. PASSPORT GRID -->
         <div id="panel-ppgrid" class="tool-panel">
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">পাসপোর্ট সাইজের ছবি আপলোড করে A4 পেজে বিভিন্ন কপিতে সাজিয়ে ডাউনলোড করুন।</p>
           <input type="file" id="pp-input" accept="image/*" class="mb-4 block w-full text-sm">
@@ -604,7 +530,7 @@
           </div>
         </div>
 
-        <!-- STAMP GRID -->
+        <!-- 5. STAMP GRID -->
         <div id="panel-stampgrid" class="tool-panel">
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
             বাংলাদেশী স্ট্যাম্প সাইজ (প্রায় ২.৫ সেমি × ৩.০ সেমি) ছবি আপলোড করে A4 পেজে অনেক কপিতে সাজিয়ে ডাউনলোড করুন।
@@ -635,13 +561,14 @@
           </div>
         </div>
 
-        <!-- CV / RESUME MAKER -->
+        <!-- 6. CV / RESUME MAKER -->
         <div id="panel-cv" class="tool-panel">
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
             ছবির মতো প্রফেশনাল দুই-কলাম CV তৈরি করুন। সব তথ্য পূরণ করে <strong>Generate CV</strong> বাটনে ক্লিক করুন।
           </p>
 
           <div class="grid lg:grid-cols-2 gap-6">
+            <!-- Form -->
             <div class="space-y-4 max-h-[75vh] overflow-y-auto pr-1">
               <div class="bg-indigo-50 dark:bg-gray-700/50 p-4 rounded-2xl border border-indigo-100 dark:border-gray-600">
                 <h4 class="font-bold text-sm mb-3 text-indigo-700 dark:text-indigo-300">📷 ছবি ও ব্যক্তিগত তথ্য</h4>
@@ -715,6 +642,7 @@ Email: sales2@grandvistana.com"></textarea>
               <button onclick="generateCV()" class="btn-primary w-full py-3 text-base">✨ Generate Professional CV</button>
             </div>
 
+            <!-- Preview -->
             <div class="overflow-auto max-h-[75vh] bg-gray-100 dark:bg-gray-900 p-3 rounded-2xl">
               <div id="cv-preview-container" class="hidden">
                 <div id="cv-preview" class="cv-preview scale-[0.68] origin-top mx-auto"></div>
@@ -731,12 +659,13 @@ Email: sales2@grandvistana.com"></textarea>
           </div>
         </div>
 
-        <!-- SCANNER -->
+        <!-- 7. SCANNER (Canon + Live Camera) -->
         <div id="panel-scanner" class="tool-panel">
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
             ক্যামেরা দিয়ে সরাসরি ডকুমেন্ট স্ক্যান করুন অথবা <strong>Canon / অন্যান্য স্ক্যানার</strong> দিয়ে স্ক্যান করা ছবি ইম্পোর্ট করুন।
           </p>
           
+          <!-- Canon / Scanner Import -->
           <div class="bg-indigo-50 dark:bg-indigo-950/40 p-4 rounded-2xl border border-indigo-100 dark:border-indigo-800 mb-5">
             <h4 class="font-bold text-sm text-indigo-700 dark:text-indigo-300 mb-2">📁 Canon / অন্যান্য স্ক্যানার থেকে ছবি ইম্পোর্ট</h4>
             <p class="text-xs text-gray-600 dark:text-gray-400 mb-3">স্ক্যানার সফটওয়্যার দিয়ে ছবি সেভ করে নিচে আপলোড করুন (JPG, PNG, TIFF ইত্যাদি সাপোর্টেড)</p>
@@ -760,7 +689,7 @@ Email: sales2@grandvistana.com"></textarea>
           </div>
         </div>
 
-        <!-- COMPRESS -->
+        <!-- 8. COMPRESS -->
         <div id="panel-compress" class="tool-panel">
           <input type="file" id="compress-input" accept="image/*" class="mb-4 block w-full text-sm">
           <div class="mb-4">
@@ -771,7 +700,7 @@ Email: sales2@grandvistana.com"></textarea>
           <div id="compress-result" class="mt-6"></div>
         </div>
 
-        <!-- CONVERT -->
+        <!-- 9. CONVERT -->
         <div id="panel-convert" class="tool-panel">
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">ইমেজ ফরম্যাট কনভার্ট করুন এবং কাস্টম ডাইমেনশন পরিবর্তন করুন।</p>
           <input type="file" id="convert-input" accept="image/*" class="mb-4 block w-full text-sm">
@@ -822,7 +751,7 @@ Email: sales2@grandvistana.com"></textarea>
           <div id="convert-result" class="mt-6"></div>
         </div>
 
-        <!-- NID -->
+        <!-- 10. NID -->
         <div id="panel-nid" class="tool-panel">
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">NID কার্ডের সামনের এবং পেছনের অংশ আপলোড করুন:</p>
           <input type="file" id="nid-front" accept="image/*" class="mb-2 block w-full text-sm">
@@ -839,6 +768,104 @@ Email: sales2@grandvistana.com"></textarea>
   <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-4 text-center text-sm transition-colors mt-auto">
     <p class="text-gray-600 dark:text-gray-400">© Amarkaj Tools • Developed by <span class="rainbow-text text-base ml-1">Antu</span></p>
   </footer>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCzmfEg39TV0cxGkSKivO7lYsier3KH9AY",
+      authDomain: "amarkaj-c7d5f.firebaseapp.com",
+      projectId: "amarkaj-c7d5f",
+      storageBucket: "amarkaj-c7d5f.firebasestorage.app",
+      messagingSenderId: "183473425547",
+      appId: "1:183473425547:web:f713861eeaac48b978188e",
+      measurementId: "G-HXVW2W079G"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    window.handleLogin = async function() {
+      const email = document.getElementById('auth-email').value.trim();
+      const password = document.getElementById('auth-password').value;
+      const errorEl = document.getElementById('auth-error');
+      if (!email || !password) {
+        errorEl.textContent = "ইমেইল এবং পাসওয়ার্ড সঠিকভাবে দিন।";
+        errorEl.classList.remove('hidden');
+        return;
+      }
+      toggleLoader(true, "যাচাই করা হচ্ছে...");
+      errorEl.classList.add('hidden');
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        showToast('লগইন সফল হয়েছে!', '✅');
+      } catch (error) {
+        errorEl.textContent = "লগইন ব্যর্থ হয়েছে: " + getReadableAuthError(error.code);
+        errorEl.classList.remove('hidden');
+      } finally {
+        toggleLoader(false);
+      }
+    };
+
+    window.handleSignUp = async function() {
+      const email = document.getElementById('auth-email').value.trim();
+      const password = document.getElementById('auth-password').value;
+      const errorEl = document.getElementById('auth-error');
+      if (!email || !password) {
+        errorEl.textContent = "ইমেইল এবং পাসওয়ার্ড সঠিকভাবে দিন।";
+        errorEl.classList.remove('hidden');
+        return;
+      }
+      if(password.length < 6) {
+        errorEl.textContent = "পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।";
+        errorEl.classList.remove('hidden');
+        return;
+      }
+      toggleLoader(true, "নতুন অ্যাকাউন্ট তৈরি হচ্ছে...");
+      errorEl.classList.add('hidden');
+      try {
+        await createUserWithEmailAndPassword(auth, email, password);
+        showToast('অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে!', '🎉');
+      } catch (error) {
+        errorEl.textContent = "রেজিস্ট্রেশন ব্যর্থ: " + getReadableAuthError(error.code);
+        errorEl.classList.remove('hidden');
+      } finally {
+        toggleLoader(false);
+      }
+    };
+
+    window.handleLogout = function() {
+      signOut(auth).then(() => showToast('লগআউট করা হয়েছে', 'ℹ️'));
+    };
+
+    function getReadableAuthError(code) {
+      switch (code) {
+        case 'auth/user-not-found':
+        case 'auth/invalid-credential': return 'ইমেইল বা পাসওয়ার্ড ভুল হয়েছে।';
+        case 'auth/wrong-password': return 'পাসওয়ার্ড ভুল হয়েছে।';
+        case 'auth/email-already-in-use': return 'এই ইমেইল দিয়ে আগেই অ্যাকাউন্ট করা রয়েছে।';
+        case 'auth/invalid-email': return 'সঠিক ইমেইল ঠিকানা দিন।';
+        case 'auth/weak-password': return 'পাসওয়ার্ড আরও শক্ত দিন (কমপক্ষে ৬ ডিজিট)।';
+        default: return 'সমস্যা হয়েছে, পরে চেষ্টা করুন।';
+      }
+    }
+
+    onAuthStateChanged(auth, (user) => {
+      const modal = document.getElementById('auth-modal');
+      const content = document.getElementById('app-content');
+      const userDisplay = document.getElementById('user-display');
+      if (user) {
+        modal.classList.add('hidden');
+        content.classList.remove('hidden');
+        userDisplay.textContent = "স্বাগতম, " + (user.email || '');
+      } else {
+        modal.classList.remove('hidden');
+        content.classList.add('hidden');
+      }
+    });
+  </script>
 
   <script>
     // ========== UI Helpers ==========
@@ -868,7 +895,6 @@ Email: sales2@grandvistana.com"></textarea>
       const titles = {
         scanner: 'লাইভ এইচডি স্ক্যানার + Canon ইম্পোর্ট',
         ai: 'AI ফটো এডিট ও ব্যাকগ্রাউন্ড চেঞ্জার',
-        double: 'ডাবল পাসপোর্ট 45×55 AI এডিটর',
         doceditor: 'স্মার্ট ডকুমেন্ট এডিটর & OCR',
         pdfmerge: 'একাধিক PDF / ছবি / ডকুমেন্ট মার্জার',
         ppgrid: 'A4 পেপারে পাসপোর্ট ফটো গ্রিড মেকার',
@@ -892,7 +918,18 @@ Email: sales2@grandvistana.com"></textarea>
       document.getElementById('quality-value').textContent = Math.round(this.value * 100) + '%';
     });
 
-    // ========== SHARED CONSTANTS ==========
+    // ========== AI BG REMOVAL + SIZE SYSTEM ==========
+    let cropper = null;
+    let originalAiImageSrc = null;
+    let baseLoadedImage = null;
+    let selfieSegmentation = null;
+    let aiGridPhotos = [];
+    let selectedSize = null; // 'standard' | 'epassport' | 'traditional' | 'double'
+    let doubleSecondImageSrc = null;
+    let doubleFirstEditedSrc = null;
+    let editingDoubleSecond = false;
+
+    // Exact sizes at 300 DPI (print quality)
     const PHOTO_SIZES = {
       standard:   { w: 45, h: 35, name: 'স্ট্যান্ডার্ড পাসপোর্ট (45×35 mm)', ratio: 45/35 },
       epassport:  { w: 50, h: 50, name: 'ই-পাসপোর্ট (50×50 mm)', ratio: 1 },
@@ -901,16 +938,8 @@ Email: sales2@grandvistana.com"></textarea>
     };
 
     function mmToPx(mm) {
-      return Math.round(mm * (300 / 25.4));
+      return Math.round(mm * (300 / 25.4)); // 300 DPI
     }
-
-    // ========== AI BG REMOVAL ==========
-    let cropper = null;
-    let originalAiImageSrc = null;
-    let baseLoadedImage = null;
-    let selfieSegmentation = null;
-    let aiGridPhotos = [];
-    let selectedSize = null;
 
     function initMediaPipe() {
       if (!selfieSegmentation) {
@@ -949,15 +978,200 @@ Email: sales2@grandvistana.com"></textarea>
       reader.readAsDataURL(file);
     });
 
+    // ========== SIZE SELECTION ==========
     function selectPhotoSize(type) {
       selectedSize = type;
-      document.querySelectorAll('#panel-ai .size-btn').forEach(btn => btn.classList.remove('active'));
+      // Update UI
+      document.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove('active'));
       document.getElementById('size-' + type).classList.add('active');
+      
       const info = document.getElementById('size-info');
       info.classList.remove('hidden');
       info.textContent = 'নির্বাচিত: ' + PHOTO_SIZES[type].name;
-      if (cropper) cropper.setAspectRatio(PHOTO_SIZES[type].ratio);
+
+      // Show/hide double upload
+      const doubleUpload = document.getElementById('double-photo-upload');
+      if (type === 'double') {
+        doubleUpload.classList.remove('hidden');
+      } else {
+        doubleUpload.classList.add('hidden');
+      }
+
+      // If cropper is active, update aspect ratio
+      if (cropper) {
+        cropper.setAspectRatio(PHOTO_SIZES[type].ratio);
+      }
       showToast(PHOTO_SIZES[type].name + ' সিলেক্ট করা হয়েছে', '📏');
+    }
+
+    document.getElementById('double-second-image').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        doubleSecondImageSrc = evt.target.result;
+        const preview = document.getElementById('double-second-preview');
+        preview.src = doubleSecondImageSrc; preview.classList.remove('hidden');
+        document.getElementById('double-second-status').textContent = 'দ্বিতীয় ছবি আপলোড হয়েছে';
+        showToast('দ্বিতীয় ছবি লোড হয়েছে', '✅');
+      };
+      reader.readAsDataURL(file);
+    });
+
+    function editDoubleSecondImage() {
+      if (!doubleSecondImageSrc) return showToast('আগে দ্বিতীয় ছবি আপলোড করুন', '⚠️');
+      if (cropper) { cropper.destroy(); cropper = null; }
+      doubleFirstEditedSrc = document.getElementById('ai-image').src;
+      editingDoubleSecond = true;
+      const img = document.getElementById('ai-image');
+      img.src = doubleSecondImageSrc;
+      baseLoadedImage = new Image();
+      baseLoadedImage.onload = () => {
+        img.style.filter = 'none'; enableCrop();
+        setTimeout(() => { if (cropper) cropper.setAspectRatio(45/27.5); }, 250);
+        showToast('দ্বিতীয় ছবি ক্রপ/এডিট করে সাইজে অ্যাপ্লাই চাপুন', '✂️');
+      };
+      baseLoadedImage.src = doubleSecondImageSrc;
+    }
+
+    function combineDoublePhotos() {
+      const first = doubleFirstEditedSrc || '';
+      const second = doubleSecondImageSrc || '';
+      if (!first || !second) return showToast('প্রথম ছবি এডিট এবং দ্বিতীয় ছবি আপলোড করুন', '⚠️');
+      const a=new Image(), b=new Image(); let n=0;
+      const done=()=>{ if(++n!==2)return;
+        const w=mmToPx(45), h=mmToPx(55), half=Math.floor(h/2);
+        const c=document.createElement('canvas'); c.width=w;c.height=h;
+        const x=c.getContext('2d'); x.fillStyle='#fff';x.fillRect(0,0,w,h);
+        x.drawImage(a,0,0,w,half);x.drawImage(b,0,half,w,h-half);
+        x.strokeStyle='#ccc';x.beginPath();x.moveTo(0,half);x.lineTo(w,half);x.stroke();
+        const url=c.toDataURL('image/png'), img=document.getElementById('ai-image');
+        img.src=url;img.style.filter='none';baseLoadedImage=new Image();baseLoadedImage.src=url;
+        const dl=document.getElementById('ai-download');dl.href=url;dl.download='double-passport-combined-45x55mm.png';
+        if(cropper){cropper.destroy();cropper=null;} editingDoubleSecond=false;
+        showToast('দুইটি ছবি একত্রে তৈরি হয়েছে—সিঙ্গেল ছবি ডাউনলোড করুন', '✅');
+      };
+      a.onload=done;b.onload=done;a.onerror=()=>showToast('প্রথম ছবি লোড হয়নি','❌');b.onerror=()=>showToast('দ্বিতীয় ছবি লোড হয়নি','❌');
+      a.src=first;b.src=second;
+    }
+
+    function applySelectedSize() {
+      if (!selectedSize) return showToast('আগে একটি সাইজ সিলেক্ট করুন', '⚠️');
+      if (!baseLoadedImage && !document.getElementById('ai-image').src) return showToast('আগে একটি ছবি লোড করুন', '⚠️');
+
+      // Double passport is one portrait photo at 45 x 55 mm.
+      // Do not require a second upload; let it follow the same edit/crop/download flow.
+      // For every size, force crop to the selected aspect ratio and export exact dimensions.
+      if (!cropper) {
+        enableCrop();
+        setTimeout(() => {
+          if (cropper) cropper.setAspectRatio(PHOTO_SIZES[selectedSize].ratio);
+          showToast('ক্রপ এরিয়া ঠিক করে "ক্রপ কনফার্ম" চাপুন, তারপর আবার "সাইজে অ্যাপ্লাই" চাপুন', '✂️');
+        }, 300);
+        return;
+      }
+
+      // Already cropping - get cropped canvas and resize to exact size
+      const canvas = cropper.getCroppedCanvas({
+        width: mmToPx(PHOTO_SIZES[selectedSize].w),
+        height: mmToPx(PHOTO_SIZES[selectedSize].h),
+        imageSmoothingEnabled: true,
+        imageSmoothingQuality: 'high'
+      });
+
+      if (!canvas) return showToast('ক্রপ করতে সমস্যা হয়েছে', '❌');
+
+      const finalUrl = canvas.toDataURL('image/png');
+      if (selectedSize === 'double' && editingDoubleSecond) {
+        doubleSecondImageSrc = finalUrl;
+        document.getElementById('double-second-preview').src = finalUrl;
+        document.getElementById('double-second-status').textContent = 'দ্বিতীয় ছবি এডিট সম্পন্ন';
+        if (cropper) { cropper.destroy(); cropper = null; }
+        document.getElementById('ai-image').src = doubleFirstEditedSrc;
+        editingDoubleSecond = false;
+        showToast('দ্বিতীয় ছবি এডিট হয়েছে—এখন দুই ছবি একত্রে তৈরি করুন', '✅');
+        return;
+      }
+      const img = document.getElementById('ai-image');
+      img.src = finalUrl;
+      img.style.filter = 'none';
+
+      baseLoadedImage = new Image();
+      baseLoadedImage.onload = () => {
+        document.getElementById('ai-download').href = finalUrl;
+        document.getElementById('ai-download').download = `photo-${selectedSize}-${PHOTO_SIZES[selectedSize].w}x${PHOTO_SIZES[selectedSize].h}mm.png`;
+        if (aiGridPhotos.length > 0) {
+          aiGridPhotos[0] = finalUrl;
+          renderAiAddedPhotosList();
+          updateAiGridPreview();
+        }
+        if (cropper) { cropper.destroy(); cropper = null; }
+        showToast(PHOTO_SIZES[selectedSize].name + ' সাইজে সেট করা হয়েছে!', '✅');
+      };
+      baseLoadedImage.src = finalUrl;
+    }
+
+    function createDoublePhoto() {
+      if (!doubleSecondImageSrc) return showToast('ডাবল সাইজের জন্য দ্বিতীয় ছবি আপলোড করুন', '⚠️');
+      
+      const img1 = new Image();
+      const img2 = new Image();
+      let loaded = 0;
+
+      const onBothLoaded = () => {
+        loaded++;
+        if (loaded < 2) return;
+
+        const targetW = mmToPx(45); // 45mm
+        const targetH = mmToPx(55); // 55mm
+        const halfH = Math.floor(targetH / 2);
+
+        const canvas = document.createElement('canvas');
+        canvas.width = targetW;
+        canvas.height = targetH;
+        const ctx = canvas.getContext('2d');
+
+        // White background
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, targetW, targetH);
+
+        // Draw first photo (top)
+        ctx.drawImage(img1, 0, 0, targetW, halfH);
+        // Draw second photo (bottom)
+        ctx.drawImage(img2, 0, halfH, targetW, halfH);
+
+        // Optional thin divider line
+        ctx.strokeStyle = '#cccccc';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, halfH);
+        ctx.lineTo(targetW, halfH);
+        ctx.stroke();
+
+        const finalUrl = canvas.toDataURL('image/png');
+        const img = document.getElementById('ai-image');
+        img.src = finalUrl;
+        img.style.filter = 'none';
+
+        baseLoadedImage = new Image();
+        baseLoadedImage.onload = () => {
+          document.getElementById('ai-download').href = finalUrl;
+          document.getElementById('ai-download').download = 'double-passport-45x55mm.png';
+          if (aiGridPhotos.length > 0) {
+            aiGridPhotos[0] = finalUrl;
+            renderAiAddedPhotosList();
+            updateAiGridPreview();
+          }
+          if (cropper) { cropper.destroy(); cropper = null; }
+          showToast('ডাবল পাসপোর্ট (45×55 mm) তৈরি হয়েছে!', '👥');
+        };
+        baseLoadedImage.src = finalUrl;
+      };
+
+      img1.onload = onBothLoaded;
+      img2.onload = onBothLoaded;
+      img1.src = document.getElementById('ai-image').src;
+      img2.src = doubleSecondImageSrc;
     }
 
     function quickBg(color) {
@@ -1060,14 +1274,18 @@ Email: sales2@grandvistana.com"></textarea>
       const c = document.getElementById('filter-contrast').value;
       const blur = document.getElementById('filter-blur').value;
       const sat = document.getElementById('filter-saturate').value;
-      img.style.filter = `brightness(\( {b}%) contrast( \){c}%) blur(\( {blur}px) saturate( \){sat}%)`;
+      img.style.filter = `brightness(${b}%) contrast( ${c}%) blur(${blur}px) saturate( ${sat}%)`;
     }
 
     function enableCrop() {
       const img = document.getElementById('ai-image');
       if (cropper) cropper.destroy();
       const ratio = selectedSize ? PHOTO_SIZES[selectedSize].ratio : NaN;
-      cropper = new Cropper(img, { aspectRatio: ratio, viewMode: 1, autoCropArea: 0.9 });
+      cropper = new Cropper(img, { 
+        aspectRatio: ratio, 
+        viewMode: 1,
+        autoCropArea: 0.9
+      });
       showToast(selectedSize ? 'সাইজ অনুযায়ী ক্রপ এরিয়া নির্বাচন করুন' : 'ক্রপ এরিয়া নির্বাচন করুন', '✂️');
     }
 
@@ -1093,43 +1311,6 @@ Email: sales2@grandvistana.com"></textarea>
       baseLoadedImage.src = croppedUrl;
     }
 
-    function applySelectedSize() {
-      if (!selectedSize) return showToast('আগে একটি সাইজ সিলেক্ট করুন', '⚠️');
-      if (!baseLoadedImage && !document.getElementById('ai-image').src) return showToast('আগে একটি ছবি লোড করুন', '⚠️');
-      if (!cropper) {
-        enableCrop();
-        setTimeout(() => {
-          if (cropper) cropper.setAspectRatio(PHOTO_SIZES[selectedSize].ratio);
-          showToast('ক্রপ এরিয়া ঠিক করে "ক্রপ কনফার্ম" চাপুন, তারপর আবার "সাইজে অ্যাপ্লাই" চাপুন', '✂️');
-        }, 300);
-        return;
-      }
-      const canvas = cropper.getCroppedCanvas({
-        width: mmToPx(PHOTO_SIZES[selectedSize].w),
-        height: mmToPx(PHOTO_SIZES[selectedSize].h),
-        imageSmoothingEnabled: true,
-        imageSmoothingQuality: 'high'
-      });
-      if (!canvas) return showToast('ক্রপ করতে সমস্যা হয়েছে', '❌');
-      const finalUrl = canvas.toDataURL('image/png');
-      const img = document.getElementById('ai-image');
-      img.src = finalUrl;
-      img.style.filter = 'none';
-      baseLoadedImage = new Image();
-      baseLoadedImage.onload = () => {
-        document.getElementById('ai-download').href = finalUrl;
-        document.getElementById('ai-download').download = `photo-\( {selectedSize}- \){PHOTO_SIZES[selectedSize].w}x${PHOTO_SIZES[selectedSize].h}mm.png`;
-        if (aiGridPhotos.length > 0) {
-          aiGridPhotos[0] = finalUrl;
-          renderAiAddedPhotosList();
-          updateAiGridPreview();
-        }
-        if (cropper) { cropper.destroy(); cropper = null; }
-        showToast(PHOTO_SIZES[selectedSize].name + ' সাইজে সেট করা হয়েছে!', '✅');
-      };
-      baseLoadedImage.src = finalUrl;
-    }
-
     function aiReset() {
       if(originalAiImageSrc) {
         baseLoadedImage = new Image();
@@ -1142,8 +1323,9 @@ Email: sales2@grandvistana.com"></textarea>
           document.getElementById('filter-blur').value = 0;
           document.getElementById('filter-saturate').value = 100;
           selectedSize = null;
-          document.querySelectorAll('#panel-ai .size-btn').forEach(btn => btn.classList.remove('active'));
+          document.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove('active'));
           document.getElementById('size-info').classList.add('hidden');
+          document.getElementById('double-photo-upload').classList.add('hidden');
           if (aiGridPhotos.length > 0) {
             aiGridPhotos[0] = originalAiImageSrc;
             renderAiAddedPhotosList();
@@ -1176,6 +1358,20 @@ Email: sales2@grandvistana.com"></textarea>
       renderAiAddedPhotosList();
       updateAiGridPreview();
       showToast('এডিটেড ছবি যুক্ত করা হলো', '➕');
+    }
+
+    function addDoubleEditedImageToA4() {
+      const imgElem = document.getElementById('ai-image');
+      if (!imgElem || !imgElem.src || !imgElem.src.startsWith('data:image/')) {
+        return showToast('আগে ডাবল ছবি তৈরি/এডিট করুন', '⚠️');
+      }
+      if (selectedSize !== 'double') {
+        return showToast('আগে ডাবল 45×55 mm সাইজ নির্বাচন করুন', '⚠️');
+      }
+      aiGridPhotos.push(imgElem.src);
+      renderAiAddedPhotosList();
+      updateAiGridPreview();
+      showToast('ডাবল 45×55 mm ছবি A4 গ্রিডে যোগ হয়েছে', '👥');
     }
 
     function removeAiGridPhoto(index) {
@@ -1219,10 +1415,14 @@ Email: sales2@grandvistana.com"></textarea>
         printBtn.classList.add('hidden');
         return;
       }
+
+      // A4 portrait at 150 DPI. Each photo is laid out using the selected
+      // physical dimensions (mm), not a fixed pixel placeholder.
       const dpi = 150, scale = dpi / 25.4;
       const pageW = Math.round(210 * scale), pageH = Math.round(297 * scale);
       canvas.width = pageW; canvas.height = pageH;
       ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, pageW, pageH);
+
       const size = PHOTO_SIZES[selectedSize || 'standard'];
       const photoW = Math.round(size.w * scale);
       const photoH = Math.round(size.h * scale);
@@ -1239,6 +1439,7 @@ Email: sales2@grandvistana.com"></textarea>
       const enableBorder = document.getElementById('ai-border-enable').checked;
       const borderWidth = Math.max(1, parseInt(document.getElementById('ai-border-width').value, 10) || 1);
       const borderColor = document.getElementById('ai-border-color').value || '#ccc';
+
       let loaded = 0;
       const finish = () => {
         loaded++;
@@ -1284,421 +1485,6 @@ Email: sales2@grandvistana.com"></textarea>
       if (!win) return showToast('পপ-আপ অনুমতি দিন, তারপর আবার প্রিন্ট করুন', '⚠️');
       const data = canvas.toDataURL('image/png');
       win.document.write(`<!doctype html><html><head><title>A4 Photo Print</title>
-        <style>@page{size:A4 portrait;margin:0}html,body{margin:0;padding:0;width:210mm;height:297mm}
-        img{display:block;width:210mm;height:297mm;object-fit:fill}</style></head>
-        <body><img src="${data}"></body></html>`);
-      win.document.close();
-      win.onload = () => { win.focus(); win.print(); };
-    }
-
-    // ========== DOUBLE 45×55 PANEL ==========
-    let dblCropper = null;
-    let dblOriginalSrc = null;
-    let dblBaseImage = null;
-    let dblSecondSrc = null;
-    let dblFirstEditedSrc = null;
-    let dblEditingSecond = false;
-    let dblGridPhotos = [];
-    let dblCurrentIsFirst = true;
-
-    document.getElementById('dbl-first-input').addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        dblOriginalSrc = evt.target.result;
-        dblBaseImage = new Image();
-        dblBaseImage.onload = function() {
-          const img = document.getElementById('dbl-image');
-          img.src = dblOriginalSrc;
-          document.getElementById('dbl-controls').classList.remove('hidden');
-          const dl = document.getElementById('dbl-download');
-          dl.href = dblOriginalSrc;
-          dl.download = 'double-first-photo.png';
-          if (dblCropper) { dblCropper.destroy(); dblCropper = null; }
-          dblCurrentIsFirst = true;
-          document.getElementById('dbl-current-label').textContent = 'বর্তমানে: প্রথম ছবি এডিট করছেন';
-          if (dblGridPhotos.length === 0) {
-            dblGridPhotos.push(dblOriginalSrc);
-            dblRenderGridList();
-            dblUpdateGridPreview();
-          }
-          showToast('প্রথম ছবি লোড হয়েছে', '✅');
-        };
-        dblBaseImage.src = dblOriginalSrc;
-      };
-      reader.readAsDataURL(file);
-    });
-
-    document.getElementById('dbl-second-input').addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        dblSecondSrc = evt.target.result;
-        const preview = document.getElementById('dbl-second-preview');
-        preview.src = dblSecondSrc;
-        preview.classList.remove('hidden');
-        document.getElementById('dbl-second-status').textContent = 'দ্বিতীয় ছবি আপলোড হয়েছে';
-        showToast('দ্বিতীয় ছবি লোড হয়েছে', '✅');
-      };
-      reader.readAsDataURL(file);
-    });
-
-    function dblQuickBg(color) {
-      document.getElementById('dbl-bg-color').value = color;
-      dblApplyBgColor();
-    }
-
-    async function dblApplyBgColor() {
-      const img = document.getElementById('dbl-image');
-      if (!dblBaseImage) return showToast('একটি ছবি লোড করুন', '⚠️');
-      toggleLoader(true, "AI দিয়ে ব্যাকগ্রাউন্ড চেঞ্জ করা হচ্ছে...");
-      const color = document.getElementById('dbl-bg-color').value;
-      try {
-        const maskCanvas = await getSegmentedMask(dblBaseImage);
-        const canvas = document.createElement('canvas');
-        canvas.width = dblBaseImage.naturalWidth || dblBaseImage.width;
-        canvas.height = dblBaseImage.naturalHeight || dblBaseImage.height;
-        const ctx = canvas.getContext('2d');
-        ctx.fillStyle = color;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.globalCompositeOperation = 'destination-out';
-        ctx.drawImage(maskCanvas, 0, 0, canvas.width, canvas.height);
-        ctx.globalCompositeOperation = 'destination-over';
-        ctx.drawImage(dblBaseImage, 0, 0, canvas.width, canvas.height);
-        const newUrl = canvas.toDataURL('image/png');
-        img.src = newUrl;
-        document.getElementById('dbl-download').href = newUrl;
-        if (dblCurrentIsFirst) dblFirstEditedSrc = newUrl;
-        else dblSecondSrc = newUrl;
-        toggleLoader(false);
-        showToast('ব্যাকগ্রাউন্ড পরিবর্তন সম্পন্ন!', '🎨');
-      } catch(e) {
-        toggleLoader(false);
-        showToast('ত্রুটি ঘটেছে', '❌');
-      }
-    }
-
-    async function dblApplyBgImage() {
-      const img = document.getElementById('dbl-image');
-      const bgFile = document.getElementById('dbl-bg-image-file').files[0];
-      if (!dblBaseImage || !bgFile) return showToast('ছবি এবং ব্যাকগ্রাউন্ড উভয় নির্বাচন করুন', '⚠️');
-      toggleLoader(true, "কাস্টম ব্যাকগ্রাউন্ড প্রসেস হচ্ছে...");
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        const bgImg = new Image();
-        bgImg.onload = async function() {
-          try {
-            const maskCanvas = await getSegmentedMask(dblBaseImage);
-            const canvas = document.createElement('canvas');
-            canvas.width = dblBaseImage.naturalWidth || dblBaseImage.width;
-            canvas.height = dblBaseImage.naturalHeight || dblBaseImage.height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
-            ctx.globalCompositeOperation = 'destination-out';
-            ctx.drawImage(maskCanvas, 0, 0, canvas.width, canvas.height);
-            ctx.globalCompositeOperation = 'destination-over';
-            ctx.drawImage(dblBaseImage, 0, 0, canvas.width, canvas.height);
-            const newUrl = canvas.toDataURL('image/png');
-            img.src = newUrl;
-            document.getElementById('dbl-download').href = newUrl;
-            if (dblCurrentIsFirst) dblFirstEditedSrc = newUrl;
-            else dblSecondSrc = newUrl;
-            toggleLoader(false);
-            showToast('কাস্টম ব্যাকগ্রাউন্ড যোগ হয়েছে!', '🖼');
-          } catch(e) {
-            toggleLoader(false);
-            showToast('ত্রুটি ঘটেছে', '❌');
-          }
-        };
-        bgImg.src = evt.target.result;
-      };
-      reader.readAsDataURL(bgFile);
-    }
-
-    function dblApplyFilters() {
-      const img = document.getElementById('dbl-image');
-      if (!img.src) return;
-      const b = document.getElementById('dbl-filter-brightness').value;
-      const c = document.getElementById('dbl-filter-contrast').value;
-      const blur = document.getElementById('dbl-filter-blur').value;
-      const sat = document.getElementById('dbl-filter-saturate').value;
-      img.style.filter = `brightness(\( {b}%) contrast( \){c}%) blur(\( {blur}px) saturate( \){sat}%)`;
-    }
-
-    function dblEnableCrop() {
-      const img = document.getElementById('dbl-image');
-      if (dblCropper) dblCropper.destroy();
-      dblCropper = new Cropper(img, {
-        aspectRatio: PHOTO_SIZES.double.ratio,
-        viewMode: 1,
-        autoCropArea: 0.9
-      });
-      showToast('ডাবল 45×55 অনুযায়ী ক্রপ এরিয়া নির্বাচন করুন', '✂️');
-    }
-
-    function dblCropImage() {
-      if (!dblCropper) return showToast('আগে ক্রপ টুল চালু করুন', '⚠️');
-      const canvas = dblCropper.getCroppedCanvas();
-      const croppedUrl = canvas.toDataURL('image/png');
-      dblCropper.destroy();
-      dblCropper = null;
-      const img = document.getElementById('dbl-image');
-      img.src = croppedUrl;
-      dblBaseImage = new Image();
-      dblBaseImage.onload = () => {
-        document.getElementById('dbl-download').href = croppedUrl;
-        if (dblCurrentIsFirst) dblFirstEditedSrc = croppedUrl;
-        else dblSecondSrc = croppedUrl;
-        showToast('ছবি ক্রপ করা হয়েছে!', '✅');
-      };
-      dblBaseImage.src = croppedUrl;
-    }
-
-    function dblApplySize() {
-      if (!dblBaseImage && !document.getElementById('dbl-image').src) return showToast('আগে একটি ছবি লোড করুন', '⚠️');
-      if (!dblCropper) {
-        dblEnableCrop();
-        setTimeout(() => {
-          if (dblCropper) dblCropper.setAspectRatio(PHOTO_SIZES.double.ratio);
-          showToast('ক্রপ এরিয়া ঠিক করে "ক্রপ কনফার্ম" চাপুন, তারপর আবার "সাইজে অ্যাপ্লাই" চাপুন', '✂️');
-        }, 300);
-        return;
-      }
-      const canvas = dblCropper.getCroppedCanvas({
-        width: mmToPx(PHOTO_SIZES.double.w),
-        height: mmToPx(PHOTO_SIZES.double.h),
-        imageSmoothingEnabled: true,
-        imageSmoothingQuality: 'high'
-      });
-      if (!canvas) return showToast('ক্রপ করতে সমস্যা হয়েছে', '❌');
-      const finalUrl = canvas.toDataURL('image/png');
-      const img = document.getElementById('dbl-image');
-      img.src = finalUrl;
-      img.style.filter = 'none';
-      dblBaseImage = new Image();
-      dblBaseImage.onload = () => {
-        document.getElementById('dbl-download').href = finalUrl;
-        document.getElementById('dbl-download').download = 'double-45x55mm.png';
-        if (dblCurrentIsFirst) dblFirstEditedSrc = finalUrl;
-        else {
-          dblSecondSrc = finalUrl;
-          document.getElementById('dbl-second-preview').src = finalUrl;
-          document.getElementById('dbl-second-status').textContent = 'দ্বিতীয় ছবি এডিট সম্পন্ন';
-        }
-        if (dblCropper) { dblCropper.destroy(); dblCropper = null; }
-        showToast('45×55 mm সাইজে সেট করা হয়েছে!', '✅');
-      };
-      dblBaseImage.src = finalUrl;
-    }
-
-    function dblReset() {
-      const src = dblCurrentIsFirst ? dblOriginalSrc : dblSecondSrc;
-      if (!src) return;
-      dblBaseImage = new Image();
-      dblBaseImage.onload = () => {
-        document.getElementById('dbl-image').src = src;
-        document.getElementById('dbl-image').style.filter = 'none';
-        if (dblCropper) { dblCropper.destroy(); dblCropper = null; }
-        document.getElementById('dbl-filter-brightness').value = 100;
-        document.getElementById('dbl-filter-contrast').value = 100;
-        document.getElementById('dbl-filter-blur').value = 0;
-        document.getElementById('dbl-filter-saturate').value = 100;
-        showToast('মূল ছবিতে রিসেট করা হয়েছে', '🔄');
-      };
-      dblBaseImage.src = src;
-    }
-
-    function dblSwitchToSecond() {
-      if (!dblSecondSrc) return showToast('আগে দ্বিতীয় ছবি আপলোড করুন', '⚠️');
-      if (dblCropper) { dblCropper.destroy(); dblCropper = null; }
-      if (dblCurrentIsFirst) {
-        dblFirstEditedSrc = document.getElementById('dbl-image').src;
-      }
-      dblCurrentIsFirst = false;
-      const img = document.getElementById('dbl-image');
-      img.src = dblSecondSrc;
-      dblBaseImage = new Image();
-      dblBaseImage.onload = () => {
-        document.getElementById('dbl-current-label').textContent = 'বর্তমানে: দ্বিতীয় ছবি এডিট করছেন';
-        document.getElementById('dbl-download').href = dblSecondSrc;
-        showToast('এখন দ্বিতীয় ছবি এডিট করুন', '🔄');
-      };
-      dblBaseImage.src = dblSecondSrc;
-    }
-
-    function dblCombine() {
-      const first = dblFirstEditedSrc || document.getElementById('dbl-image').src;
-      const second = dblSecondSrc;
-      if (!first || !second) return showToast('প্রথম ছবি এডিট এবং দ্বিতীয় ছবি আপলোড করুন', '⚠️');
-      const a = new Image(), b = new Image();
-      let n = 0;
-      const done = () => {
-        if (++n !== 2) return;
-        const w = mmToPx(45), h = mmToPx(55), half = Math.floor(h / 2);
-        const c = document.createElement('canvas');
-        c.width = w; c.height = h;
-        const x = c.getContext('2d');
-        x.fillStyle = '#fff';
-        x.fillRect(0, 0, w, h);
-        x.drawImage(a, 0, 0, w, half);
-        x.drawImage(b, 0, half, w, h - half);
-        x.strokeStyle = '#ccc';
-        x.beginPath();
-        x.moveTo(0, half);
-        x.lineTo(w, half);
-        x.stroke();
-        const url = c.toDataURL('image/png');
-        const img = document.getElementById('dbl-image');
-        img.src = url;
-        img.style.filter = 'none';
-        dblBaseImage = new Image();
-        dblBaseImage.src = url;
-        const dl = document.getElementById('dbl-download');
-        dl.href = url;
-        dl.download = 'double-passport-combined-45x55mm.png';
-        if (dblCropper) { dblCropper.destroy(); dblCropper = null; }
-        dblCurrentIsFirst = true;
-        document.getElementById('dbl-current-label').textContent = 'ডাবল ছবি তৈরি সম্পন্ন – ডাউনলোড করুন';
-        showToast('দুইটি ছবি একত্রে তৈরি হয়েছে!', '👥');
-      };
-      a.onload = done; b.onload = done;
-      a.onerror = () => showToast('প্রথম ছবি লোড হয়নি', '❌');
-      b.onerror = () => showToast('দ্বিতীয় ছবি লোড হয়নি', '❌');
-      a.src = first;
-      b.src = second;
-    }
-
-    function dblHandleAddMore(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        dblGridPhotos.push(evt.target.result);
-        dblRenderGridList();
-        dblUpdateGridPreview();
-        showToast('নতুন ছবি যোগ করা হয়েছে!', '➕');
-        event.target.value = '';
-      };
-      reader.readAsDataURL(file);
-    }
-
-    function dblAddCurrentToGrid() {
-      const imgElem = document.getElementById('dbl-image');
-      if (!imgElem || !imgElem.src) return showToast('কোনো এডিটেড ছবি নেই', '⚠');
-      dblGridPhotos.push(imgElem.src);
-      dblRenderGridList();
-      dblUpdateGridPreview();
-      showToast('এডিটেড ছবি যুক্ত করা হলো', '➕');
-    }
-
-    function dblRemoveGridPhoto(index) {
-      dblGridPhotos.splice(index, 1);
-      dblRenderGridList();
-      dblUpdateGridPreview();
-      showToast('ছবি মুছে ফেলা হয়েছে', '🗑️');
-    }
-
-    function dblClearGrid() {
-      dblGridPhotos = [];
-      dblRenderGridList();
-      dblUpdateGridPreview();
-      showToast('সব ছবি মোছা হয়েছে', '🧹');
-    }
-
-    function dblRenderGridList() {
-      const container = document.getElementById('dbl-added-photos-list');
-      if (dblGridPhotos.length === 0) {
-        container.innerHTML = `<span class="text-xs text-gray-400 pl-2">এখনো কোনো ছবি যোগ করা হয়নি।</span>`;
-        return;
-      }
-      container.innerHTML = dblGridPhotos.map((src, idx) => `
-        <div class="relative group w-12 h-14 rounded border border-indigo-300 dark:border-indigo-600 overflow-hidden shadow-sm bg-gray-100 flex-shrink-0">
-          <img src="${src}" class="w-full h-full object-cover">
-          <span class="absolute top-0 left-0 bg-indigo-600 text-white text-[9px] px-1 font-bold rounded-br">${idx + 1}</span>
-          <button onclick="dblRemoveGridPhoto(${idx})" class="absolute bottom-0 right-0 bg-red-600 text-white w-4 h-4 text-[10px] flex items-center justify-center rounded-tl opacity-90 hover:opacity-100">✕</button>
-        </div>
-      `).join('');
-    }
-
-    function dblUpdateGridPreview() {
-      const canvas = document.getElementById('dbl-a4-canvas');
-      const ctx = canvas.getContext('2d');
-      const preview = document.getElementById('dbl-grid-preview');
-      const pdfBtn = document.getElementById('dbl-pdf-btn');
-      const printBtn = document.getElementById('dbl-print-btn');
-      if (!dblGridPhotos.length) {
-        preview.classList.add('hidden');
-        pdfBtn.classList.add('hidden');
-        printBtn.classList.add('hidden');
-        return;
-      }
-      const dpi = 150, scale = dpi / 25.4;
-      const pageW = Math.round(210 * scale), pageH = Math.round(297 * scale);
-      canvas.width = pageW; canvas.height = pageH;
-      ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, pageW, pageH);
-      const size = PHOTO_SIZES.double;
-      const photoW = Math.round(size.w * scale);
-      const photoH = Math.round(size.h * scale);
-      const margin = Math.round(5 * scale), gap = Math.round(2 * scale);
-      const cols = Math.max(1, Math.floor((pageW - margin * 2 + gap) / (photoW + gap)));
-      const rows = Math.max(1, Math.floor((pageH - margin * 2 + gap) / (photoH + gap)));
-      const capacity = cols * rows;
-      if (dblGridPhotos.length > capacity) {
-        showToast(`এই সাইজে এক A4 পেজে সর্বোচ্চ ${capacity}টি ছবি বসবে।`, '⚠️');
-      }
-      const count = Math.min(dblGridPhotos.length, capacity);
-      const usedW = cols * photoW + (cols - 1) * gap;
-      const offsetX = Math.max(margin, Math.floor((pageW - usedW) / 2));
-      const enableBorder = document.getElementById('dbl-border-enable').checked;
-      const borderWidth = Math.max(1, parseInt(document.getElementById('dbl-border-width').value, 10) || 1);
-      const borderColor = document.getElementById('dbl-border-color').value || '#ccc';
-      let loaded = 0;
-      const finish = () => {
-        loaded++;
-        if (loaded === count) {
-          preview.classList.remove('hidden');
-          pdfBtn.classList.remove('hidden');
-          printBtn.classList.remove('hidden');
-        }
-      };
-      for (let i = 0; i < count; i++) {
-        const img = new Image();
-        img.onload = () => {
-          const row = Math.floor(i / cols), col = i % cols;
-          const x = offsetX + col * (photoW + gap);
-          const y = margin + row * (photoH + gap);
-          ctx.drawImage(img, x, y, photoW, photoH);
-          if (enableBorder) {
-            ctx.lineWidth = borderWidth;
-            ctx.strokeStyle = borderColor;
-            ctx.strokeRect(x, y, photoW, photoH);
-          }
-          finish();
-        };
-        img.onerror = finish;
-        img.src = dblGridPhotos[i];
-      }
-    }
-
-    function dblDownloadA4Pdf() {
-      const canvas = document.getElementById('dbl-a4-canvas');
-      if (!canvas || !canvas.width) return showToast('আগে A4 গ্রিড তৈরি করুন', '⚠️');
-      const imgData = canvas.toDataURL('image/jpeg', 1.0);
-      const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
-      pdf.save('amarkaj-double-45x55-a4.pdf');
-    }
-
-    function dblPrintA4Grid() {
-      const canvas = document.getElementById('dbl-a4-canvas');
-      if (!canvas || !canvas.width) return showToast('আগে A4 গ্রিড তৈরি করুন', '⚠️');
-      const win = window.open('', '_blank');
-      if (!win) return showToast('পপ-আপ অনুমতি দিন', '⚠️');
-      const data = canvas.toDataURL('image/png');
-      win.document.write(`<!doctype html><html><head><title>Double 45x55 Print</title>
         <style>@page{size:A4 portrait;margin:0}html,body{margin:0;padding:0;width:210mm;height:297mm}
         img{display:block;width:210mm;height:297mm;object-fit:fill}</style></head>
         <body><img src="${data}"></body></html>`);
@@ -2217,6 +2003,7 @@ Email: sales2@grandvistana.com"></textarea>
     let videoStream = null;
     let currentFacingMode = 'environment';
 
+    // Canon / Scanner Import
     document.getElementById('scanner-import-input').addEventListener('change', function(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -2414,7 +2201,7 @@ Email: sales2@grandvistana.com"></textarea>
       const preview = document.getElementById('cv-preview');
       preview.innerHTML = `
         <div class="cv-left">
-          \( {cvPhotoSrc ? `<img src=" \){cvPhotoSrc}" class="cv-photo">` : '<div class="cv-photo flex items-center justify-center text-gray-400">No Photo</div>'}
+          ${cvPhotoSrc ? `<img src=" ${cvPhotoSrc}" class="cv-photo">` : '<div class="cv-photo flex items-center justify-center text-gray-400">No Photo</div>'}
           <div>
             <span class="cv-section-title">CONTACT</span>
             <p class="mt-2 font-semibold">📞 Phone</p><p class="text-xs text-gray-600">${phone}</p>
@@ -2434,9 +2221,9 @@ Email: sales2@grandvistana.com"></textarea>
         </div>
         <div class="cv-right">
           <h2 class="cv-name">${name}</h2>
-          \( {education ? `<h3>EDUCATION</h3><p class="whitespace-pre-line text-xs text-gray-700 mb-4"> \){education}</p>` : ''}
-          \( {experience ? `<h3>WORK EXPERIENCE</h3><p class="whitespace-pre-line text-xs text-gray-700 mb-4"> \){experience}</p>` : ''}
-          \( {references ? `<h3>REFERENCES</h3><p class="whitespace-pre-line text-xs text-gray-700"> \){references}</p>` : ''}
+          ${education ? `<h3>EDUCATION</h3><p class="whitespace-pre-line text-xs text-gray-700 mb-4"> ${education}</p>` : ''}
+          ${experience ? `<h3>WORK EXPERIENCE</h3><p class="whitespace-pre-line text-xs text-gray-700 mb-4"> ${experience}</p>` : ''}
+          ${references ? `<h3>REFERENCES</h3><p class="whitespace-pre-line text-xs text-gray-700"> ${references}</p>` : ''}
         </div>
       `;
 
@@ -2474,7 +2261,7 @@ Email: sales2@grandvistana.com"></textarea>
     // ========== COMPRESS ==========
     async function compressImage() {
       const file = document.getElementById('compress-input').files[0];
-      if (!file) return showToast('একটি ছবি সিলেক্ট করুন', '⚠️');
+      if (!file) return showToast('একটি ছবি সিলেক্ট করুন', '⚠️️');
       const quality = parseFloat(document.getElementById('quality').value);
       toggleLoader(true, "ছবি কম্প্রেস করা হচ্ছে...");
       try {
@@ -2482,8 +2269,8 @@ Email: sales2@grandvistana.com"></textarea>
         const url = URL.createObjectURL(compressedFile);
         document.getElementById('compress-result').innerHTML = `
           <div class="p-4 bg-gray-100 dark:bg-gray-700 rounded-2xl text-center space-y-2">
-            <p class="text-xs">মূল আকার: \( {(file.size / 1024).toFixed(1)} KB ➔ নতুন আকার: <strong> \){(compressedFile.size / 1024).toFixed(1)} KB</strong></p>
-            <a href="\( {url}" download="compressed_ \){file.name}" class="btn-primary inline-block">⬇️ কম্প্রেসড ছবি ডাউনলোড</a>
+            <p class="text-xs">মূল আকার: ${(file.size / 1024).toFixed(1)} KB ➔ নতুন আকার: <strong> ${(compressedFile.size / 1024).toFixed(1)} KB</strong></p>
+            <a href="${url}" download="compressed_ ${file.name}" class="btn-primary inline-block">⬇️ কম্প্রেসড ছবি ডাউনলোড</a>
           </div>
         `;
         toggleLoader(false);
@@ -2572,8 +2359,8 @@ Email: sales2@grandvistana.com"></textarea>
       document.getElementById('convert-result').innerHTML = `
         <div class="p-4 bg-gray-100 dark:bg-gray-700 rounded-2xl text-center space-y-3">
           <img src="${dataUrl}" class="max-h-48 mx-auto rounded border dark:border-gray-600 shadow-sm" />
-          <p class="text-xs">নতুন সাইজ: ${canvas.width} x \( {canvas.height} px ( \){format.split('/')[1].toUpperCase()})</p>
-          <a href="\( {dataUrl}" download="converted_amarkaj. \){ext}" class="btn-primary inline-block">⬇️ কনভার্ট করা ছবি ডাউনলোড</a>
+          <p class="text-xs">নতুন সাইজ: ${canvas.width} x ${canvas.height} px ( ${format.split('/')[1].toUpperCase()})</p>
+          <a href="${dataUrl}" download="converted_amarkaj. ${ext}" class="btn-primary inline-block">⬇️ কনভার্ট করা ছবি ডাউনলোড</a>
         </div>
       `;
       showToast('কনভার্ট ও রিসাইজ সম্পন্ন!', '🔄');
@@ -2584,7 +2371,7 @@ Email: sales2@grandvistana.com"></textarea>
       const frontFile = document.getElementById('nid-front').files[0];
       const backFile = document.getElementById('nid-back').files[0];
 
-      if (!frontFile || !backFile) return showToast('NID-এর দুটি অংশই আপলোড করুন', '⚠️');
+      if (!frontFile || !backFile) return showToast('NID-এর দুটি অংশই আপলোড করুন', '⚠️️');
 
       toggleLoader(true, "NID কার্ডের PDF তৈরি করা হচ্ছে...");
 
@@ -2600,6 +2387,7 @@ Email: sales2@grandvistana.com"></textarea>
           ctx.fillStyle = '#ffffff';
           ctx.fillRect(0, 0, 1240, 1754);
 
+          // NID Card Standard Aspect Size (Approx 8.5cm x 5.5cm)
           const cardW = 500, cardH = 315;
           const x = (1240 - cardW) / 2;
 
