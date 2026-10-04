@@ -154,34 +154,8 @@
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 min-h-screen transition-colors duration-200 flex flex-col justify-between">
 
-  <!-- FIREBASE LOGIN OVERLAY -->
-  <div id="auth-modal" class="fixed inset-0 bg-gray-900/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-gray-800 w-full max-w-md rounded-3xl p-6 md:p-8 shadow-2xl border border-gray-100 dark:border-gray-700">
-      <div class="text-center mb-6">
-        <span class="text-4xl inline-block mb-2">⚡</span>
-        <h2 class="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Amarkaj সিকিউর লগইন</h2>
-        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">অ্যাক্সেস করতে ইমেইল ও পাসওয়ার্ড দিয়ে প্রবেশ করুন</p>
-      </div>
-      <div class="space-y-4">
-        <div>
-          <label class="block text-xs font-semibold mb-1 text-gray-700 dark:text-gray-300">ইমেইল ঠিকানা</label>
-          <input type="email" id="auth-email" placeholder="example@domain.com" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold mb-1 text-gray-700 dark:text-gray-300">পাসওয়ার্ড</label>
-          <input type="password" id="auth-password" placeholder="••••••••" class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-        </div>
-        <div class="flex gap-2">
-          <button id="login-btn" onclick="handleLogin()" class="btn-primary flex-1 py-3 text-base shadow-indigo-200">লগইন</button>
-          <button id="signup-btn" onclick="handleSignUp()" class="btn-secondary flex-1 py-3 text-base">রেজিস্টার</button>
-        </div>
-      </div>
-      <p id="auth-error" class="text-xs text-red-500 text-center mt-4 hidden font-semibold"></p>
-    </div>
-  </div>
-
-  <!-- Main App -->
-  <div id="app-content" class="hidden">
+  <!-- Main App (always visible) -->
+  <div id="app-content">
     <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 bg-gray-900 text-white text-sm px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2 opacity-0">
       <span id="toast-icon">ℹ</span>
       <span id="toast-msg">বার্তা</span>
@@ -200,8 +174,6 @@
           <h1 class="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Amarkaj</h1>
         </div>
         <div class="flex items-center gap-3">
-          <span id="user-display" class="text-xs font-semibold text-gray-500 dark:text-gray-300 hidden md:inline-block"></span>
-          <button onclick="handleLogout()" class="text-xs bg-red-100 text-red-600 hover:bg-red-200 px-3 py-1.5 rounded-lg font-bold transition">লগআউট</button>
           <button onclick="toggleDarkMode()" class="p-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-200 hover:opacity-80 transition" title="থিম পরিবর্তন">🌙</button>
         </div>
       </div>
@@ -224,7 +196,6 @@
           <div class="text-4xl">🤖</div>
           <h4 class="font-semibold text-sm md:text-base">AI ফটো এডিট ও ব্যাকগ্রাউন্ড</h4>
         </div>
-        <!-- NEW: Double 45x55 as separate tool -->
         <div class="tool-card" onclick="showTool('double')">
           <div class="text-4xl">👥</div>
           <h4 class="font-semibold text-sm md:text-base">ডাবল পাসপোর্ট 45×55</h4>
@@ -276,14 +247,12 @@
           <button onclick="hideTool()" class="text-gray-400 hover:text-red-500 text-2xl font-bold transition">✕</button>
         </div>
 
-        <!-- 1. AI PHOTO (single sizes only) -->
+        <!-- 1. AI PHOTO -->
         <div id="panel-ai" class="tool-panel">
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">স্বয়ংক্রিয় বা কাস্টম কালারে ব্যাকগ্রাউন্ড পরিবর্তন, ফিল্টার ও A4 মাল্টি-কপি প্রিন্ট।</p>
           <input type="file" id="ai-input" accept="image/*" class="mb-4 block w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
           
           <div id="ai-controls" class="hidden space-y-4">
-            
-            <!-- PHOTO SIZE SELECTOR (Double removed) -->
             <div class="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-gray-700/50 dark:to-gray-700/30 p-4 rounded-2xl border border-indigo-100 dark:border-gray-600">
               <h4 class="font-bold text-sm text-indigo-700 dark:text-indigo-300 mb-3">📏 অফিসিয়াল ফটো সাইজ নির্বাচন করুন:</h4>
               <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -397,19 +366,17 @@
           </div>
         </div>
 
-        <!-- ========== NEW PANEL: DOUBLE 45×55 ========== -->
+        <!-- DOUBLE 45×55 -->
         <div id="panel-double" class="tool-panel">
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
             দুইটি ছবি আলাদাভাবে এডিট করে <strong>45×55 mm</strong> ডাবল পাসপোর্ট সাইজে একত্রিত করুন। সব AI টুলস (ব্যাকগ্রাউন্ড, ফিল্টার, ক্রপ, A4 গ্রিড) এখানেই পাবেন।
           </p>
 
-          <!-- First Photo -->
           <div class="mb-4 p-4 bg-indigo-50 dark:bg-gray-700/40 rounded-2xl border border-indigo-100 dark:border-gray-600">
             <h4 class="font-bold text-sm text-indigo-700 dark:text-indigo-300 mb-2">1️⃣ প্রথম ছবি (উপরের অংশ)</h4>
             <input type="file" id="dbl-first-input" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700">
           </div>
 
-          <!-- Second Photo -->
           <div class="mb-4 p-4 bg-purple-50 dark:bg-gray-700/40 rounded-2xl border border-purple-100 dark:border-gray-600">
             <h4 class="font-bold text-sm text-purple-700 dark:text-purple-300 mb-2">2️⃣ দ্বিতীয় ছবি (নিচের অংশ)</h4>
             <input type="file" id="dbl-second-input" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700">
@@ -420,13 +387,11 @@
           </div>
 
           <div id="dbl-controls" class="hidden space-y-4">
-            <!-- Fixed Size Info -->
             <div class="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-gray-700/50 dark:to-gray-700/30 p-4 rounded-2xl border border-indigo-100 dark:border-gray-600">
               <h4 class="font-bold text-sm text-indigo-700 dark:text-indigo-300 mb-1">📏 নির্ধারিত সাইজ: ডাবল পাসপোর্ট</h4>
               <p class="text-xs text-indigo-600 dark:text-indigo-300 font-medium">45 × 55 mm (দুইটি ছবি একত্রে)</p>
             </div>
 
-            <!-- AI Background Editor -->
             <div class="bg-indigo-50/70 dark:bg-gray-700/50 p-4 rounded-2xl border border-indigo-100 dark:border-gray-600">
               <h4 class="font-bold text-sm text-indigo-700 dark:text-indigo-300 mb-3">✨ AI ব্যাকগ্রাউন্ড এডিটর (বর্তমান ছবির জন্য):</h4>
               <div class="flex flex-wrap gap-3 items-center">
@@ -449,7 +414,6 @@
               </div>
             </div>
 
-            <!-- Filters -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-3 bg-gray-50 dark:bg-gray-700/50 p-4 rounded-2xl">
               <div>
                 <label class="block text-xs font-semibold mb-1">উজ্জ্বলতা</label>
@@ -469,7 +433,6 @@
               </div>
             </div>
 
-            <!-- Action Buttons -->
             <div class="flex flex-wrap gap-2">
               <button onclick="dblEnableCrop()" class="btn-secondary">✂️ ক্রপ টুল</button>
               <button onclick="dblCropImage()" class="btn-primary bg-green-600 hover:bg-green-700">ক্রপ কনফার্ম</button>
@@ -479,7 +442,6 @@
               <button onclick="dblCombine()" class="btn-primary bg-emerald-600 hover:bg-emerald-700">👥 দুই ছবি একত্রে তৈরি</button>
             </div>
 
-            <!-- Preview -->
             <div class="max-h-[350px] overflow-hidden rounded-2xl border dark:border-gray-700 bg-gray-100 dark:bg-gray-900 flex items-center justify-center p-2">
               <img id="dbl-image" class="max-w-full max-h-[330px] object-contain" />
             </div>
@@ -489,7 +451,6 @@
               <span id="dbl-current-label" class="text-xs font-semibold text-indigo-600">বর্তমানে: প্রথম ছবি এডিট করছেন</span>
             </div>
 
-            <!-- Border + A4 Grid -->
             <div class="bg-indigo-50/50 dark:bg-gray-700/30 p-4 rounded-2xl border border-indigo-100 dark:border-gray-600 mt-4 space-y-4">
               <div class="border-b dark:border-gray-600 pb-3">
                 <h4 class="font-bold text-sm text-indigo-700 dark:text-indigo-300 mb-2">🖼️ ছবির বর্ডার সেটিংস:</h4>
@@ -530,7 +491,7 @@
           </div>
         </div>
 
-        <!-- 2. DOCUMENT EDITOR -->
+        <!-- DOCUMENT EDITOR -->
         <div id="panel-doceditor" class="tool-panel">
           <div class="bg-indigo-50 dark:bg-indigo-950/50 p-4 rounded-2xl border border-indigo-100 dark:border-indigo-800/50 mb-4">
             <p class="text-sm text-indigo-900 dark:text-indigo-200 font-medium">
@@ -602,7 +563,7 @@
           </div>
         </div>
 
-        <!-- 3. PDF MERGER -->
+        <!-- PDF MERGER -->
         <div id="panel-pdfmerge" class="tool-panel">
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
             একাধিক <strong>PDF</strong>, <strong>ছবি</strong> বা স্ক্যানড ডকুমেন্ট সিলেক্ট করে একসাথে জুড়ে নতুন একটি PDF বানিয়ে ডাউনলোড করুন।
@@ -616,7 +577,7 @@
           </div>
         </div>
 
-        <!-- 4. PASSPORT GRID -->
+        <!-- PASSPORT GRID -->
         <div id="panel-ppgrid" class="tool-panel">
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">পাসপোর্ট সাইজের ছবি আপলোড করে A4 পেজে বিভিন্ন কপিতে সাজিয়ে ডাউনলোড করুন।</p>
           <input type="file" id="pp-input" accept="image/*" class="mb-4 block w-full text-sm">
@@ -643,7 +604,7 @@
           </div>
         </div>
 
-        <!-- 5. STAMP GRID -->
+        <!-- STAMP GRID -->
         <div id="panel-stampgrid" class="tool-panel">
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
             বাংলাদেশী স্ট্যাম্প সাইজ (প্রায় ২.৫ সেমি × ৩.০ সেমি) ছবি আপলোড করে A4 পেজে অনেক কপিতে সাজিয়ে ডাউনলোড করুন।
@@ -674,14 +635,13 @@
           </div>
         </div>
 
-        <!-- 6. CV / RESUME MAKER -->
+        <!-- CV / RESUME MAKER -->
         <div id="panel-cv" class="tool-panel">
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
             ছবির মতো প্রফেশনাল দুই-কলাম CV তৈরি করুন। সব তথ্য পূরণ করে <strong>Generate CV</strong> বাটনে ক্লিক করুন।
           </p>
 
           <div class="grid lg:grid-cols-2 gap-6">
-            <!-- Form -->
             <div class="space-y-4 max-h-[75vh] overflow-y-auto pr-1">
               <div class="bg-indigo-50 dark:bg-gray-700/50 p-4 rounded-2xl border border-indigo-100 dark:border-gray-600">
                 <h4 class="font-bold text-sm mb-3 text-indigo-700 dark:text-indigo-300">📷 ছবি ও ব্যক্তিগত তথ্য</h4>
@@ -755,7 +715,6 @@ Email: sales2@grandvistana.com"></textarea>
               <button onclick="generateCV()" class="btn-primary w-full py-3 text-base">✨ Generate Professional CV</button>
             </div>
 
-            <!-- Preview -->
             <div class="overflow-auto max-h-[75vh] bg-gray-100 dark:bg-gray-900 p-3 rounded-2xl">
               <div id="cv-preview-container" class="hidden">
                 <div id="cv-preview" class="cv-preview scale-[0.68] origin-top mx-auto"></div>
@@ -772,7 +731,7 @@ Email: sales2@grandvistana.com"></textarea>
           </div>
         </div>
 
-        <!-- 7. SCANNER (Canon + Live Camera) -->
+        <!-- SCANNER -->
         <div id="panel-scanner" class="tool-panel">
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
             ক্যামেরা দিয়ে সরাসরি ডকুমেন্ট স্ক্যান করুন অথবা <strong>Canon / অন্যান্য স্ক্যানার</strong> দিয়ে স্ক্যান করা ছবি ইম্পোর্ট করুন।
@@ -801,7 +760,7 @@ Email: sales2@grandvistana.com"></textarea>
           </div>
         </div>
 
-        <!-- 8. COMPRESS -->
+        <!-- COMPRESS -->
         <div id="panel-compress" class="tool-panel">
           <input type="file" id="compress-input" accept="image/*" class="mb-4 block w-full text-sm">
           <div class="mb-4">
@@ -812,7 +771,7 @@ Email: sales2@grandvistana.com"></textarea>
           <div id="compress-result" class="mt-6"></div>
         </div>
 
-        <!-- 9. CONVERT -->
+        <!-- CONVERT -->
         <div id="panel-convert" class="tool-panel">
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">ইমেজ ফরম্যাট কনভার্ট করুন এবং কাস্টম ডাইমেনশন পরিবর্তন করুন।</p>
           <input type="file" id="convert-input" accept="image/*" class="mb-4 block w-full text-sm">
@@ -863,7 +822,7 @@ Email: sales2@grandvistana.com"></textarea>
           <div id="convert-result" class="mt-6"></div>
         </div>
 
-        <!-- 10. NID -->
+        <!-- NID -->
         <div id="panel-nid" class="tool-panel">
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">NID কার্ডের সামনের এবং পেছনের অংশ আপলোড করুন:</p>
           <input type="file" id="nid-front" accept="image/*" class="mb-2 block w-full text-sm">
@@ -880,104 +839,6 @@ Email: sales2@grandvistana.com"></textarea>
   <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-4 text-center text-sm transition-colors mt-auto">
     <p class="text-gray-600 dark:text-gray-400">© Amarkaj Tools • Developed by <span class="rainbow-text text-base ml-1">Antu</span></p>
   </footer>
-
-  <!-- Firebase -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyCzmfEg39TV0cxGkSKivO7lYsier3KH9AY",
-      authDomain: "amarkaj-c7d5f.firebaseapp.com",
-      projectId: "amarkaj-c7d5f",
-      storageBucket: "amarkaj-c7d5f.firebasestorage.app",
-      messagingSenderId: "183473425547",
-      appId: "1:183473425547:web:f713861eeaac48b978188e",
-      measurementId: "G-HXVW2W079G"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-
-    window.handleLogin = async function() {
-      const email = document.getElementById('auth-email').value.trim();
-      const password = document.getElementById('auth-password').value;
-      const errorEl = document.getElementById('auth-error');
-      if (!email || !password) {
-        errorEl.textContent = "ইমেইল এবং পাসওয়ার্ড সঠিকভাবে দিন।";
-        errorEl.classList.remove('hidden');
-        return;
-      }
-      toggleLoader(true, "যাচাই করা হচ্ছে...");
-      errorEl.classList.add('hidden');
-      try {
-        await signInWithEmailAndPassword(auth, email, password);
-        showToast('লগইন সফল হয়েছে!', '✅');
-      } catch (error) {
-        errorEl.textContent = "লগইন ব্যর্থ হয়েছে: " + getReadableAuthError(error.code);
-        errorEl.classList.remove('hidden');
-      } finally {
-        toggleLoader(false);
-      }
-    };
-
-    window.handleSignUp = async function() {
-      const email = document.getElementById('auth-email').value.trim();
-      const password = document.getElementById('auth-password').value;
-      const errorEl = document.getElementById('auth-error');
-      if (!email || !password) {
-        errorEl.textContent = "ইমেইল এবং পাসওয়ার্ড সঠিকভাবে দিন।";
-        errorEl.classList.remove('hidden');
-        return;
-      }
-      if(password.length < 6) {
-        errorEl.textContent = "পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।";
-        errorEl.classList.remove('hidden');
-        return;
-      }
-      toggleLoader(true, "নতুন অ্যাকাউন্ট তৈরি হচ্ছে...");
-      errorEl.classList.add('hidden');
-      try {
-        await createUserWithEmailAndPassword(auth, email, password);
-        showToast('অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে!', '🎉');
-      } catch (error) {
-        errorEl.textContent = "রেজিস্ট্রেশন ব্যর্থ: " + getReadableAuthError(error.code);
-        errorEl.classList.remove('hidden');
-      } finally {
-        toggleLoader(false);
-      }
-    };
-
-    window.handleLogout = function() {
-      signOut(auth).then(() => showToast('লগআউট করা হয়েছে', 'ℹ️'));
-    };
-
-    function getReadableAuthError(code) {
-      switch (code) {
-        case 'auth/user-not-found':
-        case 'auth/invalid-credential': return 'ইমেইল বা পাসওয়ার্ড ভুল হয়েছে।';
-        case 'auth/wrong-password': return 'পাসওয়ার্ড ভুল হয়েছে।';
-        case 'auth/email-already-in-use': return 'এই ইমেইল দিয়ে আগেই অ্যাকাউন্ট করা রয়েছে।';
-        case 'auth/invalid-email': return 'সঠিক ইমেইল ঠিকানা দিন।';
-        case 'auth/weak-password': return 'পাসওয়ার্ড আরও শক্ত দিন (কমপক্ষে ৬ ডিজিট)।';
-        default: return 'সমস্যা হয়েছে, পরে চেষ্টা করুন।';
-      }
-    }
-
-    onAuthStateChanged(auth, (user) => {
-      const modal = document.getElementById('auth-modal');
-      const content = document.getElementById('app-content');
-      const userDisplay = document.getElementById('user-display');
-      if (user) {
-        modal.classList.add('hidden');
-        content.classList.remove('hidden');
-        userDisplay.textContent = "স্বাগতম, " + (user.email || '');
-      } else {
-        modal.classList.remove('hidden');
-        content.classList.add('hidden');
-      }
-    });
-  </script>
 
   <script>
     // ========== UI Helpers ==========
@@ -1043,7 +904,7 @@ Email: sales2@grandvistana.com"></textarea>
       return Math.round(mm * (300 / 25.4));
     }
 
-    // ========== AI BG REMOVAL (Single sizes) ==========
+    // ========== AI BG REMOVAL ==========
     let cropper = null;
     let originalAiImageSrc = null;
     let baseLoadedImage = null;
@@ -2613,7 +2474,7 @@ Email: sales2@grandvistana.com"></textarea>
     // ========== COMPRESS ==========
     async function compressImage() {
       const file = document.getElementById('compress-input').files[0];
-      if (!file) return showToast('একটি ছবি সিলেক্ট করুন', '⚠️️');
+      if (!file) return showToast('একটি ছবি সিলেক্ট করুন', '⚠️');
       const quality = parseFloat(document.getElementById('quality').value);
       toggleLoader(true, "ছবি কম্প্রেস করা হচ্ছে...");
       try {
@@ -2723,7 +2584,7 @@ Email: sales2@grandvistana.com"></textarea>
       const frontFile = document.getElementById('nid-front').files[0];
       const backFile = document.getElementById('nid-back').files[0];
 
-      if (!frontFile || !backFile) return showToast('NID-এর দুটি অংশই আপলোড করুন', '⚠️️');
+      if (!frontFile || !backFile) return showToast('NID-এর দুটি অংশই আপলোড করুন', '⚠️');
 
       toggleLoader(true, "NID কার্ডের PDF তৈরি করা হচ্ছে...");
 
