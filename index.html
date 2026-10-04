@@ -311,7 +311,7 @@
               
               <!-- Double photo second image upload -->
               <div id="double-photo-upload" class="hidden mt-3 p-3 bg-white dark:bg-gray-800 rounded-xl border border-dashed border-indigo-300">
-                <p class="text-xs font-semibold mb-2">ডাবল সাইজের জন্য দ্বিতীয় ছবি আপলোড করুন:</p>
+                <p class="text-xs font-semibold mb-2">ঐচ্ছিক: দ্বিতীয় ছবি থাকলে আপলোড করুন (না দিলেও 45×55 mm ছবি তৈরি হবে):</p>
                 <input type="file" id="double-second-image" accept="image/*" class="text-xs w-full">
               </div>
             </div>
@@ -1008,12 +1008,9 @@ Email: sales2@grandvistana.com"></textarea>
       if (!selectedSize) return showToast('আগে একটি সাইজ সিলেক্ট করুন', '⚠️');
       if (!baseLoadedImage && !document.getElementById('ai-image').src) return showToast('আগে একটি ছবি লোড করুন', '⚠️');
 
-      if (selectedSize === 'double') {
-        createDoublePhoto();
-        return;
-      }
-
-      // For single sizes - force crop to exact ratio then resize to exact mm
+      // Double passport is one portrait photo at 45 x 55 mm.
+      // Do not require a second upload; let it follow the same edit/crop/download flow.
+      // For every size, force crop to the selected aspect ratio and export exact dimensions.
       if (!cropper) {
         enableCrop();
         setTimeout(() => {
@@ -1041,7 +1038,7 @@ Email: sales2@grandvistana.com"></textarea>
       baseLoadedImage = new Image();
       baseLoadedImage.onload = () => {
         document.getElementById('ai-download').href = finalUrl;
-        document.getElementById('ai-download').download = `photo-${selectedSize}- ${PHOTO_SIZES[selectedSize].w}x${PHOTO_SIZES[selectedSize].h}mm.png`;
+        document.getElementById('ai-download').download = `photo-${selectedSize}-${PHOTO_SIZES[selectedSize].w}x${PHOTO_SIZES[selectedSize].h}mm.png`;
         if (aiGridPhotos.length > 0) {
           aiGridPhotos[0] = finalUrl;
           renderAiAddedPhotosList();
@@ -2348,3 +2345,4 @@ Email: sales2@grandvistana.com"></textarea>
   </script>
 </body>
 </html>
+
