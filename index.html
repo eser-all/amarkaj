@@ -1041,7 +1041,7 @@ Email: sales2@grandvistana.com"></textarea>
       baseLoadedImage = new Image();
       baseLoadedImage.onload = () => {
         document.getElementById('ai-download').href = finalUrl;
-        document.getElementById('ai-download').download = `photo-\( {selectedSize}- \){PHOTO_SIZES[selectedSize].w}x${PHOTO_SIZES[selectedSize].h}mm.png`;
+        document.getElementById('ai-download').download = `photo-${selectedSize}- ${PHOTO_SIZES[selectedSize].w}x${PHOTO_SIZES[selectedSize].h}mm.png`;
         if (aiGridPhotos.length > 0) {
           aiGridPhotos[0] = finalUrl;
           renderAiAddedPhotosList();
@@ -1216,7 +1216,7 @@ Email: sales2@grandvistana.com"></textarea>
       const c = document.getElementById('filter-contrast').value;
       const blur = document.getElementById('filter-blur').value;
       const sat = document.getElementById('filter-saturate').value;
-      img.style.filter = `brightness(\( {b}%) contrast( \){c}%) blur(\( {blur}px) saturate( \){sat}%)`;
+      img.style.filter = `brightness(${b}%) contrast( ${c}%) blur(${blur}px) saturate( ${sat}%)`;
     }
 
     function enableCrop() {
@@ -1890,7 +1890,7 @@ Email: sales2@grandvistana.com"></textarea>
       const text = document.getElementById('doc-editor-text').value || "সম্পাদিত ডকুমেন্ট।";
       redrawDocCanvas();
       const imgData = docCanvas.toDataURL('image/png');
-      const sourceHTML = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'></head><body><div style="text-align:center;"><img src="\( {imgData}" style="max-width:100%;"/></div><br/><p style="font-family:'Kalpurush', sans-serif;"> \){text.replace(/\n/g, "<br>")}</p></body></html>`;
+      const sourceHTML = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'></head><body><div style="text-align:center;"><img src="${imgData}" style="max-width:100%;"/></div><br/><p style="font-family:'Kalpurush', sans-serif;"> ${text.replace(/\n/g, "<br>")}</p></body></html>`;
       const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
       const fileDownload = document.createElement("a");
       fileDownload.href = source;
@@ -2100,7 +2100,7 @@ Email: sales2@grandvistana.com"></textarea>
       const preview = document.getElementById('cv-preview');
       preview.innerHTML = `
         <div class="cv-left">
-          \( {cvPhotoSrc ? `<img src=" \){cvPhotoSrc}" class="cv-photo">` : '<div class="cv-photo flex items-center justify-center text-gray-400">No Photo</div>'}
+          ${cvPhotoSrc ? `<img src=" ${cvPhotoSrc}" class="cv-photo">` : '<div class="cv-photo flex items-center justify-center text-gray-400">No Photo</div>'}
           <div>
             <span class="cv-section-title">CONTACT</span>
             <p class="mt-2 font-semibold">📞 Phone</p><p class="text-xs text-gray-600">${phone}</p>
@@ -2120,9 +2120,9 @@ Email: sales2@grandvistana.com"></textarea>
         </div>
         <div class="cv-right">
           <h2 class="cv-name">${name}</h2>
-          \( {education ? `<h3>EDUCATION</h3><p class="whitespace-pre-line text-xs text-gray-700 mb-4"> \){education}</p>` : ''}
-          \( {experience ? `<h3>WORK EXPERIENCE</h3><p class="whitespace-pre-line text-xs text-gray-700 mb-4"> \){experience}</p>` : ''}
-          \( {references ? `<h3>REFERENCES</h3><p class="whitespace-pre-line text-xs text-gray-700"> \){references}</p>` : ''}
+          ${education ? `<h3>EDUCATION</h3><p class="whitespace-pre-line text-xs text-gray-700 mb-4"> ${education}</p>` : ''}
+          ${experience ? `<h3>WORK EXPERIENCE</h3><p class="whitespace-pre-line text-xs text-gray-700 mb-4"> ${experience}</p>` : ''}
+          ${references ? `<h3>REFERENCES</h3><p class="whitespace-pre-line text-xs text-gray-700"> ${references}</p>` : ''}
         </div>
       `;
 
@@ -2168,8 +2168,8 @@ Email: sales2@grandvistana.com"></textarea>
         const url = URL.createObjectURL(compressedFile);
         document.getElementById('compress-result').innerHTML = `
           <div class="p-4 bg-gray-100 dark:bg-gray-700 rounded-2xl text-center space-y-2">
-            <p class="text-xs">মূল আকার: \( {(file.size / 1024).toFixed(1)} KB ➔ নতুন আকার: <strong> \){(compressedFile.size / 1024).toFixed(1)} KB</strong></p>
-            <a href="\( {url}" download="compressed_ \){file.name}" class="btn-primary inline-block">⬇️ কম্প্রেসড ছবি ডাউনলোড</a>
+            <p class="text-xs">মূল আকার: ${(file.size / 1024).toFixed(1)} KB ➔ নতুন আকার: <strong> ${(compressedFile.size / 1024).toFixed(1)} KB</strong></p>
+            <a href="${url}" download="compressed_ ${file.name}" class="btn-primary inline-block">⬇️ কম্প্রেসড ছবি ডাউনলোড</a>
           </div>
         `;
         toggleLoader(false);
@@ -2258,8 +2258,8 @@ Email: sales2@grandvistana.com"></textarea>
       document.getElementById('convert-result').innerHTML = `
         <div class="p-4 bg-gray-100 dark:bg-gray-700 rounded-2xl text-center space-y-3">
           <img src="${dataUrl}" class="max-h-48 mx-auto rounded border dark:border-gray-600 shadow-sm" />
-          <p class="text-xs">নতুন সাইজ: ${canvas.width} x \( {canvas.height} px ( \){format.split('/')[1].toUpperCase()})</p>
-          <a href="\( {dataUrl}" download="converted_amarkaj. \){ext}" class="btn-primary inline-block">⬇️ কনভার্ট করা ছবি ডাউনলোড</a>
+          <p class="text-xs">নতুন সাইজ: ${canvas.width} x ${canvas.height} px ( ${format.split('/')[1].toUpperCase()})</p>
+          <a href="${dataUrl}" download="converted_amarkaj. ${ext}" class="btn-primary inline-block">⬇️ কনভার্ট করা ছবি ডাউনলোড</a>
         </div>
       `;
       showToast('কনভার্ট ও রিসাইজ সম্পন্ন!', '🔄');
