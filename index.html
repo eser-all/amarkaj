@@ -143,15 +143,12 @@
     }
     .cv-right h3:first-child { margin-top: 0; }
 
-    /* Size selection buttons */
+    /* Size buttons */
     .size-btn {
-      @apply flex flex-col items-center justify-center gap-1 px-3 py-2.5 rounded-xl border-2 transition-all cursor-pointer text-xs font-semibold;
+      @apply flex flex-col items-center justify-center gap-1 p-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition cursor-pointer text-center;
     }
     .size-btn.active {
-      @apply border-indigo-600 bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 shadow-md;
-    }
-    .size-btn:not(.active) {
-      @apply border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 hover:border-indigo-400;
+      @apply border-indigo-600 bg-indigo-50 dark:bg-indigo-900/40 ring-2 ring-indigo-300;
     }
   </style>
 </head>
@@ -278,7 +275,48 @@
         <div id="panel-ai" class="tool-panel">
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">স্বয়ংক্রিয় বা কাস্টম কালারে ব্যাকগ্রাউন্ড পরিবর্তন, ফিল্টার ও A4 মাল্টি-কপি প্রিন্ট।</p>
           <input type="file" id="ai-input" accept="image/*" class="mb-4 block w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+          
           <div id="ai-controls" class="hidden space-y-4">
+            
+            <!-- ========== NEW: PHOTO SIZE SELECTOR ========== -->
+            <div class="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-gray-700/50 dark:to-gray-700/30 p-4 rounded-2xl border border-indigo-100 dark:border-gray-600">
+              <h4 class="font-bold text-sm text-indigo-700 dark:text-indigo-300 mb-3">📏 অফিসিয়াল ফটো সাইজ নির্বাচন করুন:</h4>
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <!-- Standard Passport -->
+                <div class="size-btn" id="size-standard" onclick="selectPhotoSize('standard')">
+                  <span class="text-2xl">🪪</span>
+                  <span class="text-xs font-bold">স্ট্যান্ডার্ড</span>
+                  <span class="text-[10px] text-gray-500">45×35 mm</span>
+                </div>
+                <!-- E-Passport -->
+                <div class="size-btn" id="size-epassport" onclick="selectPhotoSize('epassport')">
+                  <span class="text-2xl">🛂</span>
+                  <span class="text-xs font-bold">ই-পাসপোর্ট</span>
+                  <span class="text-[10px] text-gray-500">50×50 mm</span>
+                </div>
+                <!-- Traditional -->
+                <div class="size-btn" id="size-traditional" onclick="selectPhotoSize('traditional')">
+                  <span class="text-2xl">📷</span>
+                  <span class="text-xs font-bold">ট্র্যাডিশনাল</span>
+                  <span class="text-[10px] text-gray-500">55×45 mm</span>
+                </div>
+                <!-- Double -->
+                <div class="size-btn" id="size-double" onclick="selectPhotoSize('double')">
+                  <span class="text-2xl">👥</span>
+                  <span class="text-xs font-bold">ডাবল</span>
+                  <span class="text-[10px] text-gray-500">45×55 mm</span>
+                </div>
+              </div>
+              <p id="size-info" class="text-xs text-indigo-600 dark:text-indigo-300 mt-3 font-medium hidden"></p>
+              
+              <!-- Double photo second image upload -->
+              <div id="double-photo-upload" class="hidden mt-3 p-3 bg-white dark:bg-gray-800 rounded-xl border border-dashed border-indigo-300">
+                <p class="text-xs font-semibold mb-2">ডাবল সাইজের জন্য দ্বিতীয় ছবি আপলোড করুন:</p>
+                <input type="file" id="double-second-image" accept="image/*" class="text-xs w-full">
+              </div>
+            </div>
+            <!-- ========== END SIZE SELECTOR ========== -->
+
             <div class="bg-indigo-50/70 dark:bg-gray-700/50 p-4 rounded-2xl border border-indigo-100 dark:border-gray-600">
               <h4 class="font-bold text-sm text-indigo-700 dark:text-indigo-300 mb-3">✨ AI ব্যাকগ্রাউন্ড এডিটর:</h4>
               <div class="flex flex-wrap gap-3 items-center">
@@ -321,6 +359,7 @@
             <div class="flex flex-wrap gap-2">
               <button onclick="enableCrop()" class="btn-secondary">✂️ ক্রপ টুল</button>
               <button onclick="cropImage()" class="btn-primary bg-green-600 hover:bg-green-700">ক্রপ কনফার্ম</button>
+              <button onclick="applySelectedSize()" class="btn-primary bg-purple-600 hover:bg-purple-700">📏 সিলেক্টেড সাইজে অ্যাপ্লাই</button>
               <button onclick="aiReset()" class="btn-danger">অরিজিনাল ছবিতে রিসেট</button>
             </div>
             <div class="max-h-[350px] overflow-hidden rounded-2xl border dark:border-gray-700 bg-gray-100 dark:bg-gray-900 flex items-center justify-center p-2">
@@ -346,30 +385,6 @@
                   </div>
                 </div>
               </div>
-
-              <!-- ===== NEW: PASSPORT SIZE SELECTION ===== -->
-              <div class="border-b dark:border-gray-600 pb-3">
-                <h4 class="font-bold text-sm text-indigo-700 dark:text-indigo-300 mb-3">📏 পাসপোর্ট ছবির সাইজ নির্বাচন করুন:</h4>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <button id="size-standard" onclick="setAiPhotoSize('standard')" class="size-btn active">
-                    <span class="text-2xl">🪪</span>
-                    <span>Standard Passport</span>
-                    <span class="text-[10px] opacity-80">45 × 35 mm</span>
-                  </button>
-                  <button id="size-epassport" onclick="setAiPhotoSize('epassport')" class="size-btn">
-                    <span class="text-2xl">🛂</span>
-                    <span>E-Passport</span>
-                    <span class="text-[10px] opacity-80">50 × 50 mm</span>
-                  </button>
-                  <button id="size-traditional" onclick="setAiPhotoSize('traditional')" class="size-btn">
-                    <span class="text-2xl">📷</span>
-                    <span>Traditional Size</span>
-                    <span class="text-[10px] opacity-80">55 × 45 mm</span>
-                  </button>
-                </div>
-              </div>
-              <!-- ===== END SIZE SELECTION ===== -->
-
               <div>
                 <h4 class="font-bold text-sm text-indigo-700 dark:text-indigo-300 mb-2">🖨️ A4 পেজে মাল্টিপল ছবির পাসপোর্ট গ্রিড:</h4>
                 <input type="file" id="ai-add-more-input" accept="image/*" class="hidden" onchange="handleAddMoreImage(event)">
@@ -894,29 +909,25 @@ Email: sales2@grandvistana.com"></textarea>
       document.getElementById('quality-value').textContent = Math.round(this.value * 100) + '%';
     });
 
-    // ========== AI BG REMOVAL ==========
+    // ========== AI BG REMOVAL + SIZE SYSTEM ==========
     let cropper = null;
     let originalAiImageSrc = null;
     let baseLoadedImage = null;
     let selfieSegmentation = null;
     let aiGridPhotos = [];
-    let currentAiPhotoSize = 'standard'; // default
+    let selectedSize = null; // 'standard' | 'epassport' | 'traditional' | 'double'
+    let doubleSecondImageSrc = null;
 
-    // Size definitions in mm → pixels (A4 canvas 1240×1754 ≈ 150 DPI)
-    const AI_PHOTO_SIZES = {
-      standard:   { w: 266, h: 207, label: '45×35 mm' },   // 45mm × 35mm
-      epassport:  { w: 295, h: 295, label: '50×50 mm' },   // 50mm × 50mm
-      traditional:{ w: 325, h: 266, label: '55×45 mm' }    // 55mm × 45mm
+    // Exact sizes at 300 DPI (print quality)
+    const PHOTO_SIZES = {
+      standard:   { w: 45, h: 35, name: 'স্ট্যান্ডার্ড পাসপোর্ট (45×35 mm)', ratio: 45/35 },
+      epassport:  { w: 50, h: 50, name: 'ই-পাসপোর্ট (50×50 mm)', ratio: 1 },
+      traditional:{ w: 55, h: 45, name: 'ট্র্যাডিশনাল (55×45 mm)', ratio: 55/45 },
+      double:     { w: 45, h: 55, name: 'ডাবল পাসপোর্ট (45×55 mm)', ratio: 45/55 }
     };
 
-    function setAiPhotoSize(size) {
-      currentAiPhotoSize = size;
-      // Update button states
-      document.getElementById('size-standard').classList.toggle('active', size === 'standard');
-      document.getElementById('size-epassport').classList.toggle('active', size === 'epassport');
-      document.getElementById('size-traditional').classList.toggle('active', size === 'traditional');
-      updateAiGridPreview();
-      showToast(`সাইজ নির্বাচিত: ${AI_PHOTO_SIZES[size].label}`, '📏');
+    function mmToPx(mm) {
+      return Math.round(mm * (300 / 25.4)); // 300 DPI
     }
 
     function initMediaPipe() {
@@ -955,6 +966,155 @@ Email: sales2@grandvistana.com"></textarea>
       };
       reader.readAsDataURL(file);
     });
+
+    // ========== SIZE SELECTION ==========
+    function selectPhotoSize(type) {
+      selectedSize = type;
+      // Update UI
+      document.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById('size-' + type).classList.add('active');
+      
+      const info = document.getElementById('size-info');
+      info.classList.remove('hidden');
+      info.textContent = 'নির্বাচিত: ' + PHOTO_SIZES[type].name;
+
+      // Show/hide double upload
+      const doubleUpload = document.getElementById('double-photo-upload');
+      if (type === 'double') {
+        doubleUpload.classList.remove('hidden');
+      } else {
+        doubleUpload.classList.add('hidden');
+      }
+
+      // If cropper is active, update aspect ratio
+      if (cropper) {
+        cropper.setAspectRatio(PHOTO_SIZES[type].ratio);
+      }
+      showToast(PHOTO_SIZES[type].name + ' সিলেক্ট করা হয়েছে', '📏');
+    }
+
+    document.getElementById('double-second-image').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        doubleSecondImageSrc = evt.target.result;
+        showToast('দ্বিতীয় ছবি লোড হয়েছে', '✅');
+      };
+      reader.readAsDataURL(file);
+    });
+
+    function applySelectedSize() {
+      if (!selectedSize) return showToast('আগে একটি সাইজ সিলেক্ট করুন', '⚠️');
+      if (!baseLoadedImage && !document.getElementById('ai-image').src) return showToast('আগে একটি ছবি লোড করুন', '⚠️');
+
+      if (selectedSize === 'double') {
+        createDoublePhoto();
+        return;
+      }
+
+      // For single sizes - force crop to exact ratio then resize to exact mm
+      if (!cropper) {
+        enableCrop();
+        setTimeout(() => {
+          if (cropper) cropper.setAspectRatio(PHOTO_SIZES[selectedSize].ratio);
+          showToast('ক্রপ এরিয়া ঠিক করে "ক্রপ কনফার্ম" চাপুন, তারপর আবার "সাইজে অ্যাপ্লাই" চাপুন', '✂️');
+        }, 300);
+        return;
+      }
+
+      // Already cropping - get cropped canvas and resize to exact size
+      const canvas = cropper.getCroppedCanvas({
+        width: mmToPx(PHOTO_SIZES[selectedSize].w),
+        height: mmToPx(PHOTO_SIZES[selectedSize].h),
+        imageSmoothingEnabled: true,
+        imageSmoothingQuality: 'high'
+      });
+
+      if (!canvas) return showToast('ক্রপ করতে সমস্যা হয়েছে', '❌');
+
+      const finalUrl = canvas.toDataURL('image/png');
+      const img = document.getElementById('ai-image');
+      img.src = finalUrl;
+      img.style.filter = 'none';
+
+      baseLoadedImage = new Image();
+      baseLoadedImage.onload = () => {
+        document.getElementById('ai-download').href = finalUrl;
+        document.getElementById('ai-download').download = `photo-\( {selectedSize}- \){PHOTO_SIZES[selectedSize].w}x${PHOTO_SIZES[selectedSize].h}mm.png`;
+        if (aiGridPhotos.length > 0) {
+          aiGridPhotos[0] = finalUrl;
+          renderAiAddedPhotosList();
+          updateAiGridPreview();
+        }
+        if (cropper) { cropper.destroy(); cropper = null; }
+        showToast(PHOTO_SIZES[selectedSize].name + ' সাইজে সেট করা হয়েছে!', '✅');
+      };
+      baseLoadedImage.src = finalUrl;
+    }
+
+    function createDoublePhoto() {
+      if (!doubleSecondImageSrc) return showToast('ডাবল সাইজের জন্য দ্বিতীয় ছবি আপলোড করুন', '⚠️');
+      
+      const img1 = new Image();
+      const img2 = new Image();
+      let loaded = 0;
+
+      const onBothLoaded = () => {
+        loaded++;
+        if (loaded < 2) return;
+
+        const targetW = mmToPx(45); // 45mm
+        const targetH = mmToPx(55); // 55mm
+        const halfH = Math.floor(targetH / 2);
+
+        const canvas = document.createElement('canvas');
+        canvas.width = targetW;
+        canvas.height = targetH;
+        const ctx = canvas.getContext('2d');
+
+        // White background
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, targetW, targetH);
+
+        // Draw first photo (top)
+        ctx.drawImage(img1, 0, 0, targetW, halfH);
+        // Draw second photo (bottom)
+        ctx.drawImage(img2, 0, halfH, targetW, halfH);
+
+        // Optional thin divider line
+        ctx.strokeStyle = '#cccccc';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, halfH);
+        ctx.lineTo(targetW, halfH);
+        ctx.stroke();
+
+        const finalUrl = canvas.toDataURL('image/png');
+        const img = document.getElementById('ai-image');
+        img.src = finalUrl;
+        img.style.filter = 'none';
+
+        baseLoadedImage = new Image();
+        baseLoadedImage.onload = () => {
+          document.getElementById('ai-download').href = finalUrl;
+          document.getElementById('ai-download').download = 'double-passport-45x55mm.png';
+          if (aiGridPhotos.length > 0) {
+            aiGridPhotos[0] = finalUrl;
+            renderAiAddedPhotosList();
+            updateAiGridPreview();
+          }
+          if (cropper) { cropper.destroy(); cropper = null; }
+          showToast('ডাবল পাসপোর্ট (45×55 mm) তৈরি হয়েছে!', '👥');
+        };
+        baseLoadedImage.src = finalUrl;
+      };
+
+      img1.onload = onBothLoaded;
+      img2.onload = onBothLoaded;
+      img1.src = document.getElementById('ai-image').src;
+      img2.src = doubleSecondImageSrc;
+    }
 
     function quickBg(color) {
       document.getElementById('ai-bg-color').value = color;
@@ -1062,8 +1222,13 @@ Email: sales2@grandvistana.com"></textarea>
     function enableCrop() {
       const img = document.getElementById('ai-image');
       if (cropper) cropper.destroy();
-      cropper = new Cropper(img, { aspectRatio: NaN, viewMode: 1 });
-      showToast('ক্রপ এরিয়া নির্বাচন করুন', '✂️');
+      const ratio = selectedSize ? PHOTO_SIZES[selectedSize].ratio : NaN;
+      cropper = new Cropper(img, { 
+        aspectRatio: ratio, 
+        viewMode: 1,
+        autoCropArea: 0.9
+      });
+      showToast(selectedSize ? 'সাইজ অনুযায়ী ক্রপ এরিয়া নির্বাচন করুন' : 'ক্রপ এরিয়া নির্বাচন করুন', '✂️');
     }
 
     function cropImage() {
@@ -1099,6 +1264,10 @@ Email: sales2@grandvistana.com"></textarea>
           document.getElementById('filter-contrast').value = 100;
           document.getElementById('filter-blur').value = 0;
           document.getElementById('filter-saturate').value = 100;
+          selectedSize = null;
+          document.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove('active'));
+          document.getElementById('size-info').classList.add('hidden');
+          document.getElementById('double-photo-upload').classList.add('hidden');
           if (aiGridPhotos.length > 0) {
             aiGridPhotos[0] = originalAiImageSrc;
             renderAiAddedPhotosList();
@@ -1171,31 +1340,14 @@ Email: sales2@grandvistana.com"></textarea>
         document.getElementById('ai-print-btn').classList.add('hidden');
         return;
       }
-
       const a4Width = 1240, a4Height = 1754;
       canvas.width = a4Width; canvas.height = a4Height;
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, a4Width, a4Height);
-
-      // Get selected size
-      const size = AI_PHOTO_SIZES[currentAiPhotoSize] || AI_PHOTO_SIZES.standard;
-      const photoWidth = size.w;
-      const photoHeight = size.h;
-
-      // Dynamic layout based on size
-      let cols, gapX, gapY, startX, startY;
-      if (currentAiPhotoSize === 'epassport') {
-        cols = 4; gapX = 25; gapY = 25; startX = 50; startY = 60;
-      } else if (currentAiPhotoSize === 'traditional') {
-        cols = 3; gapX = 30; gapY = 30; startX = 55; startY = 70;
-      } else {
-        cols = 4; gapX = 28; gapY = 28; startX = 50; startY = 65; // standard
-      }
-
+      const photoWidth = 210, photoHeight = 260, gapX = 30, gapY = 30, startX = 60, startY = 80, cols = 5;
       const enableBorder = document.getElementById('ai-border-enable').checked;
       const borderWidth = parseInt(document.getElementById('ai-border-width').value) || 3;
       const borderColor = document.getElementById('ai-border-color').value || '#cccccc';
-
       let loadedCount = 0;
       aiGridPhotos.forEach((src, i) => {
         const img = new Image();
