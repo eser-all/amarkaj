@@ -150,6 +150,15 @@
     .size-btn.active {
       @apply border-indigo-600 bg-indigo-50 dark:bg-indigo-900/40 ring-2 ring-indigo-300;
     }
+
+    /* A4 interactive canvas */
+    #ai-a4-canvas {
+      cursor: grab;
+      touch-action: none;
+    }
+    #ai-a4-canvas.dragging {
+      cursor: grabbing;
+    }
   </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 min-h-screen transition-colors duration-200 flex flex-col justify-between">
@@ -278,29 +287,25 @@
           
           <div id="ai-controls" class="hidden space-y-4">
             
-            <!-- ========== NEW: PHOTO SIZE SELECTOR ========== -->
+            <!-- ========== PHOTO SIZE SELECTOR ========== -->
             <div class="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-gray-700/50 dark:to-gray-700/30 p-4 rounded-2xl border border-indigo-100 dark:border-gray-600">
               <h4 class="font-bold text-sm text-indigo-700 dark:text-indigo-300 mb-3">📏 অফিসিয়াল ফটো সাইজ নির্বাচন করুন:</h4>
               <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <!-- Standard Passport -->
                 <div class="size-btn" id="size-standard" onclick="selectPhotoSize('standard')">
                   <span class="text-2xl">🪪</span>
                   <span class="text-xs font-bold">স্ট্যান্ডার্ড</span>
                   <span class="text-[10px] text-gray-500">45×35 mm</span>
                 </div>
-                <!-- E-Passport -->
                 <div class="size-btn" id="size-epassport" onclick="selectPhotoSize('epassport')">
                   <span class="text-2xl">🛂</span>
                   <span class="text-xs font-bold">ই-পাসপোর্ট</span>
                   <span class="text-[10px] text-gray-500">50×50 mm</span>
                 </div>
-                <!-- Traditional -->
                 <div class="size-btn" id="size-traditional" onclick="selectPhotoSize('traditional')">
                   <span class="text-2xl">📷</span>
                   <span class="text-xs font-bold">ট্র্যাডিশনাল</span>
                   <span class="text-[10px] text-gray-500">55×45 mm</span>
                 </div>
-                <!-- Double -->
                 <div class="size-btn" id="size-double" onclick="selectPhotoSize('double')">
                   <span class="text-2xl">👥</span>
                   <span class="text-xs font-bold">ডাবল</span>
@@ -309,7 +314,6 @@
               </div>
               <p id="size-info" class="text-xs text-indigo-600 dark:text-indigo-300 mt-3 font-medium hidden"></p>
               
-              <!-- Double photo second image upload -->
               <div id="double-photo-upload" class="hidden mt-3 p-3 bg-white dark:bg-gray-800 rounded-xl border border-dashed border-indigo-300">
                 <p class="text-xs font-semibold mb-2">দ্বিতীয় ছবি আপলোড করে আলাদাভাবে এডিট করুন, তারপর দুইটি একত্রে ডাউনলোড করুন:</p>
                 <input type="file" id="double-second-image" accept="image/*" class="text-xs w-full">
@@ -406,11 +410,26 @@
                   <span class="text-xs text-gray-400 pl-2">এখনো কোনো ছবি যোগ করা হয়নি।</span>
                 </div>
               </div>
+
+              <!-- Interactive A4 controls -->
+              <div id="a4-edit-controls" class="hidden bg-white dark:bg-gray-800 p-3 rounded-xl border border-indigo-200 dark:border-indigo-700 space-y-3">
+                <p class="text-xs font-bold text-indigo-700 dark:text-indigo-300">🖱️ A4 লেআউট এডিট (মুভ + ৩৬০° রোটেট):</p>
+                <p class="text-[11px] text-gray-500">ছবি ক্লিক করে সিলেক্ট করুন → ড্র্যাগ করে সরান। নিচের স্লাইডার দিয়ে ০–৩৬০° ঘোরান।</p>
+                <div class="flex flex-wrap items-center gap-3 text-xs">
+                  <label class="font-semibold">নির্বাচিত ছবির রোটেশন:</label>
+                  <input type="range" id="a4-rotation-slider" min="0" max="360" value="0" class="w-40 accent-indigo-600" oninput="onA4RotationChange()">
+                  <span id="a4-rotation-value" class="font-mono w-10">0°</span>
+                  <button onclick="rotateSelectedA4(90)" class="btn-secondary py-1 px-2 text-xs">+90°</button>
+                  <button onclick="rotateSelectedA4(-90)" class="btn-secondary py-1 px-2 text-xs">-90°</button>
+                  <button onclick="resetA4Layout()" class="btn-danger py-1 px-2 text-xs">লেআউট রিসেট</button>
+                </div>
+              </div>
+
               <div class="flex flex-wrap gap-3 items-center pt-2">
                 <button onclick="downloadAiA4Pdf()" id="ai-pdf-btn" class="btn-primary bg-purple-600 hover:bg-purple-700 hidden">📄 A4 PDF ডাউনলোড</button>
                 <button onclick="printAiA4Grid()" id="ai-print-btn" class="btn-secondary hidden">🖨️ সরাসরি প্রিন্ট</button>
               </div>
-              <div id="ai-grid-preview" class="mt-4 hidden border dark:border-gray-700 p-2 bg-gray-200 dark:bg-gray-900 rounded-xl max-h-[350px] overflow-y-auto">
+              <div id="ai-grid-preview" class="mt-4 hidden border dark:border-gray-700 p-2 bg-gray-200 dark:bg-gray-900 rounded-xl max-h-[450px] overflow-y-auto">
                 <canvas id="ai-a4-canvas" class="mx-auto bg-white shadow rounded-lg max-w-full"></canvas>
               </div>
             </div>
@@ -568,7 +587,6 @@
           </p>
 
           <div class="grid lg:grid-cols-2 gap-6">
-            <!-- Form -->
             <div class="space-y-4 max-h-[75vh] overflow-y-auto pr-1">
               <div class="bg-indigo-50 dark:bg-gray-700/50 p-4 rounded-2xl border border-indigo-100 dark:border-gray-600">
                 <h4 class="font-bold text-sm mb-3 text-indigo-700 dark:text-indigo-300">📷 ছবি ও ব্যক্তিগত তথ্য</h4>
@@ -642,7 +660,6 @@ Email: sales2@grandvistana.com"></textarea>
               <button onclick="generateCV()" class="btn-primary w-full py-3 text-base">✨ Generate Professional CV</button>
             </div>
 
-            <!-- Preview -->
             <div class="overflow-auto max-h-[75vh] bg-gray-100 dark:bg-gray-900 p-3 rounded-2xl">
               <div id="cv-preview-container" class="hidden">
                 <div id="cv-preview" class="cv-preview scale-[0.68] origin-top mx-auto"></div>
@@ -659,13 +676,12 @@ Email: sales2@grandvistana.com"></textarea>
           </div>
         </div>
 
-        <!-- 7. SCANNER (Canon + Live Camera) -->
+        <!-- 7. SCANNER -->
         <div id="panel-scanner" class="tool-panel">
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
             ক্যামেরা দিয়ে সরাসরি ডকুমেন্ট স্ক্যান করুন অথবা <strong>Canon / অন্যান্য স্ক্যানার</strong> দিয়ে স্ক্যান করা ছবি ইম্পোর্ট করুন।
           </p>
           
-          <!-- Canon / Scanner Import -->
           <div class="bg-indigo-50 dark:bg-indigo-950/40 p-4 rounded-2xl border border-indigo-100 dark:border-indigo-800 mb-5">
             <h4 class="font-bold text-sm text-indigo-700 dark:text-indigo-300 mb-2">📁 Canon / অন্যান্য স্ক্যানার থেকে ছবি ইম্পোর্ট</h4>
             <p class="text-xs text-gray-600 dark:text-gray-400 mb-3">স্ক্যানার সফটওয়্যার দিয়ে ছবি সেভ করে নিচে আপলোড করুন (JPG, PNG, TIFF ইত্যাদি সাপোর্টেড)</p>
@@ -923,13 +939,20 @@ Email: sales2@grandvistana.com"></textarea>
     let originalAiImageSrc = null;
     let baseLoadedImage = null;
     let selfieSegmentation = null;
+    // Now stores objects: { src, x, y, rotation, w, h }
     let aiGridPhotos = [];
-    let selectedSize = null; // 'standard' | 'epassport' | 'traditional' | 'double'
+    let selectedSize = null;
     let doubleSecondImageSrc = null;
     let doubleFirstEditedSrc = null;
     let editingDoubleSecond = false;
 
-    // Exact sizes at 300 DPI (print quality)
+    // A4 interactive state
+    let selectedA4Index = -1;
+    let isDraggingA4 = false;
+    let dragStartX = 0, dragStartY = 0;
+    let photoStartX = 0, photoStartY = 0;
+    let a4CanvasEventsAttached = false;
+
     const PHOTO_SIZES = {
       standard:   { w: 45, h: 35, name: 'স্ট্যান্ডার্ড পাসপোর্ট (45×35 mm)', ratio: 45/35 },
       epassport:  { w: 50, h: 50, name: 'ই-পাসপোর্ট (50×50 mm)', ratio: 1 },
@@ -938,7 +961,7 @@ Email: sales2@grandvistana.com"></textarea>
     };
 
     function mmToPx(mm) {
-      return Math.round(mm * (300 / 25.4)); // 300 DPI
+      return Math.round(mm * (300 / 25.4));
     }
 
     function initMediaPipe() {
@@ -967,7 +990,7 @@ Email: sales2@grandvistana.com"></textarea>
           dlBtn.download = 'edited-photo.png';
           if(cropper) { cropper.destroy(); cropper = null; }
           if (aiGridPhotos.length === 0) {
-            aiGridPhotos.push(originalAiImageSrc);
+            aiGridPhotos.push({ src: originalAiImageSrc, x: null, y: null, rotation: 0, w: 0, h: 0 });
             renderAiAddedPhotosList();
             updateAiGridPreview();
           }
@@ -978,10 +1001,8 @@ Email: sales2@grandvistana.com"></textarea>
       reader.readAsDataURL(file);
     });
 
-    // ========== SIZE SELECTION ==========
     function selectPhotoSize(type) {
       selectedSize = type;
-      // Update UI
       document.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove('active'));
       document.getElementById('size-' + type).classList.add('active');
       
@@ -989,7 +1010,6 @@ Email: sales2@grandvistana.com"></textarea>
       info.classList.remove('hidden');
       info.textContent = 'নির্বাচিত: ' + PHOTO_SIZES[type].name;
 
-      // Show/hide double upload
       const doubleUpload = document.getElementById('double-photo-upload');
       if (type === 'double') {
         doubleUpload.classList.remove('hidden');
@@ -997,10 +1017,12 @@ Email: sales2@grandvistana.com"></textarea>
         doubleUpload.classList.add('hidden');
       }
 
-      // If cropper is active, update aspect ratio
       if (cropper) {
         cropper.setAspectRatio(PHOTO_SIZES[type].ratio);
       }
+      // Force re-layout with new size
+      aiGridPhotos.forEach(p => { p.x = null; p.y = null; });
+      updateAiGridPreview();
       showToast(PHOTO_SIZES[type].name + ' সিলেক্ট করা হয়েছে', '📏');
     }
 
@@ -1059,9 +1081,6 @@ Email: sales2@grandvistana.com"></textarea>
       if (!selectedSize) return showToast('আগে একটি সাইজ সিলেক্ট করুন', '⚠️');
       if (!baseLoadedImage && !document.getElementById('ai-image').src) return showToast('আগে একটি ছবি লোড করুন', '⚠️');
 
-      // Double passport is one portrait photo at 45 x 55 mm.
-      // Do not require a second upload; let it follow the same edit/crop/download flow.
-      // For every size, force crop to the selected aspect ratio and export exact dimensions.
       if (!cropper) {
         enableCrop();
         setTimeout(() => {
@@ -1071,7 +1090,6 @@ Email: sales2@grandvistana.com"></textarea>
         return;
       }
 
-      // Already cropping - get cropped canvas and resize to exact size
       const canvas = cropper.getCroppedCanvas({
         width: mmToPx(PHOTO_SIZES[selectedSize].w),
         height: mmToPx(PHOTO_SIZES[selectedSize].h),
@@ -1099,9 +1117,10 @@ Email: sales2@grandvistana.com"></textarea>
       baseLoadedImage = new Image();
       baseLoadedImage.onload = () => {
         document.getElementById('ai-download').href = finalUrl;
-        document.getElementById('ai-download').download = `photo-${selectedSize}-${PHOTO_SIZES[selectedSize].w}x${PHOTO_SIZES[selectedSize].h}mm.png`;
+        document.getElementById('ai-download').download = `photo-\( {selectedSize}- \){PHOTO_SIZES[selectedSize].w}x${PHOTO_SIZES[selectedSize].h}mm.png`;
         if (aiGridPhotos.length > 0) {
-          aiGridPhotos[0] = finalUrl;
+          aiGridPhotos[0].src = finalUrl;
+          aiGridPhotos[0].x = null; aiGridPhotos[0].y = null;
           renderAiAddedPhotosList();
           updateAiGridPreview();
         }
@@ -1109,69 +1128,6 @@ Email: sales2@grandvistana.com"></textarea>
         showToast(PHOTO_SIZES[selectedSize].name + ' সাইজে সেট করা হয়েছে!', '✅');
       };
       baseLoadedImage.src = finalUrl;
-    }
-
-    function createDoublePhoto() {
-      if (!doubleSecondImageSrc) return showToast('ডাবল সাইজের জন্য দ্বিতীয় ছবি আপলোড করুন', '⚠️');
-      
-      const img1 = new Image();
-      const img2 = new Image();
-      let loaded = 0;
-
-      const onBothLoaded = () => {
-        loaded++;
-        if (loaded < 2) return;
-
-        const targetW = mmToPx(45); // 45mm
-        const targetH = mmToPx(55); // 55mm
-        const halfH = Math.floor(targetH / 2);
-
-        const canvas = document.createElement('canvas');
-        canvas.width = targetW;
-        canvas.height = targetH;
-        const ctx = canvas.getContext('2d');
-
-        // White background
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, targetW, targetH);
-
-        // Draw first photo (top)
-        ctx.drawImage(img1, 0, 0, targetW, halfH);
-        // Draw second photo (bottom)
-        ctx.drawImage(img2, 0, halfH, targetW, halfH);
-
-        // Optional thin divider line
-        ctx.strokeStyle = '#cccccc';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(0, halfH);
-        ctx.lineTo(targetW, halfH);
-        ctx.stroke();
-
-        const finalUrl = canvas.toDataURL('image/png');
-        const img = document.getElementById('ai-image');
-        img.src = finalUrl;
-        img.style.filter = 'none';
-
-        baseLoadedImage = new Image();
-        baseLoadedImage.onload = () => {
-          document.getElementById('ai-download').href = finalUrl;
-          document.getElementById('ai-download').download = 'double-passport-45x55mm.png';
-          if (aiGridPhotos.length > 0) {
-            aiGridPhotos[0] = finalUrl;
-            renderAiAddedPhotosList();
-            updateAiGridPreview();
-          }
-          if (cropper) { cropper.destroy(); cropper = null; }
-          showToast('ডাবল পাসপোর্ট (45×55 mm) তৈরি হয়েছে!', '👥');
-        };
-        baseLoadedImage.src = finalUrl;
-      };
-
-      img1.onload = onBothLoaded;
-      img2.onload = onBothLoaded;
-      img1.src = document.getElementById('ai-image').src;
-      img2.src = doubleSecondImageSrc;
     }
 
     function quickBg(color) {
@@ -1216,7 +1172,7 @@ Email: sales2@grandvistana.com"></textarea>
         document.getElementById('ai-download').href = newUrl;
         toggleLoader(false);
         if (aiGridPhotos.length > 0) {
-          aiGridPhotos[0] = newUrl;
+          aiGridPhotos[0].src = newUrl;
           renderAiAddedPhotosList();
           updateAiGridPreview();
         }
@@ -1252,7 +1208,7 @@ Email: sales2@grandvistana.com"></textarea>
             document.getElementById('ai-download').href = newUrl;
             toggleLoader(false);
             if (aiGridPhotos.length > 0) {
-              aiGridPhotos[0] = newUrl;
+              aiGridPhotos[0].src = newUrl;
               renderAiAddedPhotosList();
               updateAiGridPreview();
             }
@@ -1274,7 +1230,7 @@ Email: sales2@grandvistana.com"></textarea>
       const c = document.getElementById('filter-contrast').value;
       const blur = document.getElementById('filter-blur').value;
       const sat = document.getElementById('filter-saturate').value;
-      img.style.filter = `brightness(${b}%) contrast( ${c}%) blur(${blur}px) saturate( ${sat}%)`;
+      img.style.filter = `brightness(${b}%) contrast( \( {c}%) blur( \){blur}px) saturate( ${sat}%)`;
     }
 
     function enableCrop() {
@@ -1302,7 +1258,8 @@ Email: sales2@grandvistana.com"></textarea>
         document.getElementById('ai-download').href = croppedUrl;
         document.getElementById('ai-download').download = 'cropped-photo.png';
         if (aiGridPhotos.length > 0) {
-          aiGridPhotos[0] = croppedUrl;
+          aiGridPhotos[0].src = croppedUrl;
+          aiGridPhotos[0].x = null; aiGridPhotos[0].y = null;
           renderAiAddedPhotosList();
           updateAiGridPreview();
         }
@@ -1327,7 +1284,8 @@ Email: sales2@grandvistana.com"></textarea>
           document.getElementById('size-info').classList.add('hidden');
           document.getElementById('double-photo-upload').classList.add('hidden');
           if (aiGridPhotos.length > 0) {
-            aiGridPhotos[0] = originalAiImageSrc;
+            aiGridPhotos[0].src = originalAiImageSrc;
+            aiGridPhotos[0].x = null; aiGridPhotos[0].y = null;
             renderAiAddedPhotosList();
             updateAiGridPreview();
           }
@@ -1342,7 +1300,7 @@ Email: sales2@grandvistana.com"></textarea>
       if (!file) return;
       const reader = new FileReader();
       reader.onload = function(evt) {
-        aiGridPhotos.push(evt.target.result);
+        aiGridPhotos.push({ src: evt.target.result, x: null, y: null, rotation: 0, w: 0, h: 0 });
         renderAiAddedPhotosList();
         updateAiGridPreview();
         showToast('নতুন ছবি যোগ করা হয়েছে!', '➕');
@@ -1354,7 +1312,7 @@ Email: sales2@grandvistana.com"></textarea>
     function addCurrentEditedImage() {
       const imgElem = document.getElementById('ai-image');
       if (!imgElem || !imgElem.src) return showToast('কোনো এডিটেড ছবি নেই', '⚠');
-      aiGridPhotos.push(imgElem.src);
+      aiGridPhotos.push({ src: imgElem.src, x: null, y: null, rotation: 0, w: 0, h: 0 });
       renderAiAddedPhotosList();
       updateAiGridPreview();
       showToast('এডিটেড ছবি যুক্ত করা হলো', '➕');
@@ -1368,7 +1326,7 @@ Email: sales2@grandvistana.com"></textarea>
       if (selectedSize !== 'double') {
         return showToast('আগে ডাবল 45×55 mm সাইজ নির্বাচন করুন', '⚠️');
       }
-      aiGridPhotos.push(imgElem.src);
+      aiGridPhotos.push({ src: imgElem.src, x: null, y: null, rotation: 0, w: 0, h: 0 });
       renderAiAddedPhotosList();
       updateAiGridPreview();
       showToast('ডাবল 45×55 mm ছবি A4 গ্রিডে যোগ হয়েছে', '👥');
@@ -1376,6 +1334,8 @@ Email: sales2@grandvistana.com"></textarea>
 
     function removeAiGridPhoto(index) {
       aiGridPhotos.splice(index, 1);
+      if (selectedA4Index === index) selectedA4Index = -1;
+      else if (selectedA4Index > index) selectedA4Index--;
       renderAiAddedPhotosList();
       updateAiGridPreview();
       showToast('ছবি মুছে ফেলা হয়েছে', '🗑️');
@@ -1383,6 +1343,7 @@ Email: sales2@grandvistana.com"></textarea>
 
     function clearAiGridList() {
       aiGridPhotos = [];
+      selectedA4Index = -1;
       renderAiAddedPhotosList();
       updateAiGridPreview();
       showToast('সব ছবি মোছা হয়েছে', '🧹');
@@ -1394,30 +1355,32 @@ Email: sales2@grandvistana.com"></textarea>
         container.innerHTML = `<span class="text-xs text-gray-400 pl-2">এখনো কোনো ছবি যোগ করা হয়নি।</span>`;
         return;
       }
-      container.innerHTML = aiGridPhotos.map((src, idx) => `
-        <div class="relative group w-12 h-14 rounded border border-indigo-300 dark:border-indigo-600 overflow-hidden shadow-sm bg-gray-100 flex-shrink-0">
-          <img src="${src}" class="w-full h-full object-cover">
+      container.innerHTML = aiGridPhotos.map((p, idx) => `
+        <div class="relative group w-12 h-14 rounded border border-indigo-300 dark:border-indigo-600 overflow-hidden shadow-sm bg-gray-100 flex-shrink-0 ${selectedA4Index===idx?'ring-2 ring-indigo-500':''}">
+          <img src="${p.src}" class="w-full h-full object-cover">
           <span class="absolute top-0 left-0 bg-indigo-600 text-white text-[9px] px-1 font-bold rounded-br">${idx + 1}</span>
           <button onclick="removeAiGridPhoto(${idx})" class="absolute bottom-0 right-0 bg-red-600 text-white w-4 h-4 text-[10px] flex items-center justify-center rounded-tl opacity-90 hover:opacity-100">✕</button>
         </div>
       `).join('');
     }
 
+    // ========== A4 Interactive Grid ==========
     function updateAiGridPreview() {
       const canvas = document.getElementById('ai-a4-canvas');
       const ctx = canvas.getContext('2d');
       const preview = document.getElementById('ai-grid-preview');
       const pdfBtn = document.getElementById('ai-pdf-btn');
       const printBtn = document.getElementById('ai-print-btn');
+      const editControls = document.getElementById('a4-edit-controls');
+
       if (!aiGridPhotos.length) {
         preview.classList.add('hidden');
         pdfBtn.classList.add('hidden');
         printBtn.classList.add('hidden');
+        editControls.classList.add('hidden');
         return;
       }
 
-      // A4 portrait at 150 DPI. Each photo is laid out using the selected
-      // physical dimensions (mm), not a fixed pixel placeholder.
       const dpi = 150, scale = dpi / 25.4;
       const pageW = Math.round(210 * scale), pageH = Math.round(297 * scale);
       canvas.width = pageW; canvas.height = pageH;
@@ -1440,56 +1403,212 @@ Email: sales2@grandvistana.com"></textarea>
       const borderWidth = Math.max(1, parseInt(document.getElementById('ai-border-width').value, 10) || 1);
       const borderColor = document.getElementById('ai-border-color').value || '#ccc';
 
+      // Auto-position any photo that has null x/y
+      for (let i = 0; i < count; i++) {
+        const p = aiGridPhotos[i];
+        p.w = photoW;
+        p.h = photoH;
+        if (p.x === null || p.y === null) {
+          const row = Math.floor(i / cols), col = i % cols;
+          p.x = offsetX + col * (photoW + gap);
+          p.y = margin + row * (photoH + gap);
+          p.rotation = p.rotation || 0;
+        }
+      }
+
       let loaded = 0;
       const finish = () => {
         loaded++;
         if (loaded === count) {
+          // Draw selection highlight last
+          if (selectedA4Index >= 0 && selectedA4Index < count) {
+            const p = aiGridPhotos[selectedA4Index];
+            ctx.save();
+            ctx.translate(p.x + p.w / 2, p.y + p.h / 2);
+            ctx.rotate((p.rotation || 0) * Math.PI / 180);
+            ctx.strokeStyle = '#6366f1';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([6, 4]);
+            ctx.strokeRect(-p.w / 2 - 4, -p.h / 2 - 4, p.w + 8, p.h + 8);
+            ctx.setLineDash([]);
+            ctx.restore();
+          }
           preview.classList.remove('hidden');
           pdfBtn.classList.remove('hidden');
           printBtn.classList.remove('hidden');
+          editControls.classList.remove('hidden');
+          attachA4CanvasEvents();
         }
       };
+
       for (let i = 0; i < count; i++) {
+        const p = aiGridPhotos[i];
         const img = new Image();
         img.onload = () => {
-          const row = Math.floor(i / cols), col = i % cols;
-          const x = offsetX + col * (photoW + gap);
-          const y = margin + row * (photoH + gap);
-          ctx.drawImage(img, x, y, photoW, photoH);
+          ctx.save();
+          ctx.translate(p.x + p.w / 2, p.y + p.h / 2);
+          ctx.rotate((p.rotation || 0) * Math.PI / 180);
+          ctx.drawImage(img, -p.w / 2, -p.h / 2, p.w, p.h);
           if (enableBorder) {
             ctx.lineWidth = borderWidth;
             ctx.strokeStyle = borderColor;
-            ctx.strokeRect(x, y, photoW, photoH);
+            ctx.strokeRect(-p.w / 2, -p.h / 2, p.w, p.h);
           }
+          ctx.restore();
           finish();
         };
         img.onerror = finish;
-        img.src = aiGridPhotos[i];
+        img.src = p.src;
       }
+    }
+
+    function attachA4CanvasEvents() {
+      if (a4CanvasEventsAttached) return;
+      const canvas = document.getElementById('ai-a4-canvas');
+      if (!canvas) return;
+
+      canvas.addEventListener('mousedown', onA4MouseDown);
+      canvas.addEventListener('mousemove', onA4MouseMove);
+      canvas.addEventListener('mouseup', onA4MouseUp);
+      canvas.addEventListener('mouseleave', onA4MouseUp);
+      // Touch support
+      canvas.addEventListener('touchstart', (e) => { e.preventDefault(); onA4MouseDown(e.touches[0]); }, {passive:false});
+      canvas.addEventListener('touchmove', (e) => { e.preventDefault(); onA4MouseMove(e.touches[0]); }, {passive:false});
+      canvas.addEventListener('touchend', onA4MouseUp);
+      a4CanvasEventsAttached = true;
+    }
+
+    function getA4CanvasCoords(e) {
+      const canvas = document.getElementById('ai-a4-canvas');
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      return {
+        x: (e.clientX - rect.left) * scaleX,
+        y: (e.clientY - rect.top) * scaleY
+      };
+    }
+
+    function hitTestA4Photo(mx, my) {
+      // Check from top-most (last drawn) to first
+      for (let i = aiGridPhotos.length - 1; i >= 0; i--) {
+        const p = aiGridPhotos[i];
+        if (p.x === null) continue;
+        // Transform mouse into photo local space
+        const cx = p.x + p.w / 2;
+        const cy = p.y + p.h / 2;
+        const dx = mx - cx;
+        const dy = my - cy;
+        const rad = -(p.rotation || 0) * Math.PI / 180;
+        const localX = dx * Math.cos(rad) - dy * Math.sin(rad);
+        const localY = dx * Math.sin(rad) + dy * Math.cos(rad);
+        if (localX >= -p.w / 2 && localX <= p.w / 2 && localY >= -p.h / 2 && localY <= p.h / 2) {
+          return i;
+        }
+      }
+      return -1;
+    }
+
+    function onA4MouseDown(e) {
+      const coords = getA4CanvasCoords(e);
+      const idx = hitTestA4Photo(coords.x, coords.y);
+      selectedA4Index = idx;
+      if (idx >= 0) {
+        isDraggingA4 = true;
+        dragStartX = coords.x;
+        dragStartY = coords.y;
+        photoStartX = aiGridPhotos[idx].x;
+        photoStartY = aiGridPhotos[idx].y;
+        document.getElementById('ai-a4-canvas').classList.add('dragging');
+        // Update rotation slider
+        const rot = aiGridPhotos[idx].rotation || 0;
+        document.getElementById('a4-rotation-slider').value = rot;
+        document.getElementById('a4-rotation-value').textContent = Math.round(rot) + '°';
+      }
+      renderAiAddedPhotosList();
+      updateAiGridPreview();
+    }
+
+    function onA4MouseMove(e) {
+      if (!isDraggingA4 || selectedA4Index < 0) return;
+      const coords = getA4CanvasCoords(e);
+      const dx = coords.x - dragStartX;
+      const dy = coords.y - dragStartY;
+      aiGridPhotos[selectedA4Index].x = photoStartX + dx;
+      aiGridPhotos[selectedA4Index].y = photoStartY + dy;
+      updateAiGridPreview();
+    }
+
+    function onA4MouseUp() {
+      isDraggingA4 = false;
+      document.getElementById('ai-a4-canvas').classList.remove('dragging');
+    }
+
+    function onA4RotationChange() {
+      if (selectedA4Index < 0) return;
+      const val = parseInt(document.getElementById('a4-rotation-slider').value, 10) || 0;
+      aiGridPhotos[selectedA4Index].rotation = val;
+      document.getElementById('a4-rotation-value').textContent = val + '°';
+      updateAiGridPreview();
+    }
+
+    function rotateSelectedA4(delta) {
+      if (selectedA4Index < 0) return showToast('আগে একটি ছবি সিলেক্ট করুন', '⚠️');
+      let r = (aiGridPhotos[selectedA4Index].rotation || 0) + delta;
+      r = ((r % 360) + 360) % 360;
+      aiGridPhotos[selectedA4Index].rotation = r;
+      document.getElementById('a4-rotation-slider').value = r;
+      document.getElementById('a4-rotation-value').textContent = Math.round(r) + '°';
+      updateAiGridPreview();
+    }
+
+    function resetA4Layout() {
+      aiGridPhotos.forEach(p => { p.x = null; p.y = null; p.rotation = 0; });
+      selectedA4Index = -1;
+      document.getElementById('a4-rotation-slider').value = 0;
+      document.getElementById('a4-rotation-value').textContent = '0°';
+      updateAiGridPreview();
+      showToast('A4 লেআউট রিসেট করা হয়েছে', '🔄');
     }
 
     function downloadAiA4Pdf() {
       const canvas = document.getElementById('ai-a4-canvas');
       if (!canvas || !canvas.width) return showToast('আগে A4 গ্রিড তৈরি করুন', '⚠️');
-      const imgData = canvas.toDataURL('image/jpeg', 1.0);
-      const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
-      pdf.save('amarkaj-a4-photos.pdf');
+      // Clear selection highlight before export
+      const prevSelected = selectedA4Index;
+      selectedA4Index = -1;
+      updateAiGridPreview();
+      setTimeout(() => {
+        const imgData = canvas.toDataURL('image/jpeg', 1.0);
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
+        pdf.save('amarkaj-a4-photos.pdf');
+        selectedA4Index = prevSelected;
+        updateAiGridPreview();
+        showToast('A4 PDF ডাউনলোড হয়েছে', '📄');
+      }, 150);
     }
 
     function printAiA4Grid() {
       const canvas = document.getElementById('ai-a4-canvas');
       if (!canvas || !canvas.width) return showToast('আগে A4 গ্রিড তৈরি করুন', '⚠️');
-      const win = window.open('', '_blank');
-      if (!win) return showToast('পপ-আপ অনুমতি দিন, তারপর আবার প্রিন্ট করুন', '⚠️');
-      const data = canvas.toDataURL('image/png');
-      win.document.write(`<!doctype html><html><head><title>A4 Photo Print</title>
-        <style>@page{size:A4 portrait;margin:0}html,body{margin:0;padding:0;width:210mm;height:297mm}
-        img{display:block;width:210mm;height:297mm;object-fit:fill}</style></head>
-        <body><img src="${data}"></body></html>`);
-      win.document.close();
-      win.onload = () => { win.focus(); win.print(); };
+      const prevSelected = selectedA4Index;
+      selectedA4Index = -1;
+      updateAiGridPreview();
+      setTimeout(() => {
+        const win = window.open('', '_blank');
+        if (!win) return showToast('পপ-আপ অনুমতি দিন, তারপর আবার প্রিন্ট করুন', '⚠️');
+        const data = canvas.toDataURL('image/png');
+        win.document.write(`<!doctype html><html><head><title>A4 Photo Print</title>
+          <style>@page{size:A4 portrait;margin:0}html,body{margin:0;padding:0;width:210mm;height:297mm}
+          img{display:block;width:210mm;height:297mm;object-fit:fill}</style></head>
+          <body><img src="${data}"></body></html>`);
+        win.document.close();
+        win.onload = () => { win.focus(); win.print(); };
+        selectedA4Index = prevSelected;
+        updateAiGridPreview();
+      }, 150);
     }
 
     // ========== PDF MERGER ==========
@@ -2003,7 +2122,6 @@ Email: sales2@grandvistana.com"></textarea>
     let videoStream = null;
     let currentFacingMode = 'environment';
 
-    // Canon / Scanner Import
     document.getElementById('scanner-import-input').addEventListener('change', function(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -2201,7 +2319,7 @@ Email: sales2@grandvistana.com"></textarea>
       const preview = document.getElementById('cv-preview');
       preview.innerHTML = `
         <div class="cv-left">
-          ${cvPhotoSrc ? `<img src=" ${cvPhotoSrc}" class="cv-photo">` : '<div class="cv-photo flex items-center justify-center text-gray-400">No Photo</div>'}
+          \( {cvPhotoSrc ? `<img src=" \){cvPhotoSrc}" class="cv-photo">` : '<div class="cv-photo flex items-center justify-center text-gray-400">No Photo</div>'}
           <div>
             <span class="cv-section-title">CONTACT</span>
             <p class="mt-2 font-semibold">📞 Phone</p><p class="text-xs text-gray-600">${phone}</p>
@@ -2221,9 +2339,9 @@ Email: sales2@grandvistana.com"></textarea>
         </div>
         <div class="cv-right">
           <h2 class="cv-name">${name}</h2>
-          ${education ? `<h3>EDUCATION</h3><p class="whitespace-pre-line text-xs text-gray-700 mb-4"> ${education}</p>` : ''}
-          ${experience ? `<h3>WORK EXPERIENCE</h3><p class="whitespace-pre-line text-xs text-gray-700 mb-4"> ${experience}</p>` : ''}
-          ${references ? `<h3>REFERENCES</h3><p class="whitespace-pre-line text-xs text-gray-700"> ${references}</p>` : ''}
+          \( {education ? `<h3>EDUCATION</h3><p class="whitespace-pre-line text-xs text-gray-700 mb-4"> \){education}</p>` : ''}
+          \( {experience ? `<h3>WORK EXPERIENCE</h3><p class="whitespace-pre-line text-xs text-gray-700 mb-4"> \){experience}</p>` : ''}
+          \( {references ? `<h3>REFERENCES</h3><p class="whitespace-pre-line text-xs text-gray-700"> \){references}</p>` : ''}
         </div>
       `;
 
@@ -2270,7 +2388,7 @@ Email: sales2@grandvistana.com"></textarea>
         document.getElementById('compress-result').innerHTML = `
           <div class="p-4 bg-gray-100 dark:bg-gray-700 rounded-2xl text-center space-y-2">
             <p class="text-xs">মূল আকার: ${(file.size / 1024).toFixed(1)} KB ➔ নতুন আকার: <strong> ${(compressedFile.size / 1024).toFixed(1)} KB</strong></p>
-            <a href="${url}" download="compressed_ ${file.name}" class="btn-primary inline-block">⬇️ কম্প্রেসড ছবি ডাউনলোড</a>
+            <a href="\( {url}" download="compressed_ \){file.name}" class="btn-primary inline-block">⬇️ কম্প্রেসড ছবি ডাউনলোড</a>
           </div>
         `;
         toggleLoader(false);
@@ -2360,7 +2478,7 @@ Email: sales2@grandvistana.com"></textarea>
         <div class="p-4 bg-gray-100 dark:bg-gray-700 rounded-2xl text-center space-y-3">
           <img src="${dataUrl}" class="max-h-48 mx-auto rounded border dark:border-gray-600 shadow-sm" />
           <p class="text-xs">নতুন সাইজ: ${canvas.width} x ${canvas.height} px ( ${format.split('/')[1].toUpperCase()})</p>
-          <a href="${dataUrl}" download="converted_amarkaj. ${ext}" class="btn-primary inline-block">⬇️ কনভার্ট করা ছবি ডাউনলোড</a>
+          <a href="\( {dataUrl}" download="converted_amarkaj. \){ext}" class="btn-primary inline-block">⬇️ কনভার্ট করা ছবি ডাউনলোড</a>
         </div>
       `;
       showToast('কনভার্ট ও রিসাইজ সম্পন্ন!', '🔄');
@@ -2387,7 +2505,6 @@ Email: sales2@grandvistana.com"></textarea>
           ctx.fillStyle = '#ffffff';
           ctx.fillRect(0, 0, 1240, 1754);
 
-          // NID Card Standard Aspect Size (Approx 8.5cm x 5.5cm)
           const cardW = 500, cardH = 315;
           const x = (1240 - cardW) / 2;
 
