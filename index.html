@@ -311,8 +311,16 @@
               
               <!-- Double photo second image upload -->
               <div id="double-photo-upload" class="hidden mt-3 p-3 bg-white dark:bg-gray-800 rounded-xl border border-dashed border-indigo-300">
-                <p class="text-xs font-semibold mb-2">ঐচ্ছিক: দ্বিতীয় ছবি থাকলে আপলোড করুন (না দিলেও 45×55 mm ছবি তৈরি হবে):</p>
+                <p class="text-xs font-semibold mb-2">দ্বিতীয় ছবি আপলোড করে আলাদাভাবে এডিট করুন, তারপর দুইটি একত্রে ডাউনলোড করুন:</p>
                 <input type="file" id="double-second-image" accept="image/*" class="text-xs w-full">
+                <div class="flex flex-wrap gap-2 mt-2">
+                  <button type="button" onclick="editDoubleSecondImage()" class="btn-secondary text-xs">✏️ দ্বিতীয় ছবি এডিট করুন</button>
+                  <button type="button" onclick="combineDoublePhotos()" class="btn-primary text-xs">👥 দুই ছবি একত্রে তৈরি</button>
+                </div>
+                <div class="mt-2 flex gap-3 items-center">
+                  <img id="double-second-preview" class="hidden w-20 h-24 object-contain border rounded bg-gray-100" alt="দ্বিতীয় ছবির প্রিভিউ">
+                  <span id="double-second-status" class="text-xs text-gray-500">দ্বিতীয় ছবি এখনো আপলোড হয়নি</span>
+                </div>
               </div>
             </div>
             <!-- ========== END SIZE SELECTOR ========== -->
@@ -391,6 +399,7 @@
                 <div class="flex flex-wrap items-center gap-3">
                   <button onclick="document.getElementById('ai-add-more-input').click()" class="btn-primary bg-emerald-600 hover:bg-emerald-700 text-base py-2 px-4 flex items-center gap-1">➕ ছবি যোগ করুন</button>
                   <button onclick="addCurrentEditedImage()" class="btn-secondary text-xs">➕ এডিটেড ছবি যোগ করুন</button>
+                  <button onclick="addDoubleEditedImageToA4()" class="btn-secondary text-xs">👥 ডাবল 45×55 ছবি A4-তে যোগ করুন</button>
                   <button onclick="clearAiGridList()" class="btn-danger py-2 px-3 text-xs">🗑️ সব মুছুন</button>
                 </div>
                 <div id="ai-added-photos-list" class="flex flex-wrap gap-2 mt-3 p-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 min-h-[50px] items-center">
@@ -917,6 +926,8 @@ Email: sales2@grandvistana.com"></textarea>
     let aiGridPhotos = [];
     let selectedSize = null; // 'standard' | 'epassport' | 'traditional' | 'double'
     let doubleSecondImageSrc = null;
+    let doubleFirstEditedSrc = null;
+    let editingDoubleSecond = false;
 
     // Exact sizes at 300 DPI (print quality)
     const PHOTO_SIZES = {
@@ -999,10 +1010,50 @@ Email: sales2@grandvistana.com"></textarea>
       const reader = new FileReader();
       reader.onload = function(evt) {
         doubleSecondImageSrc = evt.target.result;
+        const preview = document.getElementById('double-second-preview');
+        preview.src = doubleSecondImageSrc; preview.classList.remove('hidden');
+        document.getElementById('double-second-status').textContent = 'দ্বিতীয় ছবি আপলোড হয়েছে';
         showToast('দ্বিতীয় ছবি লোড হয়েছে', '✅');
       };
       reader.readAsDataURL(file);
     });
+
+    function editDoubleSecondImage() {
+      if (!doubleSecondImageSrc) return showToast('আগে দ্বিতীয় ছবি আপলোড করুন', '⚠️');
+      if (cropper) { cropper.destroy(); cropper = null; }
+      doubleFirstEditedSrc = document.getElementById('ai-image').src;
+      editingDoubleSecond = true;
+      const img = document.getElementById('ai-image');
+      img.src = doubleSecondImageSrc;
+      baseLoadedImage = new Image();
+      baseLoadedImage.onload = () => {
+        img.style.filter = 'none'; enableCrop();
+        setTimeout(() => { if (cropper) cropper.setAspectRatio(45/27.5); }, 250);
+        showToast('দ্বিতীয় ছবি ক্রপ/এডিট করে সাইজে অ্যাপ্লাই চাপুন', '✂️');
+      };
+      baseLoadedImage.src = doubleSecondImageSrc;
+    }
+
+    function combineDoublePhotos() {
+      const first = doubleFirstEditedSrc || '';
+      const second = doubleSecondImageSrc || '';
+      if (!first || !second) return showToast('প্রথম ছবি এডিট এবং দ্বিতীয় ছবি আপলোড করুন', '⚠️');
+      const a=new Image(), b=new Image(); let n=0;
+      const done=()=>{ if(++n!==2)return;
+        const w=mmToPx(45), h=mmToPx(55), half=Math.floor(h/2);
+        const c=document.createElement('canvas'); c.width=w;c.height=h;
+        const x=c.getContext('2d'); x.fillStyle='#fff';x.fillRect(0,0,w,h);
+        x.drawImage(a,0,0,w,half);x.drawImage(b,0,half,w,h-half);
+        x.strokeStyle='#ccc';x.beginPath();x.moveTo(0,half);x.lineTo(w,half);x.stroke();
+        const url=c.toDataURL('image/png'), img=document.getElementById('ai-image');
+        img.src=url;img.style.filter='none';baseLoadedImage=new Image();baseLoadedImage.src=url;
+        const dl=document.getElementById('ai-download');dl.href=url;dl.download='double-passport-combined-45x55mm.png';
+        if(cropper){cropper.destroy();cropper=null;} editingDoubleSecond=false;
+        showToast('দুইটি ছবি একত্রে তৈরি হয়েছে—সিঙ্গেল ছবি ডাউনলোড করুন', '✅');
+      };
+      a.onload=done;b.onload=done;a.onerror=()=>showToast('প্রথম ছবি লোড হয়নি','❌');b.onerror=()=>showToast('দ্বিতীয় ছবি লোড হয়নি','❌');
+      a.src=first;b.src=second;
+    }
 
     function applySelectedSize() {
       if (!selectedSize) return showToast('আগে একটি সাইজ সিলেক্ট করুন', '⚠️');
@@ -1031,6 +1082,16 @@ Email: sales2@grandvistana.com"></textarea>
       if (!canvas) return showToast('ক্রপ করতে সমস্যা হয়েছে', '❌');
 
       const finalUrl = canvas.toDataURL('image/png');
+      if (selectedSize === 'double' && editingDoubleSecond) {
+        doubleSecondImageSrc = finalUrl;
+        document.getElementById('double-second-preview').src = finalUrl;
+        document.getElementById('double-second-status').textContent = 'দ্বিতীয় ছবি এডিট সম্পন্ন';
+        if (cropper) { cropper.destroy(); cropper = null; }
+        document.getElementById('ai-image').src = doubleFirstEditedSrc;
+        editingDoubleSecond = false;
+        showToast('দ্বিতীয় ছবি এডিট হয়েছে—এখন দুই ছবি একত্রে তৈরি করুন', '✅');
+        return;
+      }
       const img = document.getElementById('ai-image');
       img.src = finalUrl;
       img.style.filter = 'none';
@@ -1297,6 +1358,20 @@ Email: sales2@grandvistana.com"></textarea>
       renderAiAddedPhotosList();
       updateAiGridPreview();
       showToast('এডিটেড ছবি যুক্ত করা হলো', '➕');
+    }
+
+    function addDoubleEditedImageToA4() {
+      const imgElem = document.getElementById('ai-image');
+      if (!imgElem || !imgElem.src || !imgElem.src.startsWith('data:image/')) {
+        return showToast('আগে ডাবল ছবি তৈরি/এডিট করুন', '⚠️');
+      }
+      if (selectedSize !== 'double') {
+        return showToast('আগে ডাবল 45×55 mm সাইজ নির্বাচন করুন', '⚠️');
+      }
+      aiGridPhotos.push(imgElem.src);
+      renderAiAddedPhotosList();
+      updateAiGridPreview();
+      showToast('ডাবল 45×55 mm ছবি A4 গ্রিডে যোগ হয়েছে', '👥');
     }
 
     function removeAiGridPhoto(index) {
@@ -2345,4 +2420,3 @@ Email: sales2@grandvistana.com"></textarea>
   </script>
 </body>
 </html>
-
