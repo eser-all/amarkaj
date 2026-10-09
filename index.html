@@ -359,7 +359,7 @@
                 <div class="size-btn" id="size-standard" onclick="selectPhotoSize('standard')">
                   <span class="text-2xl">🪪</span>
                   <span class="text-xs font-bold">স্ট্যান্ডার্ড</span>
-                  <span class="text-[10px] text-gray-500">35×45 mm</span>
+                  <span class="text-[10px] text-gray-500">45×35 mm</span>
                 </div>
                 <div class="size-btn" id="size-epassport" onclick="selectPhotoSize('epassport')">
                   <span class="text-2xl">🛂</span>
@@ -798,7 +798,7 @@ Email: sales2@grandvistana.com"></textarea>
             <span class="ai-badge">● Browser AI Engine</span>
           </div>
           <div class="grid md:grid-cols-3 gap-3 mb-4">
-            <label class="block text-xs font-bold">Output Size<select id="batch-size" class="w-full mt-1 p-3 rounded-xl border bg-white dark:bg-gray-700"><option value="35x45">35×45 mm</option><option value="50x50">50×50 mm</option><option value="45x55">45×55 mm</option><option value="55x45">55×45 mm</option></select></label>
+            <label class="block text-xs font-bold">Output Size<select id="batch-size" class="w-full mt-1 p-3 rounded-xl border bg-white dark:bg-gray-700"><option value="35x45">35×45 mm</option><option value="50x50">50×50 mm</option><option value="37x47">37×47 mm (Traditional)</option><option value="47x37">47×37 mm (Double)</option></select></label>
             <label class="block text-xs font-bold">Background<input id="batch-bg" type="color" value="#ffffff" class="w-full mt-1 h-11 rounded-xl border p-1"></label>
             <label class="block text-xs font-bold">Quality<select id="batch-quality" class="w-full mt-1 p-3 rounded-xl border bg-white dark:bg-gray-700"><option value="0.95">High</option><option value="0.82">Balanced</option><option value="0.68">Small file</option></select></label>
           </div>
@@ -1114,10 +1114,10 @@ Email: sales2@grandvistana.com"></textarea>
 
 
     const PHOTO_SIZES = {
-      standard:   { w: 35, h: 45, name: 'স্ট্যান্ডার্ড পাসপোর্ট (35×45 mm)', ratio: 35/45 },
+      standard:   { w: 35, h: 45, name: 'স্ট্যান্ডার্ড পাসপোর্ট (45×35 mm)', ratio: 35/45 },
       epassport:  { w: 50, h: 50, name: 'ই-পাসপোর্ট (50×50 mm)', ratio: 1 },
-      traditional:{ w: 37, h: 47, name: 'ট্র্যাডিশনাল (37×47 mm)', ratio: 37/47 },
-      double:     { w: 47, h: 37, name: 'ডাবল পাসপোর্ট (47×37 mm)', ratio: 47/37 }
+      traditional:{ w: 37, h: 47, name: 'ট্র্যাডিশনাল (Width 37 × Height 47 mm)', ratio: 37/47 },
+      double:     { w: 47, h: 37, name: 'ডাবল পাসপোর্ট (Width 47 × Height 37 mm)', ratio: 47/37 }
     };
 
 
@@ -1368,7 +1368,7 @@ Email: sales2@grandvistana.com"></textarea>
       baseLoadedImage = new Image();
       baseLoadedImage.onload = () => {
         document.getElementById('ai-download').href = finalUrl;
-        document.getElementById('ai-download').download = `photo-\( {selectedSize}- \){PHOTO_SIZES[selectedSize].w}x${PHOTO_SIZES[selectedSize].h}mm.png`;
+        document.getElementById('ai-download').download = `photo-${selectedSize}-${PHOTO_SIZES[selectedSize].w}x${PHOTO_SIZES[selectedSize].h}mm.png`;
         if (aiGridPhotos.length > 0) {
           aiGridPhotos[0].src = finalUrl;
           aiGridPhotos[0].x = null;
@@ -1487,7 +1487,7 @@ Email: sales2@grandvistana.com"></textarea>
       const c = document.getElementById('filter-contrast').value;
       const blur = document.getElementById('filter-blur').value;
       const sat = document.getElementById('filter-saturate').value;
-      img.style.filter = `brightness(\( {b}%) contrast( \){c}%) blur(\( {blur}px) saturate( \){sat}%)`;
+      img.style.filter = `brightness(${b}%) contrast(${c}%) blur(${blur}px) saturate(${sat}%)`;
     }
 
 
@@ -1721,7 +1721,7 @@ Email: sales2@grandvistana.com"></textarea>
 
       if (aiGridPhotos.length > capacity) {
         showToast(
-          `এই \( {size.w}× \){size.h} mm সাইজে A4 পেজে সর্বোচ্চ ${capacity}টি ছবি বসবে। অতিরিক্ত ছবি পরের পেজের জন্য রাখতে হবে।`,
+          `এই ${size.w}×${size.h} mm সাইজে A4 পেজে সর্বোচ্চ ${capacity}টি ছবি বসবে। অতিরিক্ত ছবি পরের পেজের জন্য রাখতে হবে।`,
           '⚠️'
         );
       }
@@ -2014,7 +2014,7 @@ Email: sales2@grandvistana.com"></textarea>
         const { jsPDF } = window.jspdf;
         const pdf = new jsPDF('p', 'mm', 'a4');
         pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
-        pdf.save(`amarkaj-\( {activeSizeKey}- \){activeSize.w}x${activeSize.h}mm-a4.pdf`);
+        pdf.save(`amarkaj-${activeSizeKey}-${activeSize.w}x${activeSize.h}mm-a4.pdf`);
         selectedA4Index = prevSelected;
         updateAiGridPreview();
         showToast('A4 PDF ডাউনলোড হয়েছে', '📄');
@@ -2034,7 +2034,7 @@ Email: sales2@grandvistana.com"></textarea>
         const win = window.open('', '_blank');
         if (!win) return showToast('পপ-আপ অনুমতি দিন, তারপর আবার প্রিন্ট করুন', '⚠️');
         const data = canvas.toDataURL('image/png');
-        win.document.write(`<!doctype html><html><head><title>A4 Photo Print - \( {activeSize.name} ( \){activeSize.w}×${activeSize.h} mm)</title>
+        win.document.write(`<!doctype html><html><head><title>A4 Photo Print - ${activeSize.name} (${activeSize.w}×${activeSize.h} mm)</title>
           <style>@page{size:A4 portrait;margin:0}html,body{margin:0;padding:0;width:210mm;height:297mm}
           img{display:block;width:210mm;height:297mm;object-fit:fill}</style></head>
           <body><img src="${data}">\n</body></html>`);
@@ -2801,7 +2801,7 @@ Email: sales2@grandvistana.com"></textarea>
       const preview = document.getElementById('cv-preview');
       preview.innerHTML = `
         <div class="cv-left">
-          \( {cvPhotoSrc ? `<img src=" \){cvPhotoSrc}" class="cv-photo">` : '<div class="cv-photo flex items-center justify-center text-gray-400">No Photo</div>'}
+          ${cvPhotoSrc ? `<img src="${cvPhotoSrc}" class="cv-photo">` : '<div class="cv-photo flex items-center justify-center text-gray-400">No Photo</div>'}
           <div>
             <span class="cv-section-title">CONTACT</span>
             <p class="mt-2 font-semibold">📞 Phone</p><p class="text-xs text-gray-600">${phone}</p>
@@ -2821,9 +2821,9 @@ Email: sales2@grandvistana.com"></textarea>
         </div>
         <div class="cv-right">
           <h2 class="cv-name">${name}</h2>
-          \( {education ? `<h3>EDUCATION</h3><p class="whitespace-pre-line text-xs text-gray-700 mb-4"> \){education}</p>` : ''}
-          \( {experience ? `<h3>WORK EXPERIENCE</h3><p class="whitespace-pre-line text-xs text-gray-700 mb-4"> \){experience}</p>` : ''}
-          \( {references ? `<h3>REFERENCES</h3><p class="whitespace-pre-line text-xs text-gray-700"> \){references}</p>` : ''}
+          ${education ? `<h3>EDUCATION</h3><p class="whitespace-pre-line text-xs text-gray-700 mb-4">${education}</p>` : ''}
+          ${experience ? `<h3>WORK EXPERIENCE</h3><p class="whitespace-pre-line text-xs text-gray-700 mb-4">${experience}</p>` : ''}
+          ${references ? `<h3>REFERENCES</h3><p class="whitespace-pre-line text-xs text-gray-700">${references}</p>` : ''}
         </div>
       `;
 
@@ -2873,8 +2873,8 @@ Email: sales2@grandvistana.com"></textarea>
         const url = URL.createObjectURL(compressedFile);
         document.getElementById('compress-result').innerHTML = `
           <div class="p-4 bg-gray-100 dark:bg-gray-700 rounded-2xl text-center space-y-2">
-            <p class="text-xs">মূল আকার: \( {(file.size / 1024).toFixed(1)} KB ➔ নতুন আকার: <strong> \){(compressedFile.size / 1024).toFixed(1)} KB</strong></p>
-            <a href="\( {url}" download="compressed_ \){file.name}" class="btn-primary inline-block">⬇️ কম্প্রেসড ছবি ডাউনলোড</a>
+            <p class="text-xs">মূল আকার: ${(file.size / 1024).toFixed(1)} KB ➔ নতুন আকার: <strong>${(compressedFile.size / 1024).toFixed(1)} KB</strong></p>
+            <a href="${url}" download="compressed_${file.name}" class="btn-primary inline-block">⬇️ কম্প্রেসড ছবি ডাউনলোড</a>
           </div>
         `;
         toggleLoader(false);
@@ -2973,8 +2973,8 @@ Email: sales2@grandvistana.com"></textarea>
       document.getElementById('convert-result').innerHTML = `
         <div class="p-4 bg-gray-100 dark:bg-gray-700 rounded-2xl text-center space-y-3">
           <img src="${dataUrl}" class="max-h-48 mx-auto rounded border dark:border-gray-600 shadow-sm" />
-          <p class="text-xs">নতুন সাইজ: ${canvas.width} x \( {canvas.height} px ( \){format.split('/')[1].toUpperCase()})</p>
-          <a href="\( {dataUrl}" download="converted_amarkaj. \){ext}" class="btn-primary inline-block">⬇️ কনভার্ট করা ছবি ডাউনলোড</a>
+          <p class="text-xs">নতুন সাইজ: ${canvas.width} x ${canvas.height} px (${format.split('/')[1].toUpperCase()})</p>
+          <a href="${dataUrl}" download="converted_amarkaj.${ext}" class="btn-primary inline-block">⬇️ কনভার্ট করা ছবি ডাউনলোড</a>
         </div>
       `;
       showToast('কনভার্ট ও রিসাইজ সম্পন্ন!', '🔄');
@@ -3067,3 +3067,5 @@ function escapeHtmlAI(v){return String(v).replace(/[&<>'"]/g,m=>({'&':'&amp;','<
 </script>
 </body>
 </html>
+
+
