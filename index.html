@@ -359,7 +359,7 @@
                 <div class="size-btn" id="size-standard" onclick="selectPhotoSize('standard')">
                   <span class="text-2xl">🪪</span>
                   <span class="text-xs font-bold">স্ট্যান্ডার্ড</span>
-                  <span class="text-[10px] text-gray-500">45×35 mm</span>
+                  <span class="text-[10px] text-gray-500">35×45 mm</span>
                 </div>
                 <div class="size-btn" id="size-epassport" onclick="selectPhotoSize('epassport')">
                   <span class="text-2xl">🛂</span>
@@ -369,12 +369,12 @@
                 <div class="size-btn" id="size-traditional" onclick="selectPhotoSize('traditional')">
                   <span class="text-2xl">📷</span>
                   <span class="text-xs font-bold">ট্র্যাডিশনাল</span>
-                  <span class="text-[10px] text-gray-500">38×48 mm</span>
+                  <span class="text-[10px] text-gray-500">37×47 mm</span>
                 </div>
                 <div class="size-btn" id="size-double" onclick="selectPhotoSize('double')">
                   <span class="text-2xl">👥</span>
                   <span class="text-xs font-bold">ডাবল</span>
-                  <span class="text-[10px] text-gray-500">50×40 mm</span>
+                  <span class="text-[10px] text-gray-500">47×37 mm</span>
                 </div>
               </div>
               <p id="size-info" class="text-xs text-indigo-600 dark:text-indigo-300 mt-3 font-medium hidden"></p>
@@ -499,7 +499,7 @@
                 <div class="flex flex-wrap items-center gap-3">
                   <button onclick="document.getElementById('ai-add-more-input').click()" class="btn-primary bg-emerald-600 hover:bg-emerald-700 text-base py-2 px-4 flex items-center gap-1">➕ ছবি যোগ করুন</button>
                   <button onclick="addCurrentEditedImage()" class="btn-secondary text-xs">➕ এডিটেড ছবি যোগ করুন</button>
-                  <button onclick="addDoubleEditedImageToA4()" class="btn-secondary text-xs">👥 ডাবল 55×45 ছবি A4-তে যোগ করুন</button>
+                  <button onclick="addDoubleEditedImageToA4()" class="btn-secondary text-xs">👥 ডাবল 47×37 ছবি A4-তে যোগ করুন</button>
                   <button onclick="clearAiGridList()" class="btn-danger py-2 px-3 text-xs">🗑️ সব মুছুন</button>
                 </div>
                 <div id="ai-added-photos-list" class="flex flex-wrap gap-2 mt-3 p-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 min-h-[50px] items-center">
@@ -1114,10 +1114,10 @@ Email: sales2@grandvistana.com"></textarea>
 
 
     const PHOTO_SIZES = {
-      standard:   { w: 35, h: 45, name: 'স্ট্যান্ডার্ড পাসপোর্ট (45×35 mm)', ratio: 35/45 },
+      standard:   { w: 35, h: 45, name: 'স্ট্যান্ডার্ড পাসপোর্ট (35×45 mm)', ratio: 35/45 },
       epassport:  { w: 50, h: 50, name: 'ই-পাসপোর্ট (50×50 mm)', ratio: 1 },
-      traditional:{ w: 45, h: 55, name: 'ট্র্যাডিশনাল (48×38 mm)', ratio: 38/48 },
-      double:     { w: 55, h: 45, name: 'ডাবল পাসপোর্ট (Width 48 × Height 38 mm)', ratio: 48/38 }
+      traditional:{ w: 37, h: 47, name: 'ট্র্যাডিশনাল (37×47 mm)', ratio: 37/47 },
+      double:     { w: 47, h: 37, name: 'ডাবল পাসপোর্ট (47×37 mm)', ratio: 47/37 }
     };
 
 
@@ -1254,8 +1254,8 @@ Email: sales2@grandvistana.com"></textarea>
         if (loaded !== 2) return;
 
 
-        // Double = Width 55mm × Height 45mm. Put the two portraits side-by-side
-        // without stretching either face. The combined unit itself is exactly 55×45mm.
+        // Double = Width 47mm × Height 37mm. Put the two portraits side-by-side
+        // without stretching either face. The combined unit itself is exactly 47×37mm.
         const outW = mmToPx(PHOTO_SIZES.double.w);
         const outH = mmToPx(PHOTO_SIZES.double.h);
         const c = document.createElement('canvas');
@@ -1265,7 +1265,7 @@ Email: sales2@grandvistana.com"></textarea>
         ctx.fillRect(0, 0, outW, outH);
 
 
-        // Each person gets the same half of the 55×45 mm unit.
+        // Each person gets the same half of the 47×37 mm unit.
         // COVER-crop instead of contain/stretch: equal-sized portraits, no distortion.
         function drawCover(img, x, y, w, h) {
           const iw = img.naturalWidth || img.width;
@@ -1299,7 +1299,7 @@ Email: sales2@grandvistana.com"></textarea>
         baseLoadedImage = new Image();
         baseLoadedImage.src = url;
         document.getElementById('ai-download').href = url;
-        document.getElementById('ai-download').download = 'double-passport-55x45mm.png';
+        document.getElementById('ai-download').download = 'double-passport-47x37mm.png';
         if (cropper) { cropper.destroy(); cropper = null; }
         editingDoubleSecond = false;
 
@@ -1314,7 +1314,7 @@ Email: sales2@grandvistana.com"></textarea>
         }
         renderAiAddedPhotosList();
         updateAiGridPreview();
-        showToast('দুইজনের ছবি 55×45 mm ডাবল ছবিতে একত্র হয়েছে। A4 PDF/প্রিন্ট প্রস্তুত।', '✅');
+        showToast('দুইজনের ছবি 47×37 mm ডাবল ছবিতে একত্র হয়েছে। A4 PDF/প্রিন্ট প্রস্তুত।', '✅');
       };
       a.onload = loadDone; b.onload = loadDone;
       a.onerror = () => showToast('প্রথম ছবি লোড হয়নি', '❌');
@@ -1368,7 +1368,7 @@ Email: sales2@grandvistana.com"></textarea>
       baseLoadedImage = new Image();
       baseLoadedImage.onload = () => {
         document.getElementById('ai-download').href = finalUrl;
-        document.getElementById('ai-download').download = `photo-${selectedSize}-${PHOTO_SIZES[selectedSize].w}x${PHOTO_SIZES[selectedSize].h}mm.png`;
+        document.getElementById('ai-download').download = `photo-\( {selectedSize}- \){PHOTO_SIZES[selectedSize].w}x${PHOTO_SIZES[selectedSize].h}mm.png`;
         if (aiGridPhotos.length > 0) {
           aiGridPhotos[0].src = finalUrl;
           aiGridPhotos[0].x = null;
@@ -1487,7 +1487,7 @@ Email: sales2@grandvistana.com"></textarea>
       const c = document.getElementById('filter-contrast').value;
       const blur = document.getElementById('filter-blur').value;
       const sat = document.getElementById('filter-saturate').value;
-      img.style.filter = `brightness(${b}%) contrast(${c}%) blur(${blur}px) saturate(${sat}%)`;
+      img.style.filter = `brightness(\( {b}%) contrast( \){c}%) blur(\( {blur}px) saturate( \){sat}%)`;
     }
 
 
@@ -1589,12 +1589,12 @@ Email: sales2@grandvistana.com"></textarea>
         return showToast('আগে ডাবল ছবি তৈরি/এডিট করুন', '⚠️');
       }
       if (selectedSize !== 'double') {
-        return showToast('আগে ডাবল 55×45 mm সাইজ নির্বাচন করুন', '⚠️');
+        return showToast('আগে ডাবল 47×37 mm সাইজ নির্বাচন করুন', '⚠️');
       }
       aiGridPhotos.push({ src: imgElem.src, x: null, y: null, rotation: 0, w: 0, h: 0 });
       renderAiAddedPhotosList();
       updateAiGridPreview();
-      showToast('ডাবল 55×45 mm ছবি A4 গ্রিডে যোগ হয়েছে', '👥');
+      showToast('ডাবল 47×37 mm ছবি A4 গ্রিডে যোগ হয়েছে', '👥');
     }
 
 
@@ -1721,7 +1721,7 @@ Email: sales2@grandvistana.com"></textarea>
 
       if (aiGridPhotos.length > capacity) {
         showToast(
-          `এই ${size.w}×${size.h} mm সাইজে A4 পেজে সর্বোচ্চ ${capacity}টি ছবি বসবে। অতিরিক্ত ছবি পরের পেজের জন্য রাখতে হবে।`,
+          `এই \( {size.w}× \){size.h} mm সাইজে A4 পেজে সর্বোচ্চ ${capacity}টি ছবি বসবে। অতিরিক্ত ছবি পরের পেজের জন্য রাখতে হবে।`,
           '⚠️'
         );
       }
@@ -2014,7 +2014,7 @@ Email: sales2@grandvistana.com"></textarea>
         const { jsPDF } = window.jspdf;
         const pdf = new jsPDF('p', 'mm', 'a4');
         pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
-        pdf.save(`amarkaj-${activeSizeKey}-${activeSize.w}x${activeSize.h}mm-a4.pdf`);
+        pdf.save(`amarkaj-\( {activeSizeKey}- \){activeSize.w}x${activeSize.h}mm-a4.pdf`);
         selectedA4Index = prevSelected;
         updateAiGridPreview();
         showToast('A4 PDF ডাউনলোড হয়েছে', '📄');
@@ -2034,7 +2034,7 @@ Email: sales2@grandvistana.com"></textarea>
         const win = window.open('', '_blank');
         if (!win) return showToast('পপ-আপ অনুমতি দিন, তারপর আবার প্রিন্ট করুন', '⚠️');
         const data = canvas.toDataURL('image/png');
-        win.document.write(`<!doctype html><html><head><title>A4 Photo Print - ${activeSize.name} (${activeSize.w}×${activeSize.h} mm)</title>
+        win.document.write(`<!doctype html><html><head><title>A4 Photo Print - \( {activeSize.name} ( \){activeSize.w}×${activeSize.h} mm)</title>
           <style>@page{size:A4 portrait;margin:0}html,body{margin:0;padding:0;width:210mm;height:297mm}
           img{display:block;width:210mm;height:297mm;object-fit:fill}</style></head>
           <body><img src="${data}">\n</body></html>`);
@@ -2801,7 +2801,7 @@ Email: sales2@grandvistana.com"></textarea>
       const preview = document.getElementById('cv-preview');
       preview.innerHTML = `
         <div class="cv-left">
-          ${cvPhotoSrc ? `<img src="${cvPhotoSrc}" class="cv-photo">` : '<div class="cv-photo flex items-center justify-center text-gray-400">No Photo</div>'}
+          \( {cvPhotoSrc ? `<img src=" \){cvPhotoSrc}" class="cv-photo">` : '<div class="cv-photo flex items-center justify-center text-gray-400">No Photo</div>'}
           <div>
             <span class="cv-section-title">CONTACT</span>
             <p class="mt-2 font-semibold">📞 Phone</p><p class="text-xs text-gray-600">${phone}</p>
@@ -2821,9 +2821,9 @@ Email: sales2@grandvistana.com"></textarea>
         </div>
         <div class="cv-right">
           <h2 class="cv-name">${name}</h2>
-          ${education ? `<h3>EDUCATION</h3><p class="whitespace-pre-line text-xs text-gray-700 mb-4">${education}</p>` : ''}
-          ${experience ? `<h3>WORK EXPERIENCE</h3><p class="whitespace-pre-line text-xs text-gray-700 mb-4">${experience}</p>` : ''}
-          ${references ? `<h3>REFERENCES</h3><p class="whitespace-pre-line text-xs text-gray-700">${references}</p>` : ''}
+          \( {education ? `<h3>EDUCATION</h3><p class="whitespace-pre-line text-xs text-gray-700 mb-4"> \){education}</p>` : ''}
+          \( {experience ? `<h3>WORK EXPERIENCE</h3><p class="whitespace-pre-line text-xs text-gray-700 mb-4"> \){experience}</p>` : ''}
+          \( {references ? `<h3>REFERENCES</h3><p class="whitespace-pre-line text-xs text-gray-700"> \){references}</p>` : ''}
         </div>
       `;
 
@@ -2873,8 +2873,8 @@ Email: sales2@grandvistana.com"></textarea>
         const url = URL.createObjectURL(compressedFile);
         document.getElementById('compress-result').innerHTML = `
           <div class="p-4 bg-gray-100 dark:bg-gray-700 rounded-2xl text-center space-y-2">
-            <p class="text-xs">মূল আকার: ${(file.size / 1024).toFixed(1)} KB ➔ নতুন আকার: <strong>${(compressedFile.size / 1024).toFixed(1)} KB</strong></p>
-            <a href="${url}" download="compressed_${file.name}" class="btn-primary inline-block">⬇️ কম্প্রেসড ছবি ডাউনলোড</a>
+            <p class="text-xs">মূল আকার: \( {(file.size / 1024).toFixed(1)} KB ➔ নতুন আকার: <strong> \){(compressedFile.size / 1024).toFixed(1)} KB</strong></p>
+            <a href="\( {url}" download="compressed_ \){file.name}" class="btn-primary inline-block">⬇️ কম্প্রেসড ছবি ডাউনলোড</a>
           </div>
         `;
         toggleLoader(false);
@@ -2973,8 +2973,8 @@ Email: sales2@grandvistana.com"></textarea>
       document.getElementById('convert-result').innerHTML = `
         <div class="p-4 bg-gray-100 dark:bg-gray-700 rounded-2xl text-center space-y-3">
           <img src="${dataUrl}" class="max-h-48 mx-auto rounded border dark:border-gray-600 shadow-sm" />
-          <p class="text-xs">নতুন সাইজ: ${canvas.width} x ${canvas.height} px (${format.split('/')[1].toUpperCase()})</p>
-          <a href="${dataUrl}" download="converted_amarkaj.${ext}" class="btn-primary inline-block">⬇️ কনভার্ট করা ছবি ডাউনলোড</a>
+          <p class="text-xs">নতুন সাইজ: ${canvas.width} x \( {canvas.height} px ( \){format.split('/')[1].toUpperCase()})</p>
+          <a href="\( {dataUrl}" download="converted_amarkaj. \){ext}" class="btn-primary inline-block">⬇️ কনভার্ট করা ছবি ডাউনলোড</a>
         </div>
       `;
       showToast('কনভার্ট ও রিসাইজ সম্পন্ন!', '🔄');
@@ -3067,4 +3067,3 @@ function escapeHtmlAI(v){return String(v).replace(/[&<>'"]/g,m=>({'&':'&amp;','<
 </script>
 </body>
 </html>
-
