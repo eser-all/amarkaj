@@ -181,6 +181,11 @@
     .pro-stat{background:rgba(255,255,255,.08);border-radius:14px;padding:10px}
     .batch-thumb{width:72px;height:72px;object-fit:cover;border-radius:12px;border:2px solid rgba(255,255,255,.18)}
   </style>
+  <!-- Document conversion libraries: PDF text extraction, DOCX generation and DOCX reading -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/docx.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.2/html2pdf.bundle.min.js"></script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 min-h-screen transition-colors duration-200 flex flex-col justify-between">
 
@@ -332,6 +337,10 @@
           <div class="text-4xl">⚡</div>
           <h4 class="font-semibold text-sm md:text-base">AI Batch Photo Studio</h4>
         </div>
+        <div class="tool-card" onclick="showTool('docconvert')">
+          <div class="text-4xl">🔄</div>
+          <h4 class="font-semibold text-sm md:text-base">PDF ↔ Microsoft Word</h4>
+        </div>
       </div>
     </section>
 
@@ -369,12 +378,12 @@
                 <div class="size-btn" id="size-traditional" onclick="selectPhotoSize('traditional')">
                   <span class="text-2xl">📷</span>
                   <span class="text-xs font-bold">ট্র্যাডিশনাল</span>
-                  <span class="text-[10px] text-gray-500">37×47 mm</span>
+                  <span class="text-[10px] text-gray-500">1.5 × 1.9 inch (38.1 × 48.26 mm)</span>
                 </div>
                 <div class="size-btn" id="size-double" onclick="selectPhotoSize('double')">
                   <span class="text-2xl">👥</span>
                   <span class="text-xs font-bold">ডাবল</span>
-                  <span class="text-[10px] text-gray-500">47×37 mm</span>
+                  <span class="text-[10px] text-gray-500">1.9 × 1.5 inch (48.26 × 38.1 mm)</span>
                 </div>
               </div>
               <p id="size-info" class="text-xs text-indigo-600 dark:text-indigo-300 mt-3 font-medium hidden"></p>
@@ -499,7 +508,7 @@
                 <div class="flex flex-wrap items-center gap-3">
                   <button onclick="document.getElementById('ai-add-more-input').click()" class="btn-primary bg-emerald-600 hover:bg-emerald-700 text-base py-2 px-4 flex items-center gap-1">➕ ছবি যোগ করুন</button>
                   <button onclick="addCurrentEditedImage()" class="btn-secondary text-xs">➕ এডিটেড ছবি যোগ করুন</button>
-                  <button onclick="addDoubleEditedImageToA4()" class="btn-secondary text-xs">👥 ডাবল 47×37 ছবি A4-তে যোগ করুন</button>
+                  <button onclick="addDoubleEditedImageToA4()" class="btn-secondary text-xs">👥 ডাবল 1.9×1.5 inch ছবি A4-তে যোগ করুন</button>
                   <button onclick="clearAiGridList()" class="btn-danger py-2 px-3 text-xs">🗑️ সব মুছুন</button>
                 </div>
                 <div id="ai-added-photos-list" class="flex flex-wrap gap-2 mt-3 p-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 min-h-[50px] items-center">
@@ -798,7 +807,7 @@ Email: sales2@grandvistana.com"></textarea>
             <span class="ai-badge">● Browser AI Engine</span>
           </div>
           <div class="grid md:grid-cols-3 gap-3 mb-4">
-            <label class="block text-xs font-bold">Output Size<select id="batch-size" class="w-full mt-1 p-3 rounded-xl border bg-white dark:bg-gray-700"><option value="35x45">35×45 mm</option><option value="50x50">50×50 mm</option><option value="37x47">37×47 mm (Traditional)</option><option value="47x37">47×37 mm (Double)</option></select></label>
+            <label class="block text-xs font-bold">Output Size<select id="batch-size" class="w-full mt-1 p-3 rounded-xl border bg-white dark:bg-gray-700"><option value="35x45">35×45 mm</option><option value="50x50">50×50 mm</option><option value="38.1x48.26">1.5×1.9 inch (Traditional)</option><option value="48.26x38.1">1.9×1.5 inch (Double)</option></select></label>
             <label class="block text-xs font-bold">Background<input id="batch-bg" type="color" value="#ffffff" class="w-full mt-1 h-11 rounded-xl border p-1"></label>
             <label class="block text-xs font-bold">Quality<select id="batch-quality" class="w-full mt-1 p-3 rounded-xl border bg-white dark:bg-gray-700"><option value="0.95">High</option><option value="0.82">Balanced</option><option value="0.68">Small file</option></select></label>
           </div>
@@ -842,6 +851,30 @@ Email: sales2@grandvistana.com"></textarea>
           </div>
         </div>
 
+
+        <!-- DOCUMENT CONVERSION: PDF to Word and Word to PDF -->
+        <div id="panel-docconvert" class="tool-panel">
+          <div class="bg-indigo-50 dark:bg-indigo-950/40 p-4 rounded-2xl border border-indigo-100 dark:border-indigo-800 mb-5">
+            <h4 class="font-bold text-base mb-2 text-indigo-700 dark:text-indigo-300">📄 PDF ↔ Microsoft Word Converter</h4>
+            <p class="text-sm">PDF থেকে সম্পাদনাযোগ্য Word (.docx) এবং Word (.docx) থেকে PDF তৈরি করুন। ফাইল আপনার ব্রাউজারেই প্রসেস হবে।</p>
+            <p class="text-xs mt-2 text-amber-700 dark:text-amber-300">নোট: PDF → Word-এ মূলত টেক্সট বের করা হয়; জটিল লেআউট, টেবিল, ফন্ট ও ছবি হুবহু নাও থাকতে পারে। Word → PDF-এর জন্য .docx ফাইল প্রয়োজন; পুরোনো .doc সমর্থিত নয়।</p>
+          </div>
+          <div class="grid md:grid-cols-2 gap-5">
+            <div class="p-4 rounded-2xl border dark:border-gray-700">
+              <h5 class="font-bold mb-2">📕 PDF to Microsoft Word</h5>
+              <p class="text-xs text-gray-500 mb-3">PDF-এর পৃষ্ঠাগুলো থেকে টেক্সট সংগ্রহ করে DOCX ফাইল বানাবে।</p>
+              <input id="pdf-to-word-input" type="file" accept="application/pdf,.pdf" class="block w-full text-sm mb-3">
+              <button id="pdf-to-word-btn" onclick="convertPdfToWord()" class="btn-primary w-full">Convert PDF → Word (.docx)</button>
+            </div>
+            <div class="p-4 rounded-2xl border dark:border-gray-700">
+              <h5 class="font-bold mb-2">📘 Microsoft Word to PDF</h5>
+              <p class="text-xs text-gray-500 mb-3">Word ফাইলের লেখা ও সাধারণ formatting HTML-এ রূপান্তর করে PDF বানাবে।</p>
+              <input id="word-to-pdf-input" type="file" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" class="block w-full text-sm mb-3">
+              <button id="word-to-pdf-btn" onclick="convertWordToPdf()" class="btn-primary w-full">Convert Word → PDF</button>
+            </div>
+          </div>
+          <div id="doc-convert-status" class="mt-4 p-3 rounded-xl bg-gray-50 dark:bg-gray-700 text-sm" role="status">ফাইল নির্বাচন করে কনভার্ট বাটনে চাপ দিন।</div>
+        </div>
 
         <!-- 8. COMPRESS -->
         <div id="panel-compress" class="tool-panel">
@@ -1064,6 +1097,7 @@ Email: sales2@grandvistana.com"></textarea>
       document.querySelectorAll('.tool-panel').forEach(p => p.classList.remove('active'));
       const titles = {
         batch: 'AI Batch Photo Studio',
+        docconvert: 'PDF ↔ Microsoft Word Converter',
         scanner: 'লাইভ এইচডি স্ক্যানার + Canon ইম্পোর্ট',
         ai: 'AI ফটো এডিট ও ব্যাকগ্রাউন্ড চেঞ্জার',
         doceditor: 'স্মার্ট ডকুমেন্ট এডিটর & OCR',
@@ -1116,8 +1150,8 @@ Email: sales2@grandvistana.com"></textarea>
     const PHOTO_SIZES = {
       standard:   { w: 35, h: 45, name: 'স্ট্যান্ডার্ড পাসপোর্ট (45×35 mm)', ratio: 35/45 },
       epassport:  { w: 50, h: 50, name: 'ই-পাসপোর্ট (50×50 mm)', ratio: 1 },
-      traditional:{ w: 37, h: 47, name: 'ট্র্যাডিশনাল (Width 37 × Height 47 mm)', ratio: 37/47 },
-      double:     { w: 47, h: 37, name: 'ডাবল পাসপোর্ট (Width 47 × Height 37 mm)', ratio: 47/37 }
+      traditional:{ w: 38.1, h: 48.26, name: 'ট্র্যাডিশনাল (Width 1.5 × Height 1.9 inch)', ratio: 1.5/1.9 },
+      double:     { w: 48.26, h: 38.1, name: 'ডাবল পাসপোর্ট (Width 1.9 × Height 1.5 inch)', ratio: 1.9/1.5 }
     };
 
 
@@ -1255,7 +1289,7 @@ Email: sales2@grandvistana.com"></textarea>
 
 
         // Double = Width 47mm × Height 37mm. Put the two portraits side-by-side
-        // without stretching either face. The combined unit itself is exactly 47×37mm.
+        // without stretching either face. The combined unit itself is exactly 48.26×38.1mm.
         const outW = mmToPx(PHOTO_SIZES.double.w);
         const outH = mmToPx(PHOTO_SIZES.double.h);
         const c = document.createElement('canvas');
@@ -1265,7 +1299,7 @@ Email: sales2@grandvistana.com"></textarea>
         ctx.fillRect(0, 0, outW, outH);
 
 
-        // Each person gets the same half of the 47×37 mm unit.
+        // Each person gets the same half of the 48.26×38.1 mm unit.
         // COVER-crop instead of contain/stretch: equal-sized portraits, no distortion.
         function drawCover(img, x, y, w, h) {
           const iw = img.naturalWidth || img.width;
@@ -1299,7 +1333,7 @@ Email: sales2@grandvistana.com"></textarea>
         baseLoadedImage = new Image();
         baseLoadedImage.src = url;
         document.getElementById('ai-download').href = url;
-        document.getElementById('ai-download').download = 'double-passport-47x37mm.png';
+        document.getElementById('ai-download').download = 'double-passport-48.26x38.1mm.png';
         if (cropper) { cropper.destroy(); cropper = null; }
         editingDoubleSecond = false;
 
@@ -1314,7 +1348,7 @@ Email: sales2@grandvistana.com"></textarea>
         }
         renderAiAddedPhotosList();
         updateAiGridPreview();
-        showToast('দুইজনের ছবি 47×37 mm ডাবল ছবিতে একত্র হয়েছে। A4 PDF/প্রিন্ট প্রস্তুত।', '✅');
+        showToast('দুইজনের ছবি 48.26×38.1 mm ডাবল ছবিতে একত্র হয়েছে। A4 PDF/প্রিন্ট প্রস্তুত।', '✅');
       };
       a.onload = loadDone; b.onload = loadDone;
       a.onerror = () => showToast('প্রথম ছবি লোড হয়নি', '❌');
@@ -1589,12 +1623,12 @@ Email: sales2@grandvistana.com"></textarea>
         return showToast('আগে ডাবল ছবি তৈরি/এডিট করুন', '⚠️');
       }
       if (selectedSize !== 'double') {
-        return showToast('আগে ডাবল 47×37 mm সাইজ নির্বাচন করুন', '⚠️');
+        return showToast('আগে ডাবল 48.26×38.1 mm সাইজ নির্বাচন করুন', '⚠️');
       }
       aiGridPhotos.push({ src: imgElem.src, x: null, y: null, rotation: 0, w: 0, h: 0 });
       renderAiAddedPhotosList();
       updateAiGridPreview();
-      showToast('ডাবল 47×37 mm ছবি A4 গ্রিডে যোগ হয়েছে', '👥');
+      showToast('ডাবল 48.26×38.1 mm ছবি A4 গ্রিডে যোগ হয়েছে', '👥');
     }
 
 
@@ -3064,8 +3098,81 @@ async function cloudAIAnalyze(){const image=getCurrentAIDataUrl();if(!image)retu
 async function cloudAIProfessionalEdit(){const image=getCurrentAIDataUrl();if(!image)return showToast('আগে একটি ছবি আপলোড করুন','⚠️');const prompt=document.getElementById('cloud-ai-prompt')?.value||'Professionally enhance this portrait for official passport/document use. Preserve the person identity and natural facial features. Improve lighting, exposure, sharpness, skin tone naturally, clean distractions, and make edges/hair natural. Do not beautify excessively.';try{const d=await cloudAIRequest('/api/ai/edit',{image,prompt,quality:document.getElementById('cloud-ai-quality')?.value||'medium'});if(d.image){document.getElementById('ai-image').src=d.image;document.getElementById('ai-download').href=d.image;document.getElementById('ai-download').download='amarkaj-ai-edited.png';if(typeof commitAiEditedUrl==='function')commitAiEditedUrl(d.image);cloudAIShow('<b>✨ Professional AI Edit সম্পন্ন</b><div class="mt-1 text-gray-500">নতুন AI-edited image preview-তে বসানো হয়েছে।</div>');showToast('AI Professional Edit সম্পন্ন!','✨');}}catch(e){}}
 async function cloudAIGenerateBackground(){const image=getCurrentAIDataUrl();if(!image)return showToast('আগে একটি ছবি আপলোড করুন','⚠️');const prompt=document.getElementById('cloud-ai-prompt')?.value||'Replace only the background with a clean professional passport-photo background. Keep the person, face, hair, clothing and proportions unchanged. Natural clean edges, realistic lighting. Use a plain passport blue background.';try{const d=await cloudAIRequest('/api/ai/edit',{image,prompt,quality:document.getElementById('cloud-ai-quality')?.value||'medium'});if(d.image){document.getElementById('ai-image').src=d.image;document.getElementById('ai-download').href=d.image;document.getElementById('ai-download').download='amarkaj-ai-background.png';if(typeof commitAiEditedUrl==='function')commitAiEditedUrl(d.image);cloudAIShow('<b>🌄 Generative Background সম্পন্ন</b><div class="mt-1 text-gray-500">AI generated edit preview-তে বসানো হয়েছে।</div>');showToast('AI Background সম্পন্ন!','🌄');}}catch(e){}}
 function escapeHtmlAI(v){return String(v).replace(/[&<>'"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[m]));}
+
+// ===== PDF <-> MICROSOFT WORD CONVERTER =====
+function setDocConvertStatus(message, error=false){
+  const el=document.getElementById('doc-convert-status');
+  if(el){el.textContent=message;el.className='mt-4 p-3 rounded-xl text-sm '+(error?'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-200':'bg-gray-50 dark:bg-gray-700');}
+}
+function downloadBlobFile(blob, filename){
+  const url=URL.createObjectURL(blob), a=document.createElement('a');
+  a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+async function convertPdfToWord(){
+  const input=document.getElementById('pdf-to-word-input'), file=input.files&&input.files[0];
+  if(!file)return setDocConvertStatus('আগে একটি PDF ফাইল নির্বাচন করুন।',true);
+  if(!window.pdfjsLib || !window.docx)return setDocConvertStatus('Conversion library লোড হয়নি। ইন্টারনেট সংযোগ পরীক্ষা করে পেজ রিফ্রেশ করুন।',true);
+  const btn=document.getElementById('pdf-to-word-btn'); btn.disabled=true; btn.textContent='কনভার্ট হচ্ছে…';
+  toggleLoader(true,'PDF থেকে Word তৈরি হচ্ছে…');
+  try{
+    pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    const data=new Uint8Array(await file.arrayBuffer());
+    const pdf=await pdfjsLib.getDocument({data}).promise;
+    const paragraphs=[];
+    for(let pageNo=1;pageNo<=pdf.numPages;pageNo++){
+      setDocConvertStatus(`PDF পড়া হচ্ছে: পৃষ্ঠা ${pageNo}/${pdf.numPages}`);
+      const page=await pdf.getPage(pageNo), content=await page.getTextContent();
+      let lines=[], currentY=null, line='';
+      for(const item of content.items){
+        if(!item.str)continue;
+        const y=item.transform?item.transform[5]:null;
+        if(currentY!==null && y!==null && Math.abs(y-currentY)>3){
+          if(line.trim())lines.push(line.trim()); line='';
+        }
+        if(line && !line.endsWith(' ') && !item.str.startsWith(' ')) line+=' ';
+        line+=item.str;
+        currentY=y;
+      }
+      if(line.trim())lines.push(line.trim());
+      if(pageNo>1) paragraphs.push(new docx.Paragraph({children:[new docx.TextRun({text:`পৃষ্ঠা ${pageNo}`,bold:true})],pageBreakBefore:true}));
+      (lines.length?lines:['']).forEach(t=>paragraphs.push(new docx.Paragraph({children:[new docx.TextRun({text:t})]})));
+    }
+    const documentFile=new docx.Document({sections:[{properties:{},children:paragraphs}]});
+    const blob=await docx.Packer.toBlob(documentFile);
+    downloadBlobFile(blob,file.name.replace(/\.pdf$/i,'')+'.docx');
+    setDocConvertStatus(`সম্পন্ন! ${pdf.numPages} পৃষ্ঠার টেক্সট Word (.docx) ফাইলে তৈরি হয়েছে।`);
+  }catch(err){console.error(err);setDocConvertStatus('PDF কনভার্ট করা যায়নি। ফাইলটি password-protected, scanned-only বা damaged হতে পারে।',true);}
+  finally{toggleLoader(false);btn.disabled=false;btn.textContent='Convert PDF → Word (.docx)';}
+}
+async function convertWordToPdf(){
+  const input=document.getElementById('word-to-pdf-input'), file=input.files&&input.files[0];
+  if(!file)return setDocConvertStatus('আগে একটি Word .docx ফাইল নির্বাচন করুন।',true);
+  if(!window.mammoth || !window.html2pdf)return setDocConvertStatus('Conversion library লোড হয়নি। ইন্টারনেট সংযোগ পরীক্ষা করে পেজ রিফ্রেশ করুন।',true);
+  const btn=document.getElementById('word-to-pdf-btn'); btn.disabled=true; btn.textContent='কনভার্ট হচ্ছে…';
+  toggleLoader(true,'Word থেকে PDF তৈরি হচ্ছে…');
+  let holder;
+  try{
+    const result=await mammoth.convertToHtml({arrayBuffer:await file.arrayBuffer()});
+    holder=document.createElement('div');
+    holder.style.cssText='position:fixed;left:-10000px;top:0;width:190mm;padding:8mm;background:#fff;color:#111;font-family:Arial,sans-serif;font-size:11pt;line-height:1.45;overflow:visible;';
+    holder.innerHTML='<style>h1,h2,h3{page-break-after:avoid}p{margin:0 0 8pt}table{border-collapse:collapse;width:100%}td,th{border:1px solid #777;padding:4px}img{max-width:100%;height:auto}li{margin-bottom:3pt}</style>'+result.value;
+    document.body.appendChild(holder);
+    await html2pdf().set({
+      margin:[10,10,12,10], filename:file.name.replace(/\.docx$/i,'')+'.pdf',
+      image:{type:'jpeg',quality:0.98},
+      html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff'},
+      jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
+      pagebreak:{mode:['css','legacy']}
+    }).from(holder).save();
+    setDocConvertStatus('সম্পন্ন! Word .docx ফাইল PDF-এ রূপান্তর করা হয়েছে। সাধারণ formatting বজায় রাখার চেষ্টা করা হয়েছে।');
+    if(result.messages&&result.messages.length)console.info('Word import notes:',result.messages);
+  }catch(err){console.error(err);setDocConvertStatus('Word ফাইল কনভার্ট করা যায়নি। নিশ্চিত করুন এটি বৈধ .docx ফাইল এবং ফাইলটি password-protected নয়।',true);}
+  finally{if(holder&&holder.parentNode)holder.remove();toggleLoader(false);btn.disabled=false;btn.textContent='Convert Word → PDF';}
+}
 </script>
 </body>
 </html>
+
 
 
