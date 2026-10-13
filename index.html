@@ -186,9 +186,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/docx.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.2/html2pdf.bundle.min.js"></script>
-  <!-- Batch CCTV video conversion: FFmpeg.wasm + ZIP download -->
-  <script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <!-- Browser-based FFmpeg + ZIP export for CCTV batch conversion -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 min-h-screen transition-colors duration-200 flex flex-col justify-between">
 
@@ -346,7 +346,7 @@
         </div>
         <div class="tool-card" onclick="showTool('videoconvert')">
           <div class="text-4xl">🎞️</div>
-          <h4 class="font-semibold text-sm md:text-base">IDX / CCTV ভিডিও → MP4</h4>
+          <h4 class="font-semibold text-sm md:text-base">CCTV ভিডিও কনভার্টার (IDX / DAV → MP4)</h4>
         </div>
       </div>
     </section>
@@ -360,32 +360,6 @@
           <button onclick="hideTool()" class="text-gray-400 hover:text-red-500 text-2xl font-bold transition">✕</button>
         </div>
 
-
-        <!-- CCTV VIDEO CONVERTER: Batch IDX / DAV / video files to MP4 -->
-        <div id="panel-videoconvert" class="tool-panel">
-          <div class="rounded-2xl border border-indigo-100 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-950/40 p-4 mb-4">
-            <h4 class="font-bold text-base mb-2">🎞️ একসাথে একাধিক CCTV ভিডিও MP4-এ কনভার্ট</h4>
-            <p class="text-sm">একাধিক ফাইল নির্বাচন করে ব্যাচ কনভার্ট করুন। সমর্থিত ভিডিও ফাইল যেমন DAV, AVI, MP4, MOV, MKV, H.264 এবং IDX ফাইলও চেষ্টা করা হবে।</p>
-            <p class="text-xs mt-2 text-amber-700 dark:text-amber-300"><strong>গুরুত্বপূর্ণ:</strong> অনেক CCTV সিস্টেমে .IDX শুধু index/তথ্য ফাইল—ভিডিও নয়। এমন ফাইল একা MP4-এ রূপান্তর করা সম্ভব নয়। ভিডিওটি সাধারণত সংশ্লিষ্ট .DAV / .264 ফাইলে থাকে। IDX ফাইল কনভার্ট না হলে DVR/NVR সফটওয়্যার থেকে আসল ভিডিও Export করুন।</p>
-          </div>
-          <div class="space-y-4">
-            <label class="block text-sm font-semibold">ভিডিও / IDX ফাইল নির্বাচন করুন (একাধিক)
-              <input id="cctv-video-input" type="file" multiple
-                accept=".idx,.dav,.avi,.mp4,.mov,.mkv,.264,.h264,.h265,.ts,.asf,video/*"
-                class="block w-full mt-2 text-sm file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-indigo-100 file:text-indigo-700">
-            </label>
-            <div class="flex flex-wrap gap-2">
-              <button id="cctv-convert-btn" onclick="convertCctvVideos()" class="btn-primary">▶️ সবগুলো MP4-এ কনভার্ট</button>
-              <button onclick="downloadCctvZip()" class="btn-secondary">📦 সব MP4 ZIP ডাউনলোড</button>
-              <button onclick="clearCctvVideos()" class="btn-danger">🗑️ তালিকা মুছুন</button>
-            </div>
-            <div class="w-full h-3 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
-              <div id="cctv-progress-bar" class="h-full bg-indigo-600 transition-all" style="width:0%"></div>
-            </div>
-            <p id="cctv-status" class="text-sm text-gray-600 dark:text-gray-300" role="status">ফাইল নির্বাচন করুন। কনভার্সন ব্রাউজারেই চলবে; বড় ফাইলে RAM ও সময় বেশি লাগতে পারে।</p>
-            <div id="cctv-file-list" class="space-y-2"></div>
-          </div>
-        </div>
 
         <!-- 1. AI PHOTO -->
         <div id="panel-ai" class="tool-panel">
@@ -921,6 +895,27 @@ Email: sales2@grandvistana.com"></textarea>
         </div>
 
 
+        <!-- CCTV VIDEO BATCH CONVERTER: IDX / DAV to MP4 -->
+        <div id="panel-videoconvert" class="tool-panel">
+          <div class="rounded-2xl border border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-950/40 p-4 mb-5">
+            <h4 class="font-bold text-lg text-indigo-700 dark:text-indigo-300">🎞️ CCTV Batch Video Converter</h4>
+            <p class="text-sm mt-2">একসঙ্গে একাধিক CCTV ভিডিও ফাইল MP4-এ কনভার্ট করে আলাদাভাবে বা ZIP আকারে ডাউনলোড করুন। প্রসেসিং আপনার ব্রাউজারেই হবে।</p>
+            <p class="text-xs mt-2 text-amber-700 dark:text-amber-300">আপনার আপলোড করা .IDX ফাইলটি index/metadata—এতে H.265 ভিডিওর তথ্য ও frame offset আছে, কিন্তু আসল ভিডিও ডেটা নেই। তাই .IDX একা MP4 হবে না। একই সময়ের/একই নামের আসল .DAV (বা .264) ভিডিও ফাইলটিও নির্বাচন করুন; কনভার্ট করার জন্য ভিডিও ফাইলটিই ব্যবহার হবে। সব DVR-এর .DAV FFmpeg-এ নাও খুলতে পারে। বড় ফাইলের জন্য RAM ও সময় বেশি লাগতে পারে।</p>
+          </div>
+          <div class="rounded-2xl border dark:border-gray-700 p-4">
+            <label for="cctv-video-input" class="block font-bold text-sm mb-2">আসল ভিডিও ফাইল নির্বাচন করুন (একাধিক .DAV / .264 / MP4 / AVI ইত্যাদি; .IDX শুধু তথ্যের জন্য)</label>
+            <input id="cctv-video-input" type="file" multiple accept=".dav,.idx,.mp4,.avi,.mov,.mkv,.mpeg,.mpg,.ts,.264,.h264,.asf,.wmv,video/*" class="block w-full text-sm mb-3">
+            <div class="flex flex-wrap gap-2 mb-4">
+              <button id="cctv-convert-btn" onclick="convertCctvVideos()" class="btn-primary">🔄 সব ভিডিও MP4 করুন</button>
+              <button onclick="downloadCctvZip()" id="cctv-zip-btn" class="btn-secondary" disabled>📦 সব MP4 ZIP ডাউনলোড</button>
+              <button onclick="clearCctvVideos()" class="btn-danger">🗑️ লিস্ট মুছুন</button>
+            </div>
+            <div id="cctv-library-status" class="text-xs text-gray-500 mb-3" role="status">প্রথমবার কনভার্ট করতে ইন্টারনেট সংযোগ প্রয়োজন; FFmpeg engine লোড হবে।</div>
+            <div class="w-full h-2 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden mb-4"><div id="cctv-overall-progress" class="h-full bg-indigo-600" style="width:0%"></div></div>
+            <div id="cctv-video-list" class="space-y-3 text-sm"><p class="text-gray-400">এখনো কোনো ফাইল নির্বাচন করা হয়নি।</p></div>
+          </div>
+        </div>
+
         <!-- 9. CONVERT -->
         <div id="panel-convert" class="tool-panel">
           <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">ইমেজ ফরম্যাট কনভার্ট করুন এবং কাস্টম ডাইমেনশন পরিবর্তন করুন।</p>
@@ -1131,7 +1126,7 @@ Email: sales2@grandvistana.com"></textarea>
       const titles = {
         batch: 'AI Batch Photo Studio',
         docconvert: 'PDF ↔ Microsoft Word Converter',
-        videoconvert: 'CCTV ভিডিও কনভার্টার (IDX / DAV → MP4)',
+        videoconvert: 'CCTV Video Converter — IDX / DAV → MP4',
         scanner: 'লাইভ এইচডি স্ক্যানার + Canon ইম্পোর্ট',
         ai: 'AI ফটো এডিট ও ব্যাকগ্রাউন্ড চেঞ্জার',
         doceditor: 'স্মার্ট ডকুমেন্ট এডিটর & OCR',
@@ -3205,221 +3200,177 @@ async function convertWordToPdf(){
   finally{if(holder&&holder.parentNode)holder.remove();toggleLoader(false);btn.disabled=false;btn.textContent='Convert Word → PDF';}
 }
 
-// ===== BATCH CCTV VIDEO CONVERTER (IDX / DAV -> MP4) =====
+// ===== CCTV BATCH VIDEO CONVERTER: IDX / DAV -> MP4 =====
 let cctvFFmpeg = null;
-let cctvFFmpegLoading = null;
-let cctvOutputs = [];
+let cctvEngineLoading = null;
+let cctvConvertedFiles = [];
 let cctvSelectedFiles = [];
 
 function cctvSafeName(name) {
   return (name || 'video').replace(/\.[^.]+$/, '').replace(/[<>:"/\\|?*\x00-\x1F]/g, '_').slice(0, 100) || 'video';
 }
-function cctvSetStatus(message, error=false) {
-  const el = document.getElementById('cctv-status');
+function cctvFormatBytes(bytes) {
+  if (!Number.isFinite(bytes)) return '—';
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / 1048576).toFixed(1) + ' MB';
+}
+function cctvStatus(message, error=false) {
+  const el = document.getElementById('cctv-library-status');
   if (el) {
     el.textContent = message;
-    el.className = 'text-sm ' + (error ? 'text-red-600 dark:text-red-300' : 'text-gray-600 dark:text-gray-300');
+    el.className = 'text-xs mb-3 ' + (error ? 'text-red-600 dark:text-red-300' : 'text-gray-500');
   }
-}
-function cctvSetProgress(percent) {
-  const bar = document.getElementById('cctv-progress-bar');
-  if (bar) bar.style.width = Math.max(0, Math.min(100, percent)) + '%';
 }
 function cctvRenderList() {
-  const list = document.getElementById('cctv-file-list');
+  const list = document.getElementById('cctv-video-list');
   if (!list) return;
-  if (!cctvSelectedFiles.length && !cctvOutputs.length) {
-    list.innerHTML = '<p class="text-xs text-gray-400">এখনো কোনো ফাইল নির্বাচন করা হয়নি।</p>';
+  if (!cctvSelectedFiles.length) {
+    list.innerHTML = '<p class="text-gray-400">এখনো কোনো ফাইল নির্বাচন করা হয়নি।</p>';
     return;
   }
-  const outputBySource = new Map(cctvOutputs.map(o => [o.sourceName, o]));
-  list.innerHTML = '';
-  cctvSelectedFiles.forEach((file, idx) => {
-    const output = outputBySource.get(file.name);
-    const row = document.createElement('div');
-    row.className = 'flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-xl border dark:border-gray-700 bg-gray-50 dark:bg-gray-900/60';
-    const info = document.createElement('div');
-    info.className = 'min-w-0';
-    const name = document.createElement('div');
-    name.className = 'text-sm font-semibold break-all';
-    name.textContent = file.name;
-    const meta = document.createElement('div');
-    meta.className = 'text-xs text-gray-500';
-    meta.textContent = (file.size / (1024*1024)).toFixed(2) + ' MB · ' + (output ? 'কনভার্ট সম্পন্ন' : 'অপেক্ষমাণ / ব্যর্থ হলে বার্তা দেখাবে');
-    info.append(name, meta);
-    row.appendChild(info);
-    if (output) {
-      const btn = document.createElement('button');
-      btn.className = 'btn-primary py-1.5 px-3 shrink-0';
-      btn.textContent = '⬇️ MP4 ডাউনলোড';
-      btn.onclick = () => downloadCctvFile(output);
-      row.appendChild(btn);
-    }
-    list.appendChild(row);
-  });
-  cctvOutputs.forEach((output) => {
-    if (cctvSelectedFiles.some(f => f.name === output.sourceName)) return;
-    const row = document.createElement('div');
-    row.className = 'flex items-center justify-between gap-2 p-3 rounded-xl border dark:border-gray-700';
-    const label = document.createElement('span');
-    label.className = 'text-sm break-all';
-    label.textContent = output.filename;
-    const btn = document.createElement('button');
-    btn.className = 'btn-primary py-1.5 px-3';
-    btn.textContent = '⬇️ MP4 ডাউনলোড';
-    btn.onclick = () => downloadCctvFile(output);
-    row.append(label, btn);
-    list.appendChild(row);
-  });
+  list.innerHTML = cctvSelectedFiles.map((file, i) => {
+    const result = cctvConvertedFiles.find(x => x.index === i);
+    const status = result ? (result.error ? '❌ ' + result.error : '✅ MP4 তৈরি হয়েছে') : '⏳ অপেক্ষমাণ';
+    return `<div class="rounded-xl border dark:border-gray-700 p-3 flex flex-wrap items-center gap-3">
+      <div class="text-2xl">🎬</div><div class="min-w-0 flex-1">
+      <div class="font-semibold break-all">${cctvEscape(file.name)}</div>
+      <div class="text-xs text-gray-500">${cctvFormatBytes(file.size)} · ${status}</div>
+      </div>${result && result.blob && !result.error ? `<button class="btn-secondary text-xs" onclick="downloadCctvFile(${i})">⬇️ MP4</button>` : ''}
+    </div>`;
+  }).join('');
 }
-function cctvGetFFmpeg() {
-  if (cctvFFmpeg) return Promise.resolve(cctvFFmpeg);
-  if (cctvFFmpegLoading) return cctvFFmpegLoading;
-  cctvFFmpegLoading = (async () => {
+function cctvEscape(value) {
+  return String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+function downloadCctvFile(index) {
+  const item = cctvConvertedFiles.find(x => x.index === index);
+  if (!item || !item.blob) return;
+  downloadBlobFile(item.blob, item.name);
+}
+async function loadCctvEngine() {
+  if (cctvFFmpeg) return cctvFFmpeg;
+  if (cctvEngineLoading) return cctvEngineLoading;
+  cctvEngineLoading = (async () => {
     if (!window.FFmpeg || !window.FFmpeg.createFFmpeg) {
-      throw new Error('FFmpeg লাইব্রেরি লোড হয়নি। ইন্টারনেট সংযোগ পরীক্ষা করে পেজ রিফ্রেশ করুন।');
+      throw new Error('FFmpeg লাইব্রেরি লোড হয়নি। ইন্টারনেট সংযোগ দিয়ে পেজ রিফ্রেশ করুন।');
     }
-    const engine = window.FFmpeg.createFFmpeg({
+    cctvStatus('FFmpeg engine ডাউনলোড/লোড হচ্ছে; প্রথমবার কিছুটা সময় লাগতে পারে…');
+    const { createFFmpeg } = window.FFmpeg;
+    const engine = createFFmpeg({
       log: false,
-      corePath: 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js'
-    });
-    engine.setProgress(({ ratio }) => {
-      if (typeof ratio === 'number' && Number.isFinite(ratio)) {
-        cctvSetProgress(Math.min(99, Math.max(0, ratio * 100)));
+      corePath: 'https://unpkg.com/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js',
+      progress: ({ ratio }) => {
+        const current = Math.max(0, Math.min(1, ratio || 0));
+        const bar = document.getElementById('cctv-overall-progress');
+        if (bar) bar.style.width = Math.round(current * 100) + '%';
       }
     });
-    cctvSetStatus('ভিডিও কনভার্ট ইঞ্জিন প্রথমবার লোড হচ্ছে…');
     await engine.load();
     cctvFFmpeg = engine;
     return engine;
   })();
-  try { return await cctvFFmpegLoading; }
-  finally { cctvFFmpegLoading = null; }
-}
-async function convertCctvVideos() {
-  const input = document.getElementById('cctv-video-input');
-  const files = input && input.files ? Array.from(input.files) : [];
-  if (!files.length) {
-    cctvSetStatus('আগে এক বা একাধিক ভিডিও / IDX ফাইল নির্বাচন করুন।', true);
-    return;
-  }
-  if (!window.FFmpeg || !window.FFmpeg.createFFmpeg) {
-    cctvSetStatus('FFmpeg লাইব্রেরি লোড হয়নি। ইন্টারনেট সংযোগ পরীক্ষা করে পেজ রিফ্রেশ করুন।', true);
-    return;
-  }
-  cctvSelectedFiles = files;
-  cctvOutputs = [];
-  cctvRenderList();
-  const btn = document.getElementById('cctv-convert-btn');
-  btn.disabled = true;
-  btn.textContent = 'কনভার্ট হচ্ছে…';
-  try {
-    const engine = await cctvGetFFmpeg();
-    let succeeded = 0, failed = 0;
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const extMatch = file.name.match(/\.([^.]+)$/);
-      const ext = extMatch ? extMatch[1].toLowerCase().replace(/[^a-z0-9]/g, '') : 'bin';
-      const unique = Date.now().toString(36) + '_' + i;
-      const inName = 'input_' + unique + '.' + ext;
-      const outName = 'output_' + unique + '.mp4';
-      cctvSetProgress((i / files.length) * 100);
-      cctvSetStatus('কনভার্ট হচ্ছে ' + (i + 1) + '/' + files.length + ': ' + file.name);
-      try {
-        const bytes = new Uint8Array(await file.arrayBuffer());
-        engine.FS('writeFile', inName, bytes);
-        // Transcode to broadly compatible H.264/AAC MP4.
-        await engine.run('-y', '-i', inName, '-map', '0:v:0', '-map', '0:a?', '-c:v', 'libx264',
-          '-preset', 'ultrafast', '-crf', '23', '-pix_fmt', 'yuv420p',
-          '-c:a', 'aac', '-b:a', '128k', '-movflags', '+faststart', outName);
-        const data = engine.FS('readFile', outName);
-        if (!data || !data.length) throw new Error('আউটপুট তৈরি হয়নি');
-        const blob = new Blob([data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength)], { type: 'video/mp4' });
-        cctvOutputs.push({
-          sourceName: file.name,
-          filename: cctvSafeName(file.name) + '.mp4',
-          blob,
-          size: blob.size
-        });
-        succeeded++;
-      } catch (err) {
-        console.warn('CCTV conversion failed:', file.name, err);
-        failed++;
-      } finally {
-        try { engine.FS('unlink', inName); } catch (_) {}
-        try { engine.FS('unlink', outName); } catch (_) {}
-      }
-      cctvRenderList();
-      cctvSetProgress(((i + 1) / files.length) * 100);
-    }
-    if (succeeded) {
-      cctvSetStatus('কাজ শেষ: ' + succeeded + 'টি MP4 তৈরি হয়েছে' + (failed ? ', ' + failed + 'টি ফাইল কনভার্ট হয়নি। IDX index-only হলে বা proprietary codec হলে ব্যর্থ হতে পারে।' : '।'));
-    } else {
-      cctvSetStatus('কোনো MP4 তৈরি হয়নি। .IDX ফাইলটি index-only হতে পারে—সংশ্লিষ্ট আসল .DAV/.264 ভিডিও ফাইল নির্বাচন করুন বা DVR সফটওয়্যার থেকে MP4/AVI export করুন।', true);
-    }
-  } catch (err) {
-    console.error(err);
-    cctvSetStatus(err && err.message ? err.message : 'কনভার্ট ইঞ্জিন চালু করা যায়নি।', true);
-  } finally {
-    btn.disabled = false;
-    btn.textContent = '▶️ সবগুলো MP4-এ কনভার্ট';
-  }
-}
-function downloadCctvFile(output) {
-  if (!output || !output.blob) return;
-  const url = URL.createObjectURL(output.blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = output.filename || 'video.mp4';
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 3000);
-}
-async function downloadCctvZip() {
-  if (!cctvOutputs.length) {
-    cctvSetStatus('ZIP করার আগে অন্তত একটি MP4 কনভার্ট করুন।', true);
-    return;
-  }
-  if (!window.JSZip) {
-    cctvSetStatus('ZIP লাইব্রেরি লোড হয়নি। ইন্টারনেট সংযোগ পরীক্ষা করুন।', true);
-    return;
-  }
-  try {
-    cctvSetStatus('ZIP ফাইল তৈরি হচ্ছে…');
-    const zip = new JSZip();
-    cctvOutputs.forEach((o, i) => {
-      let name = o.filename || ('video_' + (i + 1) + '.mp4');
-      if (zip.file(name)) name = cctvSafeName(o.sourceName) + '_' + (i + 1) + '.mp4';
-      zip.file(name, o.blob);
-    });
-    const blob = await zip.generateAsync({ type: 'blob' });
-    downloadBlobFile(blob, 'Amarkaj_CCTV_MP4_Files.zip');
-    cctvSetStatus(cctvOutputs.length + 'টি MP4 ZIP ফাইলে প্রস্তুত।');
-  } catch (err) {
-    console.error(err);
-    cctvSetStatus('ZIP ফাইল তৈরি করা যায়নি।', true);
-  }
-}
-function clearCctvVideos() {
-  cctvSelectedFiles = [];
-  cctvOutputs = [];
-  const input = document.getElementById('cctv-video-input');
-  if (input) input.value = '';
-  cctvSetProgress(0);
-  cctvSetStatus('তালিকা মুছে ফেলা হয়েছে। নতুন ফাইল নির্বাচন করুন।');
-  cctvRenderList();
+  try { return await cctvEngineLoading; }
+  finally { cctvEngineLoading = null; }
 }
 document.addEventListener('DOMContentLoaded', () => {
   const input = document.getElementById('cctv-video-input');
   if (input) input.addEventListener('change', () => {
     cctvSelectedFiles = Array.from(input.files || []);
-    cctvOutputs = [];
-    cctvSetProgress(0);
-    cctvSetStatus(cctvSelectedFiles.length + 'টি ফাইল নির্বাচন করা হয়েছে।');
+    cctvConvertedFiles = [];
+    const zip = document.getElementById('cctv-zip-btn');
+    if (zip) zip.disabled = true;
+    const bar = document.getElementById('cctv-overall-progress');
+    if (bar) bar.style.width = '0%';
     cctvRenderList();
+    cctvStatus(cctvSelectedFiles.length ? `${cctvSelectedFiles.length}টি ফাইল নির্বাচন করা হয়েছে।` : 'ফাইল নির্বাচন করুন।');
   });
 });
+async function convertCctvVideos() {
+  if (!cctvSelectedFiles.length) {
+    const input = document.getElementById('cctv-video-input');
+    if (input && input.files.length) cctvSelectedFiles = Array.from(input.files);
+  }
+  if (!cctvSelectedFiles.length) return cctvStatus('আগে এক বা একাধিক ভিডিও ফাইল নির্বাচন করুন।', true);
+  if (!window.JSZip) return cctvStatus('ZIP লাইব্রেরি লোড হয়নি। ইন্টারনেট সংযোগ পরীক্ষা করুন।', true);
+  const btn = document.getElementById('cctv-convert-btn');
+  btn.disabled = true;
+  cctvConvertedFiles = [];
+  const bar = document.getElementById('cctv-overall-progress');
+  try {
+    const ffmpeg = await loadCctvEngine();
+    for (let i = 0; i < cctvSelectedFiles.length; i++) {
+      const file = cctvSelectedFiles[i];
+      const ext = (file.name.split('.').pop() || '').toLowerCase();
+      const inputName = `input_${i}.${ext.replace(/[^a-z0-9]/g, '') || 'dat'}`;
+      const outputName = `amarkaj_${i}.mp4`;
+      cctvStatus(`কনভার্ট হচ্ছে ${i + 1}/${cctvSelectedFiles.length}: ${file.name}`);
+      if (bar) bar.style.width = Math.round((i / cctvSelectedFiles.length) * 100) + '%';
+      // IDX files like the user's sample are indexes/metadata, not the video payload.
+      // Never feed an IDX text file to FFmpeg as if it were a video.
+      if (ext === 'idx') {
+        cctvConvertedFiles.push({ index: i, name: cctvSafeName(file.name) + '.mp4', error: 'এটি IDX index/metadata ফাইল—এতে ভিডিও ডেটা নেই। সংশ্লিষ্ট .DAV বা .264 ভিডিও ফাইল নির্বাচন করুন।' });
+        cctvRenderList();
+        if (bar) bar.style.width = Math.round(((i + 1) / cctvSelectedFiles.length) * 100) + '%';
+        continue;
+      }
+      try {
+        ffmpeg.FS('writeFile', inputName, new Uint8Array(await file.arrayBuffer()));
+        // Re-encode video/audio into broadly compatible MP4 (H.264 + AAC).
+        await ffmpeg.run('-i', inputName, '-map', '0:v:0', '-map', '0:a?', '-c:v', 'libx264', '-preset', 'ultrafast', '-crf', '23', '-c:a', 'aac', '-b:a', '128k', '-movflags', '+faststart', outputName);
+        const bytes = ffmpeg.FS('readFile', outputName);
+        const blob = new Blob([bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)], { type: 'video/mp4' });
+        cctvConvertedFiles.push({ index: i, name: cctvSafeName(file.name) + '.mp4', blob });
+        try { ffmpeg.FS('unlink', outputName); } catch (_) {}
+        try { ffmpeg.FS('unlink', inputName); } catch (_) {}
+      } catch (err) {
+        const msg = String(err && err.message || err).slice(0, 180);
+        cctvConvertedFiles.push({ index: i, name: cctvSafeName(file.name) + '.mp4', error: 'কনভার্ট হয়নি — ফাইল ফরম্যাট অসামঞ্জস্যপূর্ণ/IDX metadata হতে পারে' });
+        try { ffmpeg.FS('unlink', outputName); } catch (_) {}
+        try { ffmpeg.FS('unlink', inputName); } catch (_) {}
+        console.warn('CCTV conversion failed:', file.name, msg);
+      }
+      cctvRenderList();
+      if (bar) bar.style.width = Math.round(((i + 1) / cctvSelectedFiles.length) * 100) + '%';
+    }
+    const success = cctvConvertedFiles.filter(x => x.blob).length;
+    const zip = document.getElementById('cctv-zip-btn');
+    if (zip) zip.disabled = success === 0;
+    cctvStatus(success ? `কাজ শেষ: ${success}টি MP4 তৈরি হয়েছে। .IDX ফাইলগুলো কনভার্ট করা হয়নি—সংশ্লিষ্ট .DAV/.264 ভিডিও ফাইল ব্যবহার করুন।` : 'কোনো MP4 তৈরি হয়নি। যদি শুধু .IDX ফাইল নির্বাচন করে থাকেন, সেটি ভিডিও নয়—সংশ্লিষ্ট .DAV/.264 ফাইল আপলোড করুন। কিছু .DAV ফাইলের জন্য DVR-এর নিজস্ব Player/Exporter প্রয়োজন হতে পারে।', success === 0);
+  } catch (err) {
+    console.error(err);
+    cctvStatus('FFmpeg চালু করা যায়নি। পেজটি HTTPS/GitHub Pages-এ খুলুন, ইন্টারনেট পরীক্ষা করুন এবং আবার চেষ্টা করুন।', true);
+  } finally {
+    btn.disabled = false;
+  }
+}
+async function downloadCctvZip() {
+  const ready = cctvConvertedFiles.filter(x => x.blob);
+  if (!ready.length) return cctvStatus('ZIP করার মতো MP4 ফাইল নেই।', true);
+  try {
+    const zip = new JSZip();
+    ready.forEach(item => zip.file(item.name, item.blob));
+    cctvStatus('ZIP ফাইল তৈরি হচ্ছে…');
+    const blob = await zip.generateAsync({ type: 'blob' });
+    downloadBlobFile(blob, 'Amarkaj_CCTV_MP4_Converted.zip');
+    cctvStatus(`${ready.length}টি MP4 ZIP ফাইলে তৈরি হয়েছে।`);
+  } catch (err) {
+    console.error(err);
+    cctvStatus('ZIP ফাইল তৈরি করা যায়নি। পর্যাপ্ত মেমোরি আছে কি না পরীক্ষা করুন।', true);
+  }
+}
+function clearCctvVideos() {
+  cctvSelectedFiles = [];
+  cctvConvertedFiles = [];
+  const input = document.getElementById('cctv-video-input');
+  if (input) input.value = '';
+  const zip = document.getElementById('cctv-zip-btn');
+  if (zip) zip.disabled = true;
+  const bar = document.getElementById('cctv-overall-progress');
+  if (bar) bar.style.width = '0%';
+  cctvRenderList();
+  cctvStatus('লিস্ট মুছে ফেলা হয়েছে।');
+}
 
 </script>
 </body>
